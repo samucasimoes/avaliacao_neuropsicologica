@@ -396,9 +396,62 @@
     leitor.readAsText(arquivo, "UTF-8");
   });
 
+  /* ---------- Rascunho automático (TEMPORÁRIO, só para testes) ----------
+     Salva os campos no navegador (localStorage) e preenche de novo ao voltar ao site.
+     Para remover: apague este bloco inteiro e a condição RASCUNHO_ATIVO no beforeunload abaixo. */
+
+  const RASCUNHO_ATIVO = true;
+  const CHAVE_RASCUNHO = "avaliacao-neuropsicologica-rascunho";
+
+  if (RASCUNHO_ATIVO) {
+    let timerRascunho = null;
+
+    const gravarRascunho = function () {
+      clearTimeout(timerRascunho);
+      const secaoVisivel = document.querySelector(".secao:not([hidden])");
+      try {
+        localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({
+          campos: coletarCampos(),
+          secao: secaoVisivel ? secaoVisivel.id.replace("secao-", "") : "dados"
+        }));
+      } catch (erro) {
+        console.warn("Não foi possível salvar o rascunho.", erro);
+      }
+    };
+
+    const salvarRascunho = function () {
+      clearTimeout(timerRascunho);
+      timerRascunho = setTimeout(gravarRascunho, 400);
+    };
+
+    try {
+      const salvo = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO) || "null");
+      if (salvo && salvo.campos) {
+        preencherCampos(salvo.campos);
+        if (salvo.secao && salvo.secao !== "dados" && dadosCompletos()) mostrarSecao(salvo.secao);
+      }
+    } catch (erro) {
+      console.warn("Não foi possível carregar o rascunho.", erro);
+    }
+
+    /* Cliques cobrem troca de etapa, limpar campos e carregar backup. */
+    ["input", "change"].forEach(function (tipo) { form.addEventListener(tipo, salvarRascunho); });
+    document.addEventListener("click", salvarRascunho);
+    modalLimpar.addEventListener("close", salvarRascunho);
+    /* Ao sair ou trocar de aba, grava na hora (cobre também o backup, que carrega depois do clique). */
+    window.addEventListener("pagehide", gravarRascunho);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") gravarRascunho();
+    });
+
+    document.querySelector(".status").lastChild.textContent = " Rascunho salvo neste navegador (modo de teste)";
+  }
+
+  /* ---------- Fim do rascunho automático ---------- */
+
   /* Os dados não são salvos: avisa antes de fechar a página com o formulário preenchido. */
   window.addEventListener("beforeunload", function (evento) {
-    if (formularioPreenchido()) {
+    if (!RASCUNHO_ATIVO && formularioPreenchido()) {
       evento.preventDefault();
       evento.returnValue = "";
     }

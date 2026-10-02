@@ -186,6 +186,38 @@ const Cornell = (function () {
     }
 
     document.getElementById("btn-cornell-ausente").disabled = r.respondidos === TOTAL_ITENS;
+
+    /* Tira o destaque de pendente dos itens que já foram respondidos. */
+    cadaItem(function (numero) {
+      if (respostaDe(numero)) linhaDe(numero).classList.remove("pendente");
+    });
+  }
+
+  function linhaDe(numero) {
+    return document.getElementById(nomeCampo(numero) + "-texto").closest(".escala-item");
+  }
+
+  function completa() {
+    return resultado().respondidos === TOTAL_ITENS;
+  }
+
+  /* Destaca os itens sem resposta e leva até o primeiro deles. */
+  function validar() {
+    let primeiro = null;
+    cadaItem(function (numero) {
+      const pendente = !respostaDe(numero);
+      linhaDe(numero).classList.toggle("pendente", pendente);
+      if (pendente && !primeiro) primeiro = numero;
+    });
+    if (primeiro) {
+      linhaDe(primeiro).scrollIntoView({ block: "center" });
+      form.querySelector('input[name="' + nomeCampo(primeiro) + '"]').focus({ preventScroll: true });
+    }
+    return !primeiro;
+  }
+
+  function limparPendentes() {
+    cadaItem(function (numero) { linhaDe(numero).classList.remove("pendente"); });
   }
 
   function marcarRestantesAusente() {
@@ -210,6 +242,9 @@ const Cornell = (function () {
   return {
     iniciar: iniciar,
     atualizar: atualizar,
-    resultado: resultado
+    resultado: resultado,
+    completa: completa,
+    validar: validar,
+    limparPendentes: limparPendentes
   };
 })();

@@ -546,6 +546,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-bottom: 1px solid var(--line);
 }
 
+.escala-item.pendente {
+  box-shadow: inset 3px 0 0 var(--danger);
+  padding-left: 10px;
+}
+
+.escala-item.pendente .escala-texto,
+.escala-item.pendente .escala-num {
+  color: var(--danger);
+}
+
 .escala-texto {
   margin: 0;
   font-size: 14px;

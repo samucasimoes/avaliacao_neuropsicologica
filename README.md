@@ -6,7 +6,8 @@ Etapas disponíveis:
 1. **Dados do paciente** – nome, data de nascimento, sexo, escolaridade e data da
    avaliação são obrigatórios para avançar.
 2. **Escala Cornell para Depressão** – liberada depois dos dados obrigatórios; escore
-   e interpretação calculados automaticamente.
+   e interpretação calculados automaticamente. Todos os 19 itens são obrigatórios
+   para gerar o relatório.
 
 Ao gerar o relatório, escolha entre **dados do paciente + Escala Cornell** ou
 **somente os dados do paciente**.

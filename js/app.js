@@ -117,27 +117,30 @@
 
   const secoes = document.querySelectorAll(".secao");
   const linksSecao = document.querySelectorAll("[data-secao]");
-  const linkCornell = document.querySelector('[data-secao="cornell"]');
   const linkDados = document.querySelector('[data-secao="dados"]');
+  const linkCornell = document.querySelector('[data-secao="cornell"]');
+  const linkShulman = document.querySelector('[data-secao="shulman"]');
   const botoesIr = document.querySelectorAll("[data-ir]");
   const botoesDaSecao = document.querySelectorAll("[data-na-secao]");
 
-  /* Libera a Escala Cornell só depois dos dados obrigatórios do paciente. */
+  /* Libera as escalas só depois dos dados obrigatórios do paciente. */
   function atualizarEtapas() {
     const liberada = dadosCompletos();
-    linkCornell.classList.toggle("bloqueada", !liberada);
-    linkCornell.setAttribute("aria-disabled", String(!liberada));
-    linkCornell.title = liberada ? "" : "Preencha os dados do paciente para liberar";
+    [linkCornell, linkShulman].forEach(function (link) {
+      link.classList.toggle("bloqueada", !liberada);
+      link.setAttribute("aria-disabled", String(!liberada));
+      link.title = liberada ? "" : "Preencha os dados do paciente para liberar";
+    });
     linkDados.classList.toggle("concluida", liberada);
-    const r = Cornell.resultado();
-    linkCornell.classList.toggle("concluida", liberada && r.respondidos === r.totalItens);
+    linkCornell.classList.toggle("concluida", liberada && Cornell.completa());
+    linkShulman.classList.toggle("concluida", liberada && Shulman.pontuado());
   }
 
   function mostrarSecao(nome) {
     if (nome !== "dados" && !dadosCompletos()) {
       mostrarSecao("dados");
       validar();
-      mostrarAviso("Preencha os dados obrigatórios do paciente para liberar a Escala Cornell.");
+      mostrarAviso("Preencha os dados obrigatórios do paciente para liberar as escalas.");
       return;
     }
     secoes.forEach(function (secao) {
@@ -150,7 +153,7 @@
       else link.removeAttribute("aria-current");
     });
     botoesDaSecao.forEach(function (botao) {
-      botao.hidden = botao.dataset.naSecao !== nome;
+      botao.hidden = botao.dataset.naSecao.split(" ").indexOf(nome) === -1;
     });
     window.scrollTo({ top: 0 });
   }
@@ -193,6 +196,7 @@
         campos[el.name] = el.value;
       }
     });
+    campos.shulmanDesenho = Shulman.desenho();
     return campos;
   }
 
@@ -218,6 +222,8 @@
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
     Cornell.limparPendentes();
+    Shulman.carregar(campos.shulmanDesenho);
+    Shulman.atualizar();
     limparErros();
     atualizarEtapas();
   }
@@ -227,12 +233,13 @@
       if (el.readOnly || !el.name || el.id === "data-avaliacao") return false;
       if (el.type === "radio") return el.checked;
       return el.value && el.value.trim() !== "";
-    });
+    }) || Shulman.temDesenho();
   }
 
   /* ---------- Eventos ---------- */
 
   Cornell.iniciar(form);
+  Shulman.iniciar(form);
   campoNascimento.max = hojeISO();
   campoDataAvaliacao.value = hojeISO();
   atualizarRelogio();
@@ -276,10 +283,15 @@
 
   const opcaoCompleto = document.getElementById("conteudo-completo");
   const infoCornell = document.getElementById("conteudo-cornell-info");
+  const infoShulman = document.getElementById("conteudo-shulman-info");
 
-  /* O modal só abre com a escala completa, então a opção com a escala vem marcada. */
+  /* O modal só abre com a Cornell completa, então a opção com as escalas vem marcada. */
   function prepararConteudo() {
-    infoCornell.textContent = "Escala completa (escore " + Cornell.resultado().total + ")";
+    infoCornell.textContent = "Cornell completa (escore " + Cornell.resultado().total + ")";
+    const shulman = Shulman.resultado();
+    if (!shulman.preenchido) infoShulman.textContent = "Relógio de Shulman não preenchido";
+    else if (shulman.pontuacao === null) infoShulman.textContent = "Relógio de Shulman sem pontuação";
+    else infoShulman.textContent = "Relógio de Shulman (" + shulman.pontuacao + " / " + shulman.pontuacaoMaxima + ")";
     opcaoCompleto.checked = true;
   }
 
@@ -312,14 +324,16 @@
     evento.preventDefault();
     const formato = formRelatorio.elements.formato.value;
     const dados = coletarDados();
-    const cornell = formRelatorio.elements.conteudo.value === "completo" ? Cornell.resultado() : null;
+    const comEscalas = formRelatorio.elements.conteudo.value === "completo";
+    const cornell = comEscalas ? Cornell.resultado() : null;
+    const shulman = comEscalas ? Shulman.resultado() : null;
     const nome = valor("nome");
 
     botaoBaixar.disabled = true;
     botaoBaixar.textContent = "Gerando...";
     try {
-      if (formato === "excel") await Relatorio.gerarExcel(dados, nome, cornell);
-      else Relatorio.gerarPdf(dados, nome, cornell);
+      if (formato === "excel") await Relatorio.gerarExcel(dados, nome, cornell, shulman);
+      else Relatorio.gerarPdf(dados, nome, cornell, shulman);
       /* Pequena pausa para o navegador não bloquear o segundo download. */
       await new Promise(function (resolve) { setTimeout(resolve, 400); });
       Relatorio.gerarBackup(coletarCampos(), nome);
@@ -348,6 +362,7 @@
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
     Cornell.limparPendentes();
+    Shulman.limpar();
     atualizarEtapas();
     mostrarSecao("dados");
     mostrarAviso("Campos limpos.");

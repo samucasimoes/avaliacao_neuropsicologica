@@ -52,7 +52,7 @@ const Relatorio = (function () {
   /* Já aparecem no cabeçalho e no cartão do paciente. */
   const EXIBIDOS_NO_TOPO = ["Nome", "Idade", "Sexo", "Data de Nascimento", "Data da Avaliação"];
 
-  function gerarPdf(linhas, nomePaciente, cornell) {
+  function gerarPdf(linhas, nomePaciente, cornell, shulman) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const largura = doc.internal.pageSize.getWidth();
@@ -285,6 +285,58 @@ const Relatorio = (function () {
       fonte(8, "normal", COR.suave);
       doc.text(doc.splitTextToSize("Referência: " + cornell.referencia +
         " Pontuação por item: impossibilitado de avaliar 0, ausente 0, leve 1, intenso 2.", util), margem, y);
+      y += 8;
+    }
+
+    /* Relógio de Shulman (opcional: só entra se algo foi preenchido) */
+    if (shulman && shulman.preenchido) {
+      y += 6;
+      const lado = 78;
+      garantirEspaco(lado + 30);
+      tituloSecao("Relógio de Shulman");
+
+      const xTexto = shulman.imagem ? margem + lado + 8 : margem;
+      const larguraTexto = util - (xTexto - margem);
+      const topo = y;
+
+      if (shulman.imagem) {
+        cor(COR.linha, "draw");
+        doc.setLineWidth(0.2);
+        doc.roundedRect(margem, topo, lado, lado, 2, 2, "S");
+        doc.addImage(shulman.imagem, "PNG", margem + 2, topo + 2, lado - 4, lado - 4);
+      }
+
+      cor(COR.fundo, "fill");
+      cor(COR.linha, "draw");
+      doc.setLineWidth(0.2);
+      doc.roundedRect(xTexto, topo, larguraTexto, 15, 2, 2, "FD");
+      fonte(7, "normal", COR.suave);
+      doc.text("PONTUAÇÃO", xTexto + 4, topo + 5.5, { charSpace: 0.3 });
+      fonte(12, "bold");
+      doc.text(shulman.pontuacao === null ? "Não pontuado"
+        : shulman.pontuacao + " / " + shulman.pontuacaoMaxima, xTexto + 4, topo + 11.5);
+
+      let yTexto = topo + 22;
+      if (shulman.descricao) {
+        fonte(9.5, "bold", COR.escuro);
+        doc.text("Classificação", xTexto, yTexto);
+        fonte(10, "normal");
+        const linhasDescricao = doc.splitTextToSize(shulman.descricao, larguraTexto);
+        doc.text(linhasDescricao, xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
+        yTexto += 8 + linhasDescricao.length * 4.9;
+      }
+      fonte(9.5, "bold", COR.escuro);
+      doc.text("Observações", xTexto, yTexto);
+      fonte(10, shulman.observacoes ? "normal" : "italic", shulman.observacoes ? COR.tinta : COR.suave);
+      const linhasObs = doc.splitTextToSize(shulman.observacoes || "Não informado", larguraTexto);
+      const espacoObs = Math.max(1, Math.floor((limite - yTexto - 5) / 4.9));
+      doc.text(linhasObs.slice(0, espacoObs), xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
+      yTexto += 5 + Math.min(linhasObs.length, espacoObs) * 4.9;
+
+      y = Math.max(shulman.imagem ? topo + lado : 0, yTexto) + 6;
+      garantirEspaco(10);
+      fonte(8, "normal", COR.suave);
+      doc.text(doc.splitTextToSize("Referência: " + shulman.referencia, util), margem, y);
     }
 
     /* Rodapé */
@@ -311,7 +363,7 @@ const Relatorio = (function () {
     return Math.max(21, linhas * 15 + 6);
   }
 
-  async function gerarExcel(linhas, nomePaciente, cornell) {
+  async function gerarExcel(linhas, nomePaciente, cornell, shulman) {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = TITULO;
     workbook.created = new Date();
@@ -390,6 +442,49 @@ const Relatorio = (function () {
         (cornell.respondidos < cornell.totalItens ? " (parcial: " + cornell.respondidos + " de " +
           cornell.totalItens + " itens)" : ""), true);
       linhaCornell("Referência", cornell.referencia);
+    }
+
+    if (shulman && shulman.preenchido) {
+      sheet.addRow([]).height = 10;
+      const cabecalho = sheet.addRow(["Relógio de Shulman"]);
+      sheet.mergeCells(cabecalho.number, 1, cabecalho.number, 2);
+      cabecalho.height = 24;
+      cabecalho.getCell(1).font = { name: "Calibri", size: 13, bold: true };
+      cabecalho.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+      cabecalho.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
+      cabecalho.getCell(1).border = bordas;
+
+      [
+        ["Pontuação", shulman.pontuacao === null ? "Não pontuado"
+          : shulman.pontuacao + " / " + shulman.pontuacaoMaxima, true],
+        ["Classificação", shulman.descricao || "—"],
+        ["Observações", shulman.observacoes || "Não informado"],
+        ["Referência", shulman.referencia]
+      ].forEach(function (linha) {
+        const row = sheet.addRow([linha[0], linha[1]]);
+        row.height = alturaLinha(linha[1], 80);
+        row.getCell(1).font = { name: "Calibri", size: 11, bold: true };
+        row.getCell(2).font = { name: "Calibri", size: 11, bold: !!linha[2] };
+        row.eachCell({ includeEmpty: true }, function (cell) {
+          cell.border = bordas;
+          cell.alignment = { vertical: "middle", wrapText: true };
+        });
+      });
+
+      /* Desenho do relógio numa linha alta, ocupando as duas colunas. */
+      if (shulman.imagem) {
+        const linhaImagem = sheet.addRow(["Desenho"]);
+        sheet.mergeCells(linhaImagem.number, 1, linhaImagem.number, 2);
+        linhaImagem.height = 240;
+        linhaImagem.getCell(1).font = { name: "Calibri", size: 9, italic: true, color: { argb: "FF7A7A7A" } };
+        linhaImagem.getCell(1).alignment = { vertical: "top" };
+        linhaImagem.getCell(1).border = bordas;
+        const idImagem = workbook.addImage({ base64: shulman.imagem, extension: "png" });
+        sheet.addImage(idImagem, {
+          tl: { col: 1, row: linhaImagem.number - 1 + 0.04 },
+          ext: { width: 305, height: 305 }
+        });
+      }
     }
 
     const rodape = sheet.addRow([]);

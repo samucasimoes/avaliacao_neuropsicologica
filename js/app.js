@@ -217,6 +217,7 @@
     calcularIdade();
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
+    Cornell.limparPendentes();
     limparErros();
     atualizarEtapas();
   }
@@ -274,19 +275,12 @@
   });
 
   const opcaoCompleto = document.getElementById("conteudo-completo");
-  const opcaoDados = document.getElementById("conteudo-dados");
   const infoCornell = document.getElementById("conteudo-cornell-info");
 
-  /* A opção com a escala só fica disponível se algum item foi respondido. */
+  /* O modal só abre com a escala completa, então a opção com a escala vem marcada. */
   function prepararConteudo() {
-    const r = Cornell.resultado();
-    const temEscala = r.respondidos > 0;
-    opcaoCompleto.disabled = !temEscala;
-    opcaoCompleto.closest(".format").classList.toggle("indisponivel", !temEscala);
-    if (!temEscala) infoCornell.textContent = "Escala ainda não preenchida";
-    else if (r.respondidos < r.totalItens) infoCornell.textContent = "Parcial: " + r.respondidos + " de " + r.totalItens + " itens respondidos";
-    else infoCornell.textContent = "Escala completa (escore " + r.total + ")";
-    (temEscala ? opcaoCompleto : opcaoDados).checked = true;
+    infoCornell.textContent = "Escala completa (escore " + Cornell.resultado().total + ")";
+    opcaoCompleto.checked = true;
   }
 
   form.addEventListener("submit", function (evento) {
@@ -295,6 +289,14 @@
       mostrarSecao("dados");
       validar();
       mostrarAviso("Preencha os dados obrigatórios do paciente para gerar o relatório.");
+      return;
+    }
+    if (!Cornell.completa()) {
+      const r = Cornell.resultado();
+      mostrarSecao("cornell");
+      Cornell.validar();
+      mostrarAviso("Responda todos os itens da Escala Cornell para gerar o relatório (" +
+        r.respondidos + " de " + r.totalItens + " respondidos).");
       return;
     }
     toast.hidden = true;
@@ -345,6 +347,7 @@
     limparErros();
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
+    Cornell.limparPendentes();
     atualizarEtapas();
     mostrarSecao("dados");
     mostrarAviso("Campos limpos.");

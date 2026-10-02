@@ -2,16 +2,16 @@
 
 const Shulman = (function () {
   const PONTUACOES = [
-    { valor: 5, texto: "Relógio perfeito" },
-    { valor: 4, texto: "Erros visuoespaciais leves (ex.: espaçamento irregular dos números)" },
-    { valor: 3, texto: "Representação incorreta de 11h10, com boa organização visuoespacial" },
-    { valor: 2, texto: "Desorganização visuoespacial moderada, que impede marcar 11h10 corretamente" },
-    { valor: 1, texto: "Desorganização visuoespacial grave" },
-    { valor: 0, texto: "Incapaz de fazer qualquer representação razoável de um relógio" }
+    { valor: 5, texto: "Desenho perfeito, sem erros" },
+    { valor: 4, texto: "Erro visuoespacial leve ou menor desorganização" },
+    { valor: 3, texto: "Erro na representação do horário solicitado (os números estão corretos, mas os ponteiros marcam a hora errada)" },
+    { valor: 2, texto: "Erro visuoespacial moderado (má colocação dos números, espaçamento incorreto ou ponteiros muito inadequados)" },
+    { valor: 1, texto: "Grande desorganização visuoespacial (o desenho mal se parece com um relógio)" },
+    { valor: 0, texto: "Incapaz de representar ou desenhar qualquer relógio (ou recusa)" }
   ];
 
   const PONTUACAO_MAXIMA = 5;
-  const REFERENCIA = "Pontuação de Shulman de 0 a 5: 5 relógio perfeito; pontuações mais baixas indicam pior desempenho.";
+  const REFERENCIA = "Pontuação de Shulman de 0 a 5: 5 desenho perfeito, sem erros; pontuações mais baixas indicam pior desempenho.";
 
   /* O desenho é feito em 800 x 800 e o círculo fica no centro, igual ao SVG da tela. */
   const TAMANHO = 800;
@@ -121,6 +121,22 @@ const Shulman = (function () {
     canvas.classList.toggle("modo-borracha", nome === "borracha");
   }
 
+  /* Mostra a área de desenho em tela cheia, útil no celular e no tablet. */
+  function expandir(ativo) {
+    const area = document.querySelector(".shulman-desenho");
+    const botao = document.getElementById("shulman-expandir");
+    area.classList.toggle("expandido", ativo);
+    document.body.classList.toggle("desenho-expandido", ativo);
+    botao.setAttribute("aria-pressed", String(ativo));
+    botao.querySelector(".expandir-texto").textContent = ativo ? "Fechar" : "Expandir";
+    botao.title = ativo ? "Voltar ao tamanho normal" : "Desenhar em tela cheia";
+    if (ativo) area.scrollTop = 0;
+  }
+
+  function expandido() {
+    return document.querySelector(".shulman-desenho").classList.contains("expandido");
+  }
+
   function atualizarBotoes() {
     document.getElementById("shulman-desfazer").disabled = historico.length === 0;
   }
@@ -148,6 +164,7 @@ const Shulman = (function () {
   function limpar() {
     ctx.clearRect(0, 0, TAMANHO, TAMANHO);
     historico = [];
+    expandir(false);
     escolherFerramenta("caneta");
     atualizarBotoes();
     atualizar();
@@ -251,6 +268,12 @@ const Shulman = (function () {
     });
     document.getElementById("shulman-desfazer").addEventListener("click", desfazer);
     document.getElementById("shulman-apagar").addEventListener("click", apagarDesenho);
+    document.getElementById("shulman-expandir").addEventListener("click", function () {
+      expandir(!expandido());
+    });
+    document.addEventListener("keydown", function (evento) {
+      if (evento.key === "Escape" && expandido()) expandir(false);
+    });
 
     const opcoes = document.getElementById("shulman-opcoes");
     montarPontuacoes(opcoes);

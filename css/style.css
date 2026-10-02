@@ -704,6 +704,34 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: cell;
 }
 
+/* Tela cheia para desenhar no celular ou tablet */
+body.desenho-expandido {
+  overflow: hidden;
+}
+
+.shulman-desenho.expandido {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  max-width: none;
+  margin: 0;
+  padding: 10px 8px;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.shulman-desenho.expandido .shulman-ferramentas {
+  width: min(100%, 900px);
+}
+
+.shulman-desenho.expandido .shulman-folha {
+  flex: none;
+  width: min(100%, calc(100vh - 110px));
+  width: min(100%, calc(100dvh - 110px));
+}
+
 .shulman-avaliacao {
   display: flex;
   flex-direction: column;

@@ -640,6 +640,141 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   box-shadow: 0 0 0 3px rgba(43, 94, 78, 0.18);
 }
 
+/* ---------- Relógio de Shulman ---------- */
+
+.shulman {
+  display: grid;
+  grid-template-columns: minmax(0, 480px) minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.shulman-desenho {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shulman-ferramentas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ferramentas-espaco {
+  flex: 1;
+}
+
+.ferramenta[aria-pressed="true"] {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.shulman-folha {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.shulman-circulo,
+.shulman-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.shulman-circulo circle {
+  fill: none;
+  stroke: #222;
+  stroke-width: 4;
+}
+
+.shulman-canvas {
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.shulman-canvas.modo-borracha {
+  cursor: cell;
+}
+
+.shulman-avaliacao {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shulman-avaliacao .modal-label {
+  margin: 0;
+}
+
+.shulman-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.shulman-opcao {
+  cursor: pointer;
+}
+
+.shulman-opcao-caixa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.shulman-opcao-valor {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gray-soft);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.shulman-opcao-texto {
+  font-size: 13.5px;
+}
+
+.shulman-opcao:hover .shulman-opcao-caixa {
+  border-color: #bfc9c5;
+  color: var(--ink);
+}
+
+.opcao-radio:checked + .shulman-opcao-caixa {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.opcao-radio:checked + .shulman-opcao-caixa .shulman-opcao-valor {
+  background: var(--green);
+  color: #fff;
+}
+
+.opcao-radio:focus-visible + .shulman-opcao-caixa {
+  box-shadow: 0 0 0 3px rgba(43, 94, 78, 0.18);
+}
+
 /* ---------- Botões ---------- */
 
 .actions {
@@ -891,6 +1026,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   .escala-opcoes {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .shulman {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shulman-desenho {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
   }
 }
 

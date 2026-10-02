@@ -8,8 +8,11 @@ Etapas disponíveis:
 2. **Escala Cornell para Depressão** – liberada depois dos dados obrigatórios; escore
    e interpretação calculados automaticamente. Todos os 19 itens são obrigatórios
    para gerar o relatório.
+3. **Relógio de Shulman** – opcional; o relógio é desenhado dentro de um círculo
+   (mouse, caneta ou toque), com pontuação de 0 a 5 e observações. O desenho entra
+   como imagem no PDF e no Excel e é guardado no backup.
 
-Ao gerar o relatório, escolha entre **dados do paciente + Escala Cornell** ou
+Ao gerar o relatório, escolha entre **dados do paciente + escalas** ou
 **somente os dados do paciente**.
 Nenhum dado é salvo: tudo acontece no navegador.
 
@@ -30,5 +33,6 @@ os campos serão preenchidos novamente.
 - `css/style.css` – estilos
 - `js/app.js` – comportamento do formulário (navegação entre etapas, idade automática, máscara de telefone, validação)
 - `js/cornell.js` – itens, pontuação e interpretação da Escala Cornell
+- `js/shulman.js` – área de desenho, pontuação e imagem do Relógio de Shulman
 - `js/relatorio.js` – geração do PDF, do Excel e do backup `.json`
 - `libs/` – jsPDF, jsPDF-AutoTable e ExcelJS (cópias locais)

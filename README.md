@@ -5,7 +5,9 @@ As etapas aparecem no menu lateral e podem ser abertas em qualquer ordem.
 Nenhum campo é obrigatório: ao gerar o relatório, um aviso lista o que ficou vazio.
 As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
-1. **Dados do paciente** – o sexo é usado só nas referências e não sai no relatório.
+1. **Dados do paciente** – o nome fica com as iniciais em maiúscula; a idade é calculada
+   pela data de nascimento ou pode ser digitada quando ela não for conhecida. O sexo é
+   usado só nas referências e não sai no relatório. O topo da página mostra o nome e a idade.
 2. **Resumo** – fatores de risco (Sim / Não / Não disponível).
 3. **Funções avaliadas** – lista já marcada.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão.

@@ -68,7 +68,7 @@
           <button class="icon-btn" id="btn-topo" type="button" aria-label="Voltar ao início do formulário" title="Voltar ao início do formulário">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
           </button>
-          <h1 class="page-title">Nova avaliação</h1>
+          <h1 class="page-title" id="titulo-pagina">Nova avaliação</h1>
         </div>
         <div class="topbar-acoes">
           <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Apagar todos os dados preenchidos e começar uma nova avaliação">
@@ -96,8 +96,8 @@
                 <input class="input" type="date" id="nascimento" name="nascimento">
               </div>
               <div class="field">
-                <label class="label" for="idade">Idade</label>
-                <input class="input readonly" type="text" id="idade" name="idade" value="—" readonly tabindex="-1">
+                <label class="label" for="idade">Idade (anos)</label>
+                <input class="input" type="text" id="idade" name="idade" placeholder="Ex.: 75" inputmode="numeric" maxlength="3" title="Idade em anos: é calculada pela data de nascimento, mas pode ser digitada se ela não for conhecida">
               </div>
             </div>
 

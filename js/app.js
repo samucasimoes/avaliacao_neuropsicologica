@@ -39,12 +39,10 @@
 
   /* ---------- Idade ---------- */
 
+  /* Calcula pela data de nascimento. Sem ela, mantém a idade digitada à mão. */
   function calcularIdade() {
     const valor = campoNascimento.value;
-    if (!valor) {
-      campoIdade.value = "—";
-      return;
-    }
+    if (!valor) return;
     const nascimento = new Date(valor + "T00:00:00");
     const referencia = campoDataAvaliacao.value
       ? new Date(campoDataAvaliacao.value + "T00:00:00")
@@ -52,7 +50,46 @@
     let idade = referencia.getFullYear() - nascimento.getFullYear();
     const mes = referencia.getMonth() - nascimento.getMonth();
     if (mes < 0 || (mes === 0 && referencia.getDate() < nascimento.getDate())) idade--;
-    campoIdade.value = idade >= 0 && idade < 130 ? idade + (idade === 1 ? " ano" : " anos") : "—";
+    campoIdade.value = idade >= 0 && idade < 130 ? String(idade) : "";
+  }
+
+  /* Só números na idade digitada (aceita também valores antigos como "82 anos"). */
+  function limparIdade() {
+    campoIdade.value = campoIdade.value.replace(/\D/g, "").slice(0, 3);
+  }
+
+  function idadeNumero() {
+    const idade = parseInt(campoIdade.value, 10);
+    return isNaN(idade) ? null : idade;
+  }
+
+  function textoIdade(idade) {
+    return idade + (idade === 1 ? " ano" : " anos");
+  }
+
+  /* ---------- Nome ---------- */
+
+  const PARTICULAS = ["da", "das", "de", "do", "dos", "e"];
+
+  /* Primeira letra de cada nome em maiúscula ("maria da silva" -> "Maria da Silva"). */
+  function capitalizarNome() {
+    const inicio = campoNome.selectionStart;
+    const fim = campoNome.selectionEnd;
+    campoNome.value = campoNome.value.toLowerCase().replace(/[^\s]+/g, function (palavra, posicao) {
+      if (posicao > 0 && PARTICULAS.indexOf(palavra) !== -1) return palavra;
+      return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+    });
+    if (document.activeElement === campoNome) campoNome.setSelectionRange(inicio, fim);
+  }
+
+  /* Título da página: nome e idade do paciente. */
+  const tituloPagina = document.getElementById("titulo-pagina");
+
+  function atualizarTitulo() {
+    const nome = campoNome.value.trim();
+    const idade = idadeNumero();
+    const partes = [nome, idade === null ? "" : textoIdade(idade)].filter(Boolean);
+    tituloPagina.textContent = partes.length ? partes.join(" · ") : "Nova avaliação";
   }
 
   /* ---------- Telefone ---------- */
@@ -188,7 +225,7 @@
   }
 
   function coletarDados() {
-    const idade = campoIdade.value === "—" ? "" : campoIdade.value;
+    const idade = idadeNumero() === null ? "" : textoIdade(idadeNumero());
     return [
       ["Nome", valor("nome")],
       ["Idade", idade],
@@ -245,7 +282,10 @@
     });
     if (!campoDataAvaliacao.value) campoDataAvaliacao.value = hojeISO();
     mascararTelefone();
+    limparIdade();
+    capitalizarNome();
     calcularIdade();
+    atualizarTitulo();
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
     Cornell.limparPendentes();
@@ -291,8 +331,7 @@
   Secoes.iniciar(form, {
     aviso: mostrarAviso,
     paciente: function () {
-      const idade = parseInt(campoIdade.value, 10);
-      return { nome: valor("nome"), idade: isNaN(idade) ? null : idade, sexo: valor("sexo") };
+      return { nome: valor("nome"), idade: idadeNumero(), sexo: valor("sexo") };
     },
     origens: {
       cornell: function () {
@@ -315,6 +354,11 @@
   selects.forEach(atualizarSelect);
 
   campoNascimento.addEventListener("change", calcularIdade);
+  campoIdade.addEventListener("input", limparIdade);
+  campoNome.addEventListener("input", capitalizarNome);
+  ["input", "change"].forEach(function (tipo) {
+    form.addEventListener(tipo, atualizarTitulo);
+  });
   campoDataAvaliacao.addEventListener("change", calcularIdade);
   campoTelefone.addEventListener("input", mascararTelefone);
   selects.forEach(function (select) {
@@ -329,6 +373,7 @@
   });
   atualizarEtapas();
   atualizarNavegacao();
+  atualizarTitulo();
   aplicarTitulos();
 
   linksSecao.forEach(function (link) {
@@ -428,8 +473,8 @@
     if (modalLimpar.returnValue !== "confirmar") return;
     form.reset();
     campoDataAvaliacao.value = hojeISO();
-    campoIdade.value = "—";
     selects.forEach(atualizarSelect);
+    atualizarTitulo();
     Cornell.atualizar();
     Cornell.limparPendentes();
     Secoes.atualizar();

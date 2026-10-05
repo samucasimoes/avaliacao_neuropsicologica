@@ -312,6 +312,18 @@ const Relatorio = (function () {
           paragrafo(bloco.texto, 8, "normal", COR.suave);
           y += e(5);
           break;
+        case "legenda":
+          /* Uma linha por item; os títulos (terminados em ":") em negrito. */
+          y += e(2);
+          bloco.texto.split("\n").forEach(function (linha) {
+            if (!linha) {
+              y += e(1.5);
+              return;
+            }
+            paragrafo(linha, 9, /:$/.test(linha) ? "bold" : "normal", COR.tinta);
+          });
+          y += e(4);
+          break;
       }
     }
 
@@ -492,6 +504,7 @@ const Relatorio = (function () {
           break;
         case "paragrafo":
         case "nota":
+        case "legenda":
           linhaMesclada([bloco.texto], 1, !!bloco.negrito, 130);
           break;
         case "subtitulo":

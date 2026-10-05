@@ -17,8 +17,10 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 8. **IQCODE** – 26 itens; cada coluna vale o número do topo (1 a 5), soma-se valor ×
    quantidade de marcações e divide-se por 26. "Não se aplica" e "Não sabe" não somam.
 9. **Humor e comportamento** – total de Katz, Pfeffer, IQCODE e Cornell (vindos das
-   abas) e GAI, GDS e BHS (digitados), com interpretação.
-10. **MoCA** – escore por domínio (não passa do máximo) e total.
+   abas) e GAI, GDS e BHS (digitados), com interpretação na tela. Na impressão saem só os
+   resultados e a legenda das escalas.
+10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
+    e não entra no total até ser corrigido.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     no relatório sai uma folha em branco para o desenho no papel.
 12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).

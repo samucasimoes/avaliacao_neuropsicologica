@@ -57,6 +57,7 @@ const RAVLT_REFERENCIA = {
 };
 
 const IQCODE_CORTE = 3.5;
+const PFEFFER_CORTE = 5;
 const IQCODE_DIVISOR = 26;
 
 const PFEFFER_OPCOES = [
@@ -67,8 +68,8 @@ const PFEFFER_OPCOES = [
 ];
 
 function interpretarGai(n) {
-  return n >= 10 ? { texto: "Sugere ansiedade em nível significativo", nivel: "alto" }
-    : { texto: "Sem ansiedade em nível significativo", nivel: "baixo" };
+  return n >= 10 ? { texto: "Sugere presença de ansiedade em nível significativo", nivel: "alto" }
+    : { texto: "", nivel: "" };
 }
 
 function interpretarGds(n) {
@@ -325,10 +326,13 @@ const DEFINICOES = [
     resultado: function (s) {
       const r = s.bloco("itens").pontuacao();
       if (!r.respondidos) return null;
+      const significativo = r.total > PFEFFER_CORTE;
+      const parcial = r.respondidos < r.totalItens ? " (parcial: " + r.respondidos + " de " + r.totalItens + ")" : "";
       return {
         valor: String(r.total),
-        texto: r.respondidos < r.totalItens ? "Parcial: " + r.respondidos + " de " + r.totalItens + " respondidos" : "",
-        nivel: ""
+        texto: significativo ? "Comprometimento funcional significativo" + parcial
+          : (parcial ? "Parcial: " + r.respondidos + " de " + r.totalItens + " respondidos" : ""),
+        nivel: significativo ? "alto" : ""
       };
     },
     resumo: function (s) {
@@ -437,7 +441,42 @@ const DEFINICOES = [
       },
       {
         tipo: "nota",
-        texto: "Katz: 0 independente em todas as seis funções a 6 dependente em todas. Pfeffer: pontuação total de 0 a 30. GAI: 10 ou mais sugere ansiedade em nível significativo. GDS (Yesavage): 0 a 4 normal; 5 a 10 pode sugerir sintomas depressivos leves a moderados; acima de 10 sintomas depressivos graves. Cornell: 0 a 8 ausência de depressão; 9 a 11 depressão leve; 12 ou mais depressão moderada a grave. IQCODE: escores maiores ou iguais a 3,5 sugerem declínio cognitivo frente ao nível pré-mórbido. BHS: 0 a 4 desesperança mínima; 5 a 8 leve; 9 a 13 moderada; 14 a 20 grave."
+        legenda: true,
+        texto: [
+          "ESCALA KATZ:",
+          "0: independente em todas as seis funções;",
+          "1: independente em cinco funções e dependente em uma função;",
+          "2: independente em quatro funções e dependente em duas funções;",
+          "3: independente em três funções e dependente em três funções;",
+          "4: independente em duas funções e dependente em quatro funções;",
+          "5: independente em uma função e dependente em cinco funções;",
+          "6: dependente em todas as seis funções.",
+          "",
+          "ESCALA DE PFEFFER:",
+          "> 5 = comprometimento funcional significativo.",
+          "",
+          "GAI:",
+          ">= 10 sugerem presença de ansiedade em nível significativo.",
+          "",
+          "GDS (Yesavage):",
+          "0-4 normal;",
+          "5-10 pode sugerir sintomas depressivos em níveis leve a moderado;",
+          "> 10 sintomas depressivos em nível grave.",
+          "",
+          "CORNELL:",
+          "0-8 ausência de depressão;",
+          "9-11 depressão leve;",
+          "12 ou + depressão moderada a grave.",
+          "",
+          "IQCODE:",
+          "escores maiores ou iguais a 3,5 sugerem a presença de declínio cognitivo frente ao nível pré-mórbido.",
+          "",
+          "BHS:",
+          "0-4 desesperança mínima;",
+          "5-8 desesperança leve;",
+          "9-13 desesperança moderada;",
+          "14-20 desesperança grave."
+        ].join("\n")
       }
     ]
   },

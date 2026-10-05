@@ -49,7 +49,11 @@ const RAVLT_REFERENCIA = {
   b1: referenciaRavlt([[4.6, 4.7], [4.4, 5.0], [4.4, 4.8], [4.1, 3.7], [2.8, 3.0], [3.8, 3.6]]),
   a6: referenciaRavlt([[10.7, 11.1], [9.3, 10.6], [9.2, 9.5], [8.4, 8.6], [8.2, 9.2], [7.4, 7.5]]),
   a7: referenciaRavlt([[9.8, 10.6], [9.1, 10.5], [8.2, 9.2], [7.9, 7.9], [7.2, 7.3], [6.1, 6.6]]),
-  itp: referenciaRavlt([[0.9, 0.8], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.8, 0.6], [0.9, 0.9]])
+  itp: referenciaRavlt([[0.9, 0.8], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.8, 0.6], [0.9, 0.9]]),
+  itr: referenciaRavlt([[0.9, 0.9], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.9, 0.9], [0.8, 0.7]]),
+  ve: referenciaRavlt([[0.9, 1.0], [1.0, 1.0], [0.9, 1.0], [0.9, 0.9], [0.9, 0.8], [0.8, 0.9]]),
+  total: referenciaRavlt([[44.2, 47.3], [43.1, 47.5], [40.3, 45.0], [36.8, 36.1], [33.3, 35.8], [34.0, 34.8]]),
+  rec: referenciaRavlt([[10.8, 11.9], [9.6, 11.6], [7.2, 9.0], [7.5, 6.2], [5.5, 6.1], [2.3, 6.2]])
 };
 
 const IQCODE_CORTE = 3.5;
@@ -612,6 +616,7 @@ const DEFINICOES = [
           { rotulo: "A5", chave: "a5", referencia: RAVLT_REFERENCIA.a5 },
           {
             rotulo: "Total A1 – A5",
+            referencia: RAVLT_REFERENCIA.total,
             chave: "total",
             destaque: true,
             calculos: {
@@ -630,13 +635,15 @@ const DEFINICOES = [
           },
           {
             rotulo: "Interferência retroativa (A6/A5)",
+            referencia: RAVLT_REFERENCIA.itr,
             calculos: { 0: function (t) { return razao(t.num("a6", 0), t.num("a5", 0)); } }
           },
           {
             rotulo: "Esquecimento (A7/A6)",
+            referencia: RAVLT_REFERENCIA.ve,
             calculos: { 0: function (t) { return razao(t.num("a7", 0), t.num("a6", 0)); } }
           },
-          { rotulo: "Reconhecimento", chave: "reconhecimento" }
+          { rotulo: "Reconhecimento", chave: "reconhecimento", referencia: RAVLT_REFERENCIA.rec }
         ]
       },
       {

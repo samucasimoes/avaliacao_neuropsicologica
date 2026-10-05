@@ -781,8 +781,7 @@ const DEFINICOES = [
         linhas: [
           { rotulo: "Controle mental" },
           { rotulo: "Meses do ano (modo inverso)" },
-          { rotulo: "Trilha A" },
-          { rotulo: "Sequência de números e letras" }
+          { rotulo: "Trilha A" }
         ]
       },
       {

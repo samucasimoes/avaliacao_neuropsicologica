@@ -410,9 +410,17 @@ const Relatorio = (function () {
 
     folhaUnica(folhaDados);
     (secoes || []).forEach(function (secao) {
-      folhaUnica(function () {
-        tituloSecao(secao.titulo);
-        secao.blocos.forEach(desenharBloco);
+      /* Blocos marcados com folhaPropria (ex.: comentário do MoCA) saem numa folha só deles. */
+      const folhas = [[]];
+      secao.blocos.forEach(function (bloco) {
+        if (bloco.folhaPropria) folhas.push([bloco], []);
+        else folhas[folhas.length - 1].push(bloco);
+      });
+      folhas.filter(function (blocos) { return blocos.length; }).forEach(function (blocos) {
+        folhaUnica(function () {
+          tituloSecao(secao.titulo);
+          blocos.forEach(desenharBloco);
+        });
       });
     });
     /* A primeira página criada pelo jsPDF fica em branco: as folhas começam na segunda. */

@@ -34,8 +34,9 @@ const Secoes = (function () {
   }
 
   /* Opção em formato de pílula (mesmo visual da Escala Cornell). */
-  function pilula(nome, valor, rotulo, pontos) {
+  function pilula(nome, valor, rotulo, pontos, dica) {
     const label = criar("label", "opcao");
+    label.title = dica || rotulo;
     const radio = criar("input", "opcao-radio");
     radio.type = "radio";
     radio.name = nome;
@@ -45,7 +46,7 @@ const Secoes = (function () {
     caixa.appendChild(criar("span", "opcao-texto", rotulo));
     if (pontos !== null && pontos !== undefined) {
       caixa.appendChild(criar("span", "opcao-pontos", String(pontos)));
-      label.title = rotulo + " (" + pontos + (pontos === 1 ? " ponto)" : " pontos)");
+      label.title = (dica || rotulo) + " (" + pontos + (pontos === 1 ? " ponto)" : " pontos)");
     }
     label.appendChild(caixa);
     return label;
@@ -53,8 +54,23 @@ const Secoes = (function () {
 
   function selo(el, texto, nivel) {
     el.textContent = texto;
+    el.hidden = !texto;
     el.classList.remove("nivel-baixo", "nivel-medio", "nivel-alto");
     if (nivel) el.classList.add("nivel-" + nivel);
+  }
+
+  /* Não deixa digitar valor acima do máximo (ex.: escore máximo do MoCA). */
+  function limitarMaximo(input, maximo, rotulo) {
+    input.addEventListener("input", function () {
+      const n = numero(input.value);
+      if (n === null) return;
+      if (n > maximo) {
+        input.value = String(maximo);
+        if (contexto.aviso) contexto.aviso("O valor máximo para " + rotulo + " é " + maximo + ".");
+      } else if (n < 0) {
+        input.value = "0";
+      }
+    });
   }
 
   /* ---------- Blocos ---------- */
@@ -62,7 +78,9 @@ const Secoes = (function () {
   /* Itens com as mesmas opções para todos (Resumo, Pfeffer, IQCODE). */
   function blocoOpcoes(secao, b) {
     const itens = b.itens.map(function (item, i) {
-      return { numero: i + 1, texto: item };
+      return typeof item === "string"
+        ? { numero: i + 1, texto: item, opcoes: b.opcoes }
+        : { numero: i + 1, texto: item.texto, opcoes: item.opcoes };
     });
 
     function nome(n) {
@@ -71,7 +89,7 @@ const Secoes = (function () {
 
     function resposta(n) {
       const v = valorDe(nome(n));
-      return b.opcoes.find(function (o) { return o.valor === v; }) || null;
+      return itens[n - 1].opcoes.find(function (o) { return o.valor === v; }) || null;
     }
 
     return {
@@ -88,9 +106,11 @@ const Secoes = (function () {
           linha.appendChild(texto);
 
           const opcoes = criar("div", "escala-opcoes");
-          if (!b.empilhado) opcoes.style.setProperty("--colunas", b.opcoes.length);
-          b.opcoes.forEach(function (o) {
-            opcoes.appendChild(pilula(nome(item.numero), o.valor, o.rotulo, b.mostrarPontos ? o.pontos : null));
+          if (!b.empilhado) opcoes.style.setProperty("--colunas", item.opcoes.length);
+          item.opcoes.forEach(function (o) {
+            const pontos = b.mostrarPontos && !o.semPontos ? o.pontos : null;
+            opcoes.appendChild(pilula(nome(item.numero), o.valor, o.rotulo, pontos,
+              "Item " + item.numero + ": " + o.rotulo));
           });
           linha.appendChild(opcoes);
           lista.appendChild(linha);
@@ -111,13 +131,16 @@ const Secoes = (function () {
       preenchido: function () {
         return itens.some(function (item) { return resposta(item.numero); });
       },
+      completo: function () {
+        return itens.every(function (item) { return resposta(item.numero); });
+      },
       relatorio: function () {
         const linhas = [];
         itens.forEach(function (item) {
           const r = resposta(item.numero);
           if (!r) return;
           const linha = [item.numero, item.texto, r.rotulo];
-          if (b.mostrarPontos) linha.push(r.pontos);
+          if (b.mostrarPontos) linha.push(r.semPontos ? "—" : r.pontos);
           linhas.push(linha);
         });
         if (!linhas.length) return [];
@@ -161,6 +184,7 @@ const Secoes = (function () {
           const opcoes = criar("div", "escolha-opcoes");
           item.opcoes.forEach(function (texto, j) {
             const label = criar("label", "shulman-opcao");
+            label.title = item.titulo + ": " + texto + " (" + b.rotulosPontos[item.pontos[j]] + ")";
             const radio = criar("input", "opcao-radio");
             radio.type = "radio";
             radio.name = nome(i + 1);
@@ -189,6 +213,9 @@ const Secoes = (function () {
       },
       preenchido: function () {
         return b.itens.some(function (item, i) { return resposta(i); });
+      },
+      completo: function () {
+        return b.itens.every(function (item, i) { return resposta(i); });
       },
       relatorio: function () {
         const linhas = [];
@@ -228,6 +255,7 @@ const Secoes = (function () {
         const grade = criar("div", "checklist");
         b.itens.forEach(function (item, i) {
           const label = criar("label", "check");
+          label.title = "Marcar ou desmarcar: " + item;
           const caixa = criar("input", "check-caixa");
           caixa.type = "checkbox";
           caixa.name = nome(i + 1);
@@ -255,6 +283,9 @@ const Secoes = (function () {
       preenchido: function () {
         return marcados().length > 0;
       },
+      completo: function () {
+        return marcados().length > 0;
+      },
       relatorio: function () {
         const lista = marcados();
         return lista.length ? [{ tipo: "lista", itens: lista }] : [];
@@ -272,6 +303,7 @@ const Secoes = (function () {
         container.appendChild(ul);
       },
       preenchido: function () { return false; },
+      completo: function () { return true; },
       relatorio: function () {
         const blocos = [];
         if (b.introducao) blocos.push({ tipo: "paragrafo", texto: b.introducao });
@@ -325,6 +357,14 @@ const Secoes = (function () {
       });
     }
 
+    /* Todas as células digitáveis da linha preenchidas. */
+    function linhaCompleta(linha) {
+      return b.colunas.every(function (coluna, c) {
+        return coluna.tipo === "fixo" || coluna.tipo === "calculo" || calculado(linha, c) ||
+          celula(linha, c) !== "";
+      });
+    }
+
     function linhaDigitada(linha) {
       return b.colunas.some(function (coluna, c) {
         return coluna.tipo !== "fixo" && !calculado(linha, c) && celula(linha, c) !== "";
@@ -369,13 +409,15 @@ const Secoes = (function () {
               grupo.setAttribute("role", "radiogroup");
               grupo.setAttribute("aria-label", rotulo);
               coluna.opcoes.forEach(function (opcao) {
-                grupo.appendChild(pilula(nome(linha, c), opcao, opcao.replace(" do esperado", ""), null));
+                grupo.appendChild(pilula(nome(linha, c), opcao, opcao.replace(" do esperado", ""), null,
+                  linha.rotulo + ": " + opcao));
               });
               td.appendChild(grupo);
             } else {
               const input = criar("input", "input input-tabela");
               input.name = nome(linha, c);
               input.setAttribute("aria-label", rotulo);
+              input.title = rotulo + (linha.maximo !== undefined ? " (de 0 a " + linha.maximo + ")" : "");
               input.autocomplete = "off";
               if (coluna.tipo === "numero") {
                 input.inputMode = "decimal";
@@ -384,6 +426,7 @@ const Secoes = (function () {
                   input.min = "0";
                   input.max = String(linha.maximo);
                   input.step = "1";
+                  limitarMaximo(input, linha.maximo, linha.rotulo);
                 } else {
                   input.type = "text";
                 }
@@ -410,6 +453,9 @@ const Secoes = (function () {
       },
       preenchido: function () {
         return linhas.some(linhaDigitada);
+      },
+      completo: function () {
+        return linhas.every(linhaCompleta);
       },
       relatorio: function () {
         const corpo = linhas.filter(linhaPreenchida).map(function (linha) {
@@ -442,11 +488,15 @@ const Secoes = (function () {
         area.id = nome;
         area.name = nome;
         area.placeholder = b.placeholder || "Digite aqui...";
+        area.title = b.rotulo;
         campo.appendChild(label);
         campo.appendChild(area);
         container.appendChild(campo);
       },
       preenchido: function () {
+        return valorDe(nome) !== "";
+      },
+      completo: function () {
         return valorDe(nome) !== "";
       },
       relatorio: function () {
@@ -482,6 +532,7 @@ const Secoes = (function () {
           input.type = "text";
           input.id = nome(i + 1);
           input.name = nome(i + 1);
+          input.title = rotulo;
           input.autocomplete = "off";
           campo.appendChild(label);
           campo.appendChild(input);
@@ -491,6 +542,9 @@ const Secoes = (function () {
       },
       preenchido: function () {
         return preenchidos().length > 0;
+      },
+      completo: function () {
+        return preenchidos().length === b.itens.length;
       },
       relatorio: function () {
         const lista = preenchidos();
@@ -507,6 +561,7 @@ const Secoes = (function () {
           container.appendChild(criar(tipoRelatorio === "subtitulo" ? "h3" : "p", classe, b.texto));
         },
         preenchido: function () { return false; },
+      completo: function () { return true; },
         relatorio: function (grupoPreenchido) {
           return grupoPreenchido ? [{ tipo: tipoRelatorio, texto: b.texto }] : [];
         }
@@ -526,6 +581,7 @@ const Secoes = (function () {
         el.textContent = b.texto(contexto.paciente());
       },
       preenchido: function () { return false; },
+      completo: function () { return true; },
       relatorio: function (grupoPreenchido) {
         return grupoPreenchido ? [{ tipo: "paragrafo", texto: b.texto(contexto.paciente()), negrito: true }] : [];
       }
@@ -632,6 +688,7 @@ const Secoes = (function () {
       },
       atualizar: desenhar,
       preenchido: function () { return false; },
+      completo: function () { return true; },
       relatorio: function () {
         if (!temPontos()) return [];
         desenhar();
@@ -696,6 +753,8 @@ const Secoes = (function () {
             input.inputMode = "numeric";
             input.name = nome(i + 1);
             input.setAttribute("aria-label", item.rotulo + " – resultado");
+            input.title = item.rotulo + " (de 0 a " + item.maximo + ")";
+            limitarMaximo(input, item.maximo, item.rotulo);
             tdValor.appendChild(input);
           }
           linha.appendChild(tdValor);
@@ -719,6 +778,9 @@ const Secoes = (function () {
       },
       preenchido: function () {
         return b.itens.some(function (item, i) { return resultadoDe(item, i); });
+      },
+      completo: function () {
+        return b.itens.every(function (item, i) { return item.origem || resultadoDe(item, i); });
       },
       relatorio: function () {
         const corpo = [];
@@ -752,6 +814,7 @@ const Secoes = (function () {
       input.id = nomeCampo;
       input.name = nomeCampo;
       input.defaultValue = padrao;
+      input.title = rotulo;
       input.autocomplete = "off";
       campo.appendChild(label);
       campo.appendChild(input);
@@ -769,6 +832,7 @@ const Secoes = (function () {
         container.appendChild(grade);
       },
       preenchido: function () { return false; },
+      completo: function () { return true; },
       relatorio: function () {
         const pessoas = b.pessoas.map(function (pessoa, i) {
           return { nome: valorDe(nome(i + 1, "nome")), registro: valorDe(nome(i + 1, "registro")) };
@@ -860,6 +924,12 @@ const Secoes = (function () {
     return !!secao && secao.blocos.some(function (bloco) { return bloco.preenchido(); });
   }
 
+  /* Todos os campos da etapa preenchidos (aba 100%). */
+  function completa(id) {
+    const secao = porId[id];
+    return !!secao && secao.blocos.every(function (bloco) { return bloco.completo(); });
+  }
+
   /* Resultado resumido da etapa (usado no quadro de Humor e comportamento). */
   function resultado(id) {
     const secao = porId[id];
@@ -879,7 +949,9 @@ const Secoes = (function () {
     const blocos = [];
     const r = resultado(id);
     if (r) {
-      const caixas = secao.def.resumo(secao.api).map(function (caixa) {
+      const caixas = secao.def.resumo(secao.api).filter(function (caixa) {
+        return caixa.selo !== "";
+      }).map(function (caixa) {
         return [caixa.rotulo, caixa.selo !== undefined ? caixa.selo
           : String(caixa.valor) + (caixa.de ? " / " + caixa.de : "")];
       });
@@ -898,7 +970,9 @@ const Secoes = (function () {
       });
     });
 
-    return blocos.length ? { titulo: secao.def.titulo, blocos: blocos } : null;
+    return blocos.length
+      ? { titulo: secao.def.titulo, blocos: blocos, paginaPropria: !!secao.def.paginaPropria }
+      : null;
   }
 
   function iniciar(formulario, opcoes) {
@@ -912,6 +986,7 @@ const Secoes = (function () {
     iniciar: iniciar,
     atualizar: atualizar,
     preenchida: preenchida,
+    completa: completa,
     resultado: resultado,
     relatorio: relatorio,
     existe: function (id) { return !!porId[id]; }

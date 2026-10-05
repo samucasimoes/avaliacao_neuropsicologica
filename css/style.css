@@ -31,8 +31,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 15px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -148,39 +148,43 @@ a.step:not(.active):hover {
   color: var(--ink);
 }
 
-.step.bloqueada {
-  color: var(--muted);
-  cursor: not-allowed;
-}
-
-.step-lock {
+/* Aba com todos os campos preenchidos: número em verde e ícone de correto. */
+.step-ok {
   display: none;
-  width: 13px;
-  height: 13px;
+  flex: none;
+  width: 18px;
+  height: 18px;
   margin-left: auto;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
+  fill: var(--green-ok);
+  stroke: #fff;
+  stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-.step.bloqueada .step-lock {
+.step-ok circle {
+  stroke: none;
+}
+
+.step.completa .step-ok {
   display: block;
 }
 
-.step.concluida:not(.active) .step-num {
-  background: var(--green-soft);
-  color: var(--green);
+.step.completa .step-num {
+  background: var(--green-ok);
+  color: #fff;
   font-weight: 600;
 }
 
-.step.disabled {
-  cursor: not-allowed;
+.step.completa:not(.active) {
+  color: var(--green);
 }
 
-.step.disabled:hover {
-  background: #f1f4f3;
+.step:focus-visible,
+.btn:focus-visible,
+.icon-btn:focus-visible {
+  outline: 3px solid rgba(43, 94, 78, 0.45);
+  outline-offset: 2px;
 }
 
 /* ---------- Barra superior ---------- */
@@ -344,20 +348,6 @@ a.step:not(.active):hover {
   box-shadow: none;
 }
 
-.input.invalid {
-  border-color: var(--danger);
-}
-
-.obrigatorio {
-  color: var(--danger);
-  font-weight: 600;
-}
-
-.field-error {
-  font-size: 14px;
-  color: var(--danger);
-}
-
 .select {
   appearance: none;
   padding-right: 34px;
@@ -506,11 +496,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-top: 0;
 }
 
+/* Opções logo ao lado do texto do item, sem espaço vazio no meio. */
 .escala-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 440px) auto;
+  justify-content: start;
   align-items: center;
-  gap: 8px 20px;
+  gap: 8px 24px;
   padding: 6px 0;
   border-bottom: 1px solid var(--line);
 }
@@ -738,7 +730,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .tabela-teste {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -763,16 +756,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .tabela-teste tbody th {
   min-width: 200px;
+  max-width: 420px;
   font-weight: 500;
 }
 
-.tabela-teste th.estreita,
-.tabela-teste td.estreita {
-  width: 1%;
-}
-
 .tabela-teste th.classe {
-  width: 1%;
+  white-space: nowrap;
 }
 
 .tabela-teste tr.destaque th,
@@ -839,10 +828,13 @@ td.estreita .input-tabela {
 /* ---------- Relógio de Shulman ---------- */
 
 .shulman {
-  display: grid;
-  grid-template-columns: minmax(0, 480px) minmax(0, 1fr);
-  align-items: start;
-  gap: 24px;
+  max-width: 740px;
+}
+
+.shulman-instrucao {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .shulman-desenho {
@@ -877,18 +869,11 @@ td.estreita .input-tabela {
   overflow: hidden;
 }
 
-.shulman-circulo,
 .shulman-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-.shulman-circulo circle {
-  fill: none;
-  stroke: #222;
-  stroke-width: 4;
 }
 
 .shulman-canvas {
@@ -926,23 +911,6 @@ body.desenho-expandido {
   flex: none;
   width: min(100%, calc(100vh - 110px));
   width: min(100%, calc(100dvh - 110px));
-}
-
-.shulman-avaliacao {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.shulman-avaliacao .modal-label {
-  margin: 0;
-}
-
-.shulman-opcoes {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
 }
 
 .shulman-opcao {
@@ -1014,6 +982,27 @@ body.desenho-expandido {
   display: flex;
   gap: 10px;
   min-width: 0;
+}
+
+/* Aviso de campos vazios na janela do relatório */
+.aviso-vazios {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border: 1px solid #ecd3a4;
+  border-radius: 10px;
+  background: #fbf3e2;
+  color: #6f4a0e;
+  font-size: 13.5px;
+}
+
+.aviso-titulo {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.aviso-lista {
+  margin: 0;
+  padding-left: 18px;
 }
 
 .btn-rotulo {

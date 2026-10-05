@@ -293,7 +293,6 @@ const DEFINICOES = [
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
     descricao: "Pergunte ao informante sobre a capacidade do paciente em cada atividade.",
     blocos: [
-      { tipo: "campos", id: "avaliador", itens: ["Avaliador"] },
       {
         tipo: "opcoes",
         id: "itens",

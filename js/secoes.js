@@ -916,7 +916,7 @@ const Secoes = (function () {
     secao.bloco = function (id) { return secao.porBloco[id]; };
     secao.api = { bloco: secao.bloco };
 
-    const cabeca = criar("div", "card-head");
+    const cabeca = criar("div", "card-head " + def.id + "-cabecalho");
     if (def.mostrarIdade) {
       /* Idade do paciente só na tela, como referência para o profissional. */
       const linhaTitulo = criar("div", "card-title-linha");
@@ -932,14 +932,21 @@ const Secoes = (function () {
     el.appendChild(cabeca);
 
     if (def.resumo) {
-      secao.resumoEl = criar("div", "escala-resumo");
+      secao.resumoEl = criar("div", "escala-resumo " + def.id + "-resumo");
       el.appendChild(secao.resumoEl);
     }
 
-    def.blocos.forEach(function (b) {
+    def.blocos.forEach(function (b, i) {
       const bloco = TIPOS[b.tipo](secao, b);
       bloco.tipo = b.tipo;
+      const antes = el.children.length;
       bloco.montar(el);
+      /* Classe própria da aba em cada bloco (ex.: "interpretacao-dominios"), para
+         poder estilizar ou esconder um bloco sem afetar as outras abas. */
+      const classe = def.id + "-" + (b.id || b.tipo + "-" + (i + 1));
+      Array.from(el.children).slice(antes).forEach(function (filho) {
+        filho.classList.add(classe);
+      });
       secao.blocos.push(bloco);
       if (b.id) secao.porBloco[b.id] = bloco;
     });

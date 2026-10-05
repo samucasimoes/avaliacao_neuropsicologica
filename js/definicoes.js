@@ -848,7 +848,7 @@ const DEFINICOES = [
           { rotulo: "5 - Cubos" },
           { rotulo: "6 - Códigos" },
           { rotulo: "7 - Procurar Símbolos" },
-          { rotulo: "8 - Dígitos (memória imediata e memória operacional)" }
+          { rotulo: "8 - Dígitos (Ordem direta e ordem inversa)" }
         ]
       },
       {

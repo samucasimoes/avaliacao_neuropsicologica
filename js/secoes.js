@@ -60,17 +60,30 @@ const Secoes = (function () {
   }
 
   /* Não deixa digitar valor acima do máximo (ex.: escore máximo do MoCA). */
+  /* Valor acima do máximo (ex.: escore máximo do MoCA): circula o campo em vermelho,
+     avisa e não usa o valor nos cálculos até ser corrigido. */
+  function acimaDoMaximo(valor, maximo) {
+    const n = numero(valor);
+    return maximo !== undefined && n !== null && (n > maximo || n < 0);
+  }
+
   function limitarMaximo(input, maximo, rotulo) {
-    input.addEventListener("input", function () {
-      const n = numero(input.value);
-      if (n === null) return;
-      if (n > maximo) {
-        input.value = String(maximo);
-        if (contexto.aviso) contexto.aviso("O valor máximo para " + rotulo + " é " + maximo + ".");
-      } else if (n < 0) {
-        input.value = "0";
+    const aviso = criar("span", "campo-erro", "Valor acima do permitido (máximo " + maximo + ").");
+    aviso.hidden = true;
+    function conferir(avisar) {
+      const invalido = acimaDoMaximo(input.value, maximo);
+      if (!aviso.isConnected && input.parentNode) input.insertAdjacentElement("afterend", aviso);
+      input.classList.toggle("invalido", invalido);
+      input.setAttribute("aria-invalid", String(invalido));
+      aviso.hidden = !invalido;
+      if (invalido && avisar && contexto.aviso) {
+        contexto.aviso("O valor de " + rotulo + " está acima do permitido (máximo " + maximo + "). Insira outro valor.");
       }
-    });
+    }
+    input.addEventListener("input", function () { conferir(true); });
+    input.addEventListener("change", function () { conferir(false); });
+    form.addEventListener("reset", function () { setTimeout(function () { conferir(false); }); });
+    input.conferirMaximo = conferir;
   }
 
   /* ---------- Blocos ---------- */
@@ -321,6 +334,7 @@ const Secoes = (function () {
     const porChave = {};
     linhas.forEach(function (linha) { porChave[linha.chave] = linha; });
     const saidas = [];
+    const referencias = [];
 
     function nome(linha, coluna) {
       return secao.id + "-" + b.id + "-" + linha.indice + "-" + (coluna + 1);
@@ -335,39 +349,59 @@ const Secoes = (function () {
         const linha = porChave[chave];
         if (!linha) return null;
         if (calculado(linha, coluna)) return linha.calculos[coluna](acesso);
-        return numero(valorDe(nome(linha, coluna)));
+        const valor = valorDe(nome(linha, coluna));
+        if (acimaDoMaximo(valor, linha.maximo)) return null;
+        return numero(valor);
       }
     };
+
+    /* Valor de referência da linha conforme a idade e o sexo do paciente. */
+    function referencia(linha) {
+      if (!linha.referencia) return "";
+      const p = contexto.paciente();
+      if (p.idade === null || p.idade === undefined || !p.sexo) return "";
+      const faixa = linha.referencia.find(function (f) { return p.idade >= f.de && p.idade <= f.ate; });
+      if (!faixa) return "";
+      return (p.sexo === "Masculino" ? faixa.homem : faixa.mulher)
+        .toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+
+    /* Colunas que não são digitadas nem contam como preenchimento. */
+    function informativa(coluna) {
+      return coluna.tipo === "fixo" || coluna.tipo === "referencia";
+    }
 
     /* Valor de uma célula como texto (vazio se não preenchida). */
     function celula(linha, coluna) {
       const tipo = b.colunas[coluna].tipo;
+      if (tipo === "referencia") return referencia(linha);
       if (calculado(linha, coluna)) {
         const v = linha.calculos[coluna](acesso);
         return v === null ? "" : formatarNumero(v);
       }
       if (tipo === "fixo") return linha.fixos ? linha.fixos[coluna] || "" : "";
       if (tipo === "calculo") return "";
-      return valorDe(nome(linha, coluna));
+      const valor = valorDe(nome(linha, coluna));
+      return acimaDoMaximo(valor, linha.maximo) ? "" : valor;
     }
 
     function linhaPreenchida(linha) {
       return b.colunas.some(function (coluna, c) {
-        return coluna.tipo !== "fixo" && celula(linha, c) !== "";
+        return !informativa(coluna) && celula(linha, c) !== "";
       });
     }
 
     /* Todas as células digitáveis da linha preenchidas. */
     function linhaCompleta(linha) {
       return b.colunas.every(function (coluna, c) {
-        return coluna.tipo === "fixo" || coluna.tipo === "calculo" || calculado(linha, c) ||
+        return informativa(coluna) || coluna.tipo === "calculo" || calculado(linha, c) ||
           celula(linha, c) !== "";
       });
     }
 
     function linhaDigitada(linha) {
       return b.colunas.some(function (coluna, c) {
-        return coluna.tipo !== "fixo" && !calculado(linha, c) && celula(linha, c) !== "";
+        return !informativa(coluna) && !calculado(linha, c) && celula(linha, c) !== "";
       });
     }
 
@@ -402,6 +436,10 @@ const Secoes = (function () {
               td.appendChild(saida);
             } else if (coluna.tipo === "fixo") {
               td.appendChild(criar("span", "fixo", linha.fixos ? linha.fixos[c] : ""));
+            } else if (coluna.tipo === "referencia") {
+              const ref = criar("span", "fixo referencia", "");
+              if (linha.referencia) referencias.push({ el: ref, linha: linha });
+              td.appendChild(ref);
             } else if (coluna.tipo === "calculo") {
               td.appendChild(criar("span", "fixo", ""));
             } else if (coluna.tipo === "classe") {
@@ -446,6 +484,12 @@ const Secoes = (function () {
       atualizar: function () {
         saidas.forEach(function (s) {
           s.el.value = textoNumero(s.linha.calculos[s.coluna](acesso));
+        });
+        referencias.forEach(function (r) {
+          const valor = referencia(r.linha);
+          r.el.textContent = valor || "—";
+          r.el.title = valor ? "Referência para a idade e o sexo do paciente"
+            : "Informe a data de nascimento e o sexo (60 a 89 anos) nos dados do paciente";
         });
       },
       valor: function (chave, coluna) {
@@ -563,7 +607,8 @@ const Secoes = (function () {
         preenchido: function () { return false; },
       completo: function () { return true; },
         relatorio: function (grupoPreenchido) {
-          return grupoPreenchido ? [{ tipo: tipoRelatorio, texto: b.texto }] : [];
+          if (!grupoPreenchido) return [];
+          return [{ tipo: b.legenda ? "legenda" : tipoRelatorio, texto: b.texto }];
         }
       };
     };
@@ -716,7 +761,9 @@ const Secoes = (function () {
         if (contexto.origens[item.origem]) return contexto.origens[item.origem]();
         return resultado(item.origem);
       }
-      const n = numero(valorDe(nome(i + 1)));
+      const valor = valorDe(nome(i + 1));
+      if (acimaDoMaximo(valor, item.maximo)) return null;
+      const n = numero(valor);
       if (n === null) return null;
       const r = item.interpretar(n);
       return { valor: formatarNumero(n), texto: r.texto, nivel: r.nivel };
@@ -786,14 +833,14 @@ const Secoes = (function () {
         const corpo = [];
         b.itens.forEach(function (item, i) {
           const r = resultadoDe(item, i);
-          if (r) corpo.push([item.rotulo, r.valor, r.texto]);
+          if (r) corpo.push([item.rotulo, r.valor]);
         });
         if (!corpo.length) return [];
         return [{
           tipo: "tabela",
-          cabecalho: ["Escalas, inventários e questionários", "Resultado", "Interpretação"],
+          cabecalho: ["Escalas, inventários e questionários", "Resultado"],
           linhas: corpo,
-          estilos: { 1: { cellWidth: 24, halign: "center" }, 2: { cellWidth: 62 } }
+          estilos: { 1: { cellWidth: 30, halign: "center" } }
         }];
       }
     };
@@ -888,20 +935,37 @@ const Secoes = (function () {
     secao.bloco = function (id) { return secao.porBloco[id]; };
     secao.api = { bloco: secao.bloco };
 
-    const cabeca = criar("div", "card-head");
-    cabeca.appendChild(criar("h2", "card-title", def.titulo));
+    const cabeca = criar("div", "card-head " + def.id + "-cabecalho");
+    if (def.mostrarIdade) {
+      /* Idade do paciente só na tela, como referência para o profissional. */
+      const linhaTitulo = criar("div", "card-title-linha");
+      linhaTitulo.appendChild(criar("h2", "card-title", def.titulo));
+      secao.idadeEl = criar("span", "idade-paciente");
+      secao.idadeEl.title = "Idade do paciente, calculada pela data de nascimento e pela data da avaliação";
+      linhaTitulo.appendChild(secao.idadeEl);
+      cabeca.appendChild(linhaTitulo);
+    } else {
+      cabeca.appendChild(criar("h2", "card-title", def.titulo));
+    }
     if (def.descricao) cabeca.appendChild(criar("p", "card-text", def.descricao));
     el.appendChild(cabeca);
 
     if (def.resumo) {
-      secao.resumoEl = criar("div", "escala-resumo");
+      secao.resumoEl = criar("div", "escala-resumo " + def.id + "-resumo");
       el.appendChild(secao.resumoEl);
     }
 
-    def.blocos.forEach(function (b) {
+    def.blocos.forEach(function (b, i) {
       const bloco = TIPOS[b.tipo](secao, b);
       bloco.tipo = b.tipo;
+      const antes = el.children.length;
       bloco.montar(el);
+      /* Classe própria da aba em cada bloco (ex.: "interpretacao-dominios"), para
+         poder estilizar ou esconder um bloco sem afetar as outras abas. */
+      const classe = def.id + "-" + (b.id || b.tipo + "-" + (i + 1));
+      Array.from(el.children).slice(antes).forEach(function (filho) {
+        filho.classList.add(classe);
+      });
       secao.blocos.push(bloco);
       if (b.id) secao.porBloco[b.id] = bloco;
     });
@@ -916,6 +980,11 @@ const Secoes = (function () {
         if (bloco.atualizar) bloco.atualizar();
       });
       if (secao.resumoEl) montarResumo(secao);
+      if (secao.idadeEl) {
+        const p = contexto.paciente();
+        const idade = p.idade === null || p.idade === undefined ? "—" : p.idade + (p.idade === 1 ? " ano" : " anos");
+        secao.idadeEl.textContent = "Idade: " + idade;
+      }
     });
   }
 

@@ -31,7 +31,33 @@ const KATZ_INTERPRETACAO = [
   "Dependente em todas as seis funções"
 ];
 
+/* RAVLT: valores de referência por faixa de idade (60 a 89 anos), [homem, mulher]. */
+const RAVLT_FAIXAS = [[60, 64], [65, 69], [70, 74], [75, 79], [80, 84], [85, 89]];
+
+function referenciaRavlt(valores) {
+  return RAVLT_FAIXAS.map(function (faixa, i) {
+    return { de: faixa[0], ate: faixa[1], homem: valores[i][0], mulher: valores[i][1] };
+  });
+}
+
+const RAVLT_REFERENCIA = {
+  a1: referenciaRavlt([[5.6, 6.0], [5.3, 6.0], [5.0, 6.1], [4.9, 4.8], [3.5, 4.9], [4.1, 4.5]]),
+  a2: referenciaRavlt([[7.6, 7.9], [7.8, 8.7], [7.4, 7.6], [6.3, 5.9], [5.5, 8.1], [6.1, 8.0]]),
+  a3: referenciaRavlt([[9.0, 10.0], [9.0, 9.9], [7.8, 9.4], [7.0, 6.9], [6.5, 6.9], [6.6, 6.5]]),
+  a4: referenciaRavlt([[10.2, 11.3], [9.9, 10.8], [10.0, 10.7], [8.0, 8.0], [8.5, 7.9], [7.8, 7.4]]),
+  a5: referenciaRavlt([[11.8, 12.2], [11.1, 12.0], [10.1, 11.3], [10.7, 10.5], [9.4, 10.1], [9.5, 10.1]]),
+  b1: referenciaRavlt([[4.6, 4.7], [4.4, 5.0], [4.4, 4.8], [4.1, 3.7], [2.8, 3.0], [3.8, 3.6]]),
+  a6: referenciaRavlt([[10.7, 11.1], [9.3, 10.6], [9.2, 9.5], [8.4, 8.6], [8.2, 9.2], [7.4, 7.5]]),
+  a7: referenciaRavlt([[9.8, 10.6], [9.1, 10.5], [8.2, 9.2], [7.9, 7.9], [7.2, 7.3], [6.1, 6.6]]),
+  itp: referenciaRavlt([[0.9, 0.8], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.8, 0.6], [0.9, 0.9]]),
+  itr: referenciaRavlt([[0.9, 0.9], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.9, 0.9], [0.8, 0.7]]),
+  ve: referenciaRavlt([[0.9, 1.0], [1.0, 1.0], [0.9, 1.0], [0.9, 0.9], [0.9, 0.8], [0.8, 0.9]]),
+  total: referenciaRavlt([[44.2, 47.3], [43.1, 47.5], [40.3, 45.0], [36.8, 36.1], [33.3, 35.8], [34.0, 34.8]]),
+  rec: referenciaRavlt([[10.8, 11.9], [9.6, 11.6], [7.2, 9.0], [7.5, 6.2], [5.5, 6.1], [2.3, 6.2]])
+};
+
 const IQCODE_CORTE = 3.5;
+const PFEFFER_CORTE = 5;
 const IQCODE_DIVISOR = 26;
 
 const PFEFFER_OPCOES = [
@@ -42,8 +68,8 @@ const PFEFFER_OPCOES = [
 ];
 
 function interpretarGai(n) {
-  return n >= 10 ? { texto: "Sugere ansiedade em nível significativo", nivel: "alto" }
-    : { texto: "Sem ansiedade em nível significativo", nivel: "baixo" };
+  return n >= 10 ? { texto: "Sugere presença de ansiedade em nível significativo", nivel: "alto" }
+    : { texto: "", nivel: "" };
 }
 
 function interpretarGds(n) {
@@ -268,7 +294,6 @@ const DEFINICOES = [
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
     descricao: "Pergunte ao informante sobre a capacidade do paciente em cada atividade.",
     blocos: [
-      { tipo: "campos", id: "avaliador", itens: ["Avaliador"] },
       {
         tipo: "opcoes",
         id: "itens",
@@ -301,10 +326,13 @@ const DEFINICOES = [
     resultado: function (s) {
       const r = s.bloco("itens").pontuacao();
       if (!r.respondidos) return null;
+      const significativo = r.total > PFEFFER_CORTE;
+      const parcial = r.respondidos < r.totalItens ? " (parcial: " + r.respondidos + " de " + r.totalItens + ")" : "";
       return {
         valor: String(r.total),
-        texto: r.respondidos < r.totalItens ? "Parcial: " + r.respondidos + " de " + r.totalItens + " respondidos" : "",
-        nivel: ""
+        texto: significativo ? "Comprometimento funcional significativo" + parcial
+          : (parcial ? "Parcial: " + r.respondidos + " de " + r.totalItens + " respondidos" : ""),
+        nivel: significativo ? "alto" : ""
       };
     },
     resumo: function (s) {
@@ -321,11 +349,6 @@ const DEFINICOES = [
     titulo: "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
     descricao: "Peça ao informante que se lembre de como o paciente estava há 10 anos e compare com o estado atual. Se a pessoa nunca fez a tarefa, marque “Não se aplica”; se o familiar não tiver certeza, marque “Não sabe”.",
     blocos: [
-      {
-        tipo: "campos",
-        id: "entrevistado",
-        itens: ["Nome do entrevistado", "Grau de relacionamento", "Idade", "Tempo de convívio"]
-      },
       {
         tipo: "opcoes",
         id: "itens",
@@ -418,7 +441,42 @@ const DEFINICOES = [
       },
       {
         tipo: "nota",
-        texto: "Katz: 0 independente em todas as seis funções a 6 dependente em todas. Pfeffer: pontuação total de 0 a 30. GAI: 10 ou mais sugere ansiedade em nível significativo. GDS (Yesavage): 0 a 4 normal; 5 a 10 pode sugerir sintomas depressivos leves a moderados; acima de 10 sintomas depressivos graves. Cornell: 0 a 8 ausência de depressão; 9 a 11 depressão leve; 12 ou mais depressão moderada a grave. IQCODE: escores maiores ou iguais a 3,5 sugerem declínio cognitivo frente ao nível pré-mórbido. BHS: 0 a 4 desesperança mínima; 5 a 8 leve; 9 a 13 moderada; 14 a 20 grave."
+        legenda: true,
+        texto: [
+          "ESCALA KATZ:",
+          "0: independente em todas as seis funções;",
+          "1: independente em cinco funções e dependente em uma função;",
+          "2: independente em quatro funções e dependente em duas funções;",
+          "3: independente em três funções e dependente em três funções;",
+          "4: independente em duas funções e dependente em quatro funções;",
+          "5: independente em uma função e dependente em cinco funções;",
+          "6: dependente em todas as seis funções.",
+          "",
+          "ESCALA DE PFEFFER:",
+          "> 5 = comprometimento funcional significativo.",
+          "",
+          "GAI:",
+          ">= 10 sugerem presença de ansiedade em nível significativo.",
+          "",
+          "GDS (Yesavage):",
+          "0-4 normal;",
+          "5-10 pode sugerir sintomas depressivos em níveis leve a moderado;",
+          "> 10 sintomas depressivos em nível grave.",
+          "",
+          "CORNELL:",
+          "0-8 ausência de depressão;",
+          "9-11 depressão leve;",
+          "12 ou + depressão moderada a grave.",
+          "",
+          "IQCODE:",
+          "escores maiores ou iguais a 3,5 sugerem a presença de declínio cognitivo frente ao nível pré-mórbido.",
+          "",
+          "BHS:",
+          "0-4 desesperança mínima;",
+          "5-8 desesperança leve;",
+          "9-13 desesperança moderada;",
+          "14-20 desesperança grave."
+        ].join("\n")
       }
     ]
   },
@@ -575,6 +633,7 @@ const DEFINICOES = [
   {
     id: "curva",
     titulo: "Curva de aprendizagem",
+    mostrarIdade: true,
     descricao: "Teste Auditivo Verbal de Rey (RAVLT): digite os escores; total, interferências e esquecimento são calculados automaticamente. A classificação (abaixo ou dentro do esperado) é definida pelo profissional, não pelo escore.",
     blocos: [
       {
@@ -584,16 +643,18 @@ const DEFINICOES = [
         colunaRotulo: "Tentativa",
         colunas: [
           { rotulo: "Escore", tipo: "numero" },
+          { rotulo: "Referência", tipo: "referencia" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
         ],
         linhas: [
-          { rotulo: "A1", chave: "a1" },
-          { rotulo: "A2", chave: "a2" },
-          { rotulo: "A3", chave: "a3" },
-          { rotulo: "A4", chave: "a4" },
-          { rotulo: "A5", chave: "a5" },
+          { rotulo: "A1", chave: "a1", referencia: RAVLT_REFERENCIA.a1 },
+          { rotulo: "A2", chave: "a2", referencia: RAVLT_REFERENCIA.a2 },
+          { rotulo: "A3", chave: "a3", referencia: RAVLT_REFERENCIA.a3 },
+          { rotulo: "A4", chave: "a4", referencia: RAVLT_REFERENCIA.a4 },
+          { rotulo: "A5", chave: "a5", referencia: RAVLT_REFERENCIA.a5 },
           {
             rotulo: "Total A1 – A5",
+            referencia: RAVLT_REFERENCIA.total,
             chave: "total",
             destaque: true,
             calculos: {
@@ -602,22 +663,25 @@ const DEFINICOES = [
               }
             }
           },
-          { rotulo: "B1", chave: "b1" },
-          { rotulo: "A6", chave: "a6" },
-          { rotulo: "A7", chave: "a7" },
+          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1 },
+          { rotulo: "A6", chave: "a6", referencia: RAVLT_REFERENCIA.a6 },
+          { rotulo: "A7", chave: "a7", referencia: RAVLT_REFERENCIA.a7 },
           {
             rotulo: "Interferência proativa (B1/A1)",
+            referencia: RAVLT_REFERENCIA.itp,
             calculos: { 0: function (t) { return razao(t.num("b1", 0), t.num("a1", 0)); } }
           },
           {
             rotulo: "Interferência retroativa (A6/A5)",
+            referencia: RAVLT_REFERENCIA.itr,
             calculos: { 0: function (t) { return razao(t.num("a6", 0), t.num("a5", 0)); } }
           },
           {
             rotulo: "Esquecimento (A7/A6)",
+            referencia: RAVLT_REFERENCIA.ve,
             calculos: { 0: function (t) { return razao(t.num("a7", 0), t.num("a6", 0)); } }
           },
-          { rotulo: "Reconhecimento", chave: "reconhecimento" }
+          { rotulo: "Reconhecimento", chave: "reconhecimento", referencia: RAVLT_REFERENCIA.rec }
         ]
       },
       {
@@ -658,31 +722,6 @@ const DEFINICOES = [
       {
         tipo: "paragrafo",
         texto: "Memória lógica: recuperação de 2 histórias lógicas imediatamente após sua leitura (resgate imediato: memória lógica I) e após 30 min (resgate tardio: memória lógica II). Teste que avalia armazenamento e recuperação de informações. Memória visual: apresentação de figuras geométricas que devem ser reproduzidas de imediato (memória visual de curto prazo) e após aproximadamente 25 min (memória visual tardia)."
-      }
-    ]
-  },
-
-  {
-    id: "digitspan",
-    titulo: "Digit Span",
-    descricao: "Memória imediata e memória operacional.",
-    blocos: [
-      {
-        tipo: "tabela",
-        id: "ordens",
-        colunaRotulo: "Digit Span",
-        colunas: [
-          { rotulo: "Escore", tipo: "numero" },
-          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
-        ],
-        linhas: [
-          { rotulo: "Ordem direta (memória imediata)" },
-          { rotulo: "Ordem inversa (memória operacional)" }
-        ]
-      },
-      {
-        tipo: "paragrafo",
-        texto: "Teste que consiste em repetição seriada de números. Espera-se que o paciente seja capaz de repetir até 7 dígitos na ordem direta (7 ± 2) e 4 dígitos na ordem inversa."
       }
     ]
   },
@@ -776,9 +815,24 @@ const DEFINICOES = [
 
   {
     id: "wechsler",
-    titulo: "Bateria Wechsler",
-    descricao: "Subtestes da escala Wechsler.",
+    titulo: "Digit Span / Bateria Wechsler",
+    descricao: "Digit Span (memória imediata e memória operacional) e subtestes da escala Wechsler.",
     blocos: [
+      {
+        tipo: "tabela",
+        id: "ordens",
+        titulo: "Digit Span",
+        colunaRotulo: "Ordem",
+        colunas: [
+          { rotulo: "Escore", tipo: "numero" },
+          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
+        ],
+        linhas: [
+          { rotulo: "Ordem direta (memória imediata)" },
+          { rotulo: "Ordem inversa (memória operacional)" }
+        ]
+      },
+      { tipo: "subtitulo", texto: "Bateria Wechsler" },
       {
         tipo: "tabela",
         id: "subtestes",

@@ -5,7 +5,9 @@ As etapas aparecem no menu lateral e podem ser abertas em qualquer ordem.
 Nenhum campo é obrigatório: ao gerar o relatório, um aviso lista o que ficou vazio.
 As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
-1. **Dados do paciente**
+1. **Dados do paciente** – o nome fica com as iniciais em maiúscula; a idade é calculada
+   pela data de nascimento ou pode ser digitada quando ela não for conhecida. O sexo é
+   usado só nas referências e não sai no relatório. O topo da página mostra o nome e a idade.
 2. **Resumo** – fatores de risco (Sim / Não / Não disponível).
 3. **Funções avaliadas** – lista já marcada.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão.
@@ -15,18 +17,22 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 8. **IQCODE** – 26 itens; cada coluna vale o número do topo (1 a 5), soma-se valor ×
    quantidade de marcações e divide-se por 26. "Não se aplica" e "Não sabe" não somam.
 9. **Humor e comportamento** – total de Katz, Pfeffer, IQCODE e Cornell (vindos das
-   abas) e GAI, GDS e BHS (digitados), com interpretação.
-10. **MoCA** – escore por domínio (não passa do máximo) e total.
+   abas) e GAI, GDS e BHS (digitados), com interpretação na tela. Na impressão saem só os
+   resultados e a legenda das escalas.
+10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
+    e não entra no total até ser corrigido.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     no relatório sai uma folha em branco para o desenho no papel.
 12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
 13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
 14. **Curva de aprendizagem** – RAVLT com total, interferências, esquecimento e
-    gráfico; a classificação é escolhida pelo profissional.
-15. **Digit Span**, 16. **Trilhas** (com atenção), 17. **Praxias**,
-    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
-20. **Interpretação dos resultados** – um campo por domínio.
-21. **Conclusão** – texto e assinaturas dos profissionais.
+    gráfico; a classificação é escolhida pelo profissional. A coluna Referência mostra
+    o valor esperado em todas as linhas do RAVLT conforme a idade
+    (60 a 89 anos) e o sexo do paciente. A idade aparece ao lado do título, só na tela.
+15. **Trilhas** (com atenção), 16. **Praxias**,
+    17. **Digit Span / Bateria Wechsler**, 18. **Stroop Test** (com testes complementares).
+19. **Interpretação dos resultados** – um campo por domínio.
+20. **Conclusão** – texto e assinaturas dos profissionais.
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
 Cada aba ocupa uma folha: se o conteúdo for grande, a letra diminui até caber.
@@ -43,7 +49,7 @@ só a fonte Figtree depende de conexão).
 ## Backup para editar depois
 
 Ao gerar o relatório, um arquivo `.json` é baixado junto. Para continuar ou
-corrigir uma avaliação, clique em **Carregar backup** (no topo da página),
+corrigir uma avaliação, clique em **Carregar documento** (no fim do menu lateral),
 escolha esse arquivo e os campos serão preenchidos novamente.
 
 ## Estrutura

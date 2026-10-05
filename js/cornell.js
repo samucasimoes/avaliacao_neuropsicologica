@@ -192,8 +192,8 @@ const Cornell = (function () {
           tipo: "caixas",
           caixas: [
             ["Escore total", r.total + " / " + r.pontuacaoMaxima],
-            ["Itens respondidos", r.respondidos + " de " + r.totalItens],
-            ["Interpretação", r.interpretacao + (r.respondidos < r.totalItens ? " (parcial)" : "")]
+            /* A interpretação da Cornell aparece só na tela, nunca na impressão. */
+            ["Itens respondidos", r.respondidos + " de " + r.totalItens]
           ]
         },
         {

@@ -775,13 +775,13 @@ const DEFINICOES = [
         titulo: "Atenção sustentada",
         colunaRotulo: "Teste",
         colunas: [
-          { rotulo: "Escore", tipo: "texto" },
+          { rotulo: "Escore", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Controle mental" },
-          { rotulo: "Meses do ano (modo inverso)" },
-          { rotulo: "Trilha A" }
+          { rotulo: "Controle mental", maximo: 10 },
+          { rotulo: "Meses do ano (modo inverso)", maximo: 12 },
+          { rotulo: "Trilha A", maximo: 10 }
         ]
       },
       {
@@ -829,67 +829,59 @@ const DEFINICOES = [
   {
     id: "wechsler",
     titulo: "Digit Span / Bateria Wechsler",
-    descricao: "Digit Span (memória imediata e memória operacional) e subtestes da escala Wechsler.",
+    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8, Dígitos, é o Digit Span).",
     blocos: [
       {
         tipo: "tabela",
-        id: "ordens",
-        titulo: "Digit Span",
-        colunaRotulo: "Ordem",
-        colunas: [
-          { rotulo: "Escore", tipo: "numero" },
-          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
-        ],
-        linhas: [
-          { rotulo: "Ordem direta (memória imediata)" },
-          { rotulo: "Ordem inversa (memória operacional)" }
-        ]
-      },
-      { tipo: "subtitulo", texto: "Bateria Wechsler" },
-      {
-        tipo: "tabela",
         id: "subtestes",
+        titulo: "Bateria Wechsler",
         colunaRotulo: "Subteste",
         colunas: [
           { rotulo: "Escore", tipo: "texto" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Semelhanças" },
-          { rotulo: "Raciocínio Matricial" },
-          { rotulo: "Sequência de números e letras" },
-          { rotulo: "Completar Figuras" },
-          { rotulo: "Cubos" },
-          { rotulo: "Códigos" }
+          { rotulo: "1 - Semelhanças" },
+          { rotulo: "2 - Raciocínio Matricial" },
+          { rotulo: "3 - Sequência de números e letras" },
+          { rotulo: "4 - Completar Figuras" },
+          { rotulo: "5 - Cubos" },
+          { rotulo: "6 - Códigos" },
+          { rotulo: "7 - Procurar Símbolos" },
+          { rotulo: "8 - Dígitos (Ordem direta e ordem inversa)" }
         ]
       },
       {
         tipo: "paragrafo",
-        texto: "Cubos: conjunto de padrões geométricos bidimensionais formados com cubos que o examinando deve reproduzir em graus crescentes de dificuldade (avalia habilidade construtiva e organização perceptiva)."
+        texto: "1 - Semelhanças: série de pares de palavras apresentadas oralmente. O examinando deve explicar os conceitos comuns que são representados pelas palavras (avalia formação de conceitos e julgamento)."
       },
       {
         tipo: "paragrafo",
-        texto: "Semelhanças: série de pares de palavras apresentadas oralmente. O examinando deve explicar os conceitos comuns que são representados pelas palavras (avalia formação de conceitos e julgamento)."
+        texto: "2 - Raciocínio Matricial: série de padrões incompletos colocados em uma matriz que o examinando deve completar apontando a alternativa correta entre cinco alternativas possíveis (avalia processamento da informação visual e raciocínio abstrato)."
       },
       {
         tipo: "paragrafo",
-        texto: "Raciocínio Matricial: série de padrões incompletos colocados em uma matriz que o examinando deve completar apontando a alternativa correta entre cinco alternativas possíveis (avalia processamento da informação visual e raciocínio abstrato)."
+        texto: "3 - Sequência de Números e Letras: sequência de números e letras apresentadas oralmente que o examinando deve repetir colocando os números em ordem crescente e as letras em ordem alfabética (avalia memória operacional auditiva e atenção)."
       },
       {
         tipo: "paragrafo",
-        texto: "Sequência de Números e Letras: sequência de números e letras apresentadas oralmente que o examinando deve repetir colocando os números em ordem crescente e as letras em ordem alfabética (avalia memória operacional auditiva e atenção)."
+        texto: "4 - Completar Figuras: conjunto de figuras representando objetos e ambientes; em cada figura falta uma parte importante que o examinando deve identificar (avalia raciocínio sobre material visual)."
       },
       {
         tipo: "paragrafo",
-        texto: "Completar Figuras: conjunto de figuras representando objetos e ambientes; em cada figura falta uma parte importante que o examinando deve identificar (avalia raciocínio sobre material visual)."
+        texto: "5 - Cubos: conjunto de padrões geométricos bidimensionais formados com cubos que o examinando deve reproduzir em graus crescentes de dificuldade (avalia habilidade construtiva e organização perceptiva)."
       },
       {
         tipo: "paragrafo",
-        texto: "Dígitos: sequências numéricas apresentadas oralmente que o examinando deve repetir literalmente na ordem direta e na ordem inversa (avalia capacidade de armazenamento a curto prazo e atenção; a ordem direta avalia memória de curto prazo e a ordem inversa, memória operacional)."
+        texto: "6 - Códigos: série de números, cada qual associado a um símbolo correspondente. O examinando deve escrever o símbolo associado a cada número (avalia desempenho psicomotor e atenção sustentada)."
       },
       {
         tipo: "paragrafo",
-        texto: "Códigos: série de números, cada qual associado a um símbolo correspondente. O examinando deve escrever o símbolo associado a cada número (avalia desempenho psicomotor e atenção sustentada)."
+        texto: "7 - Procurar Símbolos: o examinando analisa, visualmente, 2 grupos de símbolos, 1 grupo modelo (composto de 2 símbolos) e um grupo de procura (composto de 5 símbolos) e indica se um dos símbolos do grupo modelo também faz parte do grupo de procura. Ele deve responder ao maior número de itens possíveis, dentro de um tempo limite de 120 segundos."
+      },
+      {
+        tipo: "paragrafo",
+        texto: "8 - Dígitos: sequências numéricas apresentadas oralmente que o examinando deve repetir literalmente na ordem direta e na ordem inversa (avalia capacidade de armazenamento a curto prazo e atenção; a ordem direta avalia memória de curto prazo e a ordem inversa, memória operacional). Espera-se que o examinando seja capaz de repetir até 7 dígitos na ordem direta (± 2) e 4 na ordem inversa."
       }
     ]
   },

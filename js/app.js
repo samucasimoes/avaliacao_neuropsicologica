@@ -7,7 +7,6 @@
   const campoIdade = document.getElementById("idade");
   const campoTelefone = document.getElementById("telefone");
   const campoDataAvaliacao = document.getElementById("data-avaliacao");
-  const campoSexo = document.getElementById("sexo");
   const selects = form.querySelectorAll("select");
   const modalRelatorio = document.getElementById("modal-relatorio");
   const formRelatorio = document.getElementById("form-relatorio");
@@ -112,14 +111,14 @@
   function etapaCompleta(id) {
     if (id === "dados") return dadosVazios().length === 0;
     if (id === "cornell") return Cornell.completa();
-    if (id === "shulman") return Shulman.temDesenho();
+    if (id === "shulman") return true;
     return Secoes.completa(id);
   }
 
   function etapaIniciada(id) {
     if (id === "dados") return dadosVazios().length < camposDados.length;
     if (id === "cornell") return Cornell.resultado().respondidos > 0;
-    if (id === "shulman") return Shulman.temDesenho();
+    if (id === "shulman") return false;
     return Secoes.preenchida(id);
   }
 
@@ -221,7 +220,6 @@
         campos[el.name] = el.value;
       }
     });
-    campos.shulmanDesenho = Shulman.desenho();
     return campos;
   }
 
@@ -251,7 +249,6 @@
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
     Cornell.limparPendentes();
-    Shulman.carregar(campos.shulmanDesenho);
     Secoes.atualizar();
     atualizarEtapas();
   }
@@ -263,7 +260,7 @@
       if (el.type === "checkbox") return el.checked !== el.defaultChecked;
       if (el.defaultValue && el.value === el.defaultValue) return false;
       return el.value && el.value.trim() !== "";
-    }) || Shulman.temDesenho();
+    });
   }
 
   /* ---------- Acessibilidade ---------- */
@@ -291,11 +288,10 @@
   /* ---------- Eventos ---------- */
 
   Cornell.iniciar(form);
-  Shulman.iniciar();
   Secoes.iniciar(form, {
     aviso: mostrarAviso,
     paciente: function () {
-      return { nome: valor("nome"), sexo: campoSexo.value };
+      return { nome: valor("nome") };
     },
     origens: {
       cornell: function () {
@@ -322,14 +318,6 @@
   campoTelefone.addEventListener("input", mascararTelefone);
   selects.forEach(function (select) {
     select.addEventListener("change", function () { atualizarSelect(select); });
-  });
-
-  /* "Sexo feminino" do Resumo acompanha o sexo informado nos dados do paciente. */
-  campoSexo.addEventListener("change", function () {
-    if (!campoSexo.value) return;
-    const opcao = form.querySelector('input[name="resumo-fatores-3"][value="' +
-      (campoSexo.value === "Feminino" ? "sim" : "nao") + '"]');
-    if (opcao) opcao.checked = true;
   });
 
   ["input", "change"].forEach(function (tipo) {
@@ -443,7 +431,6 @@
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
     Cornell.limparPendentes();
-    Shulman.limpar();
     Secoes.atualizar();
     atualizarEtapas();
     mostrarSecao("dados");

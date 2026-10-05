@@ -77,7 +77,6 @@ const DEFINICOES = [
         itens: [
           "Histórico familiar de 1° grau para DA",
           "Baixa escolaridade",
-          "Sexo feminino",
           "Hipertensão arterial",
           "Hiperlipidemia",
           "Obesidade",
@@ -886,10 +885,7 @@ const DEFINICOES = [
       {
         tipo: "frase",
         texto: function (paciente) {
-          const feminino = paciente.sexo === "Feminino";
-          const masculino = paciente.sexo === "Masculino";
-          const tratamento = feminino ? "da Sra." : masculino ? "do Sr." : "do(a) Sr(a).";
-          return "A avaliação " + tratamento + " " + (paciente.nome || "—") + " revelou:";
+          return "A avaliação de " + (paciente.nome || "—") + " revelou:";
         }
       },
       {

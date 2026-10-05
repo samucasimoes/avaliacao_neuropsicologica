@@ -23,7 +23,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
 14. **Curva de aprendizagem** – RAVLT com total, interferências, esquecimento e
     gráfico; a classificação é escolhida pelo profissional. A coluna Referência mostra
-    o valor esperado para A1 conforme a idade (60 a 89 anos) e o sexo do paciente.
+    o valor esperado (A1 a A7, B1 e interferência proativa) conforme a idade
+    (60 a 89 anos) e o sexo do paciente. A idade aparece ao lado do título, só na tela.
 15. **Digit Span**, 16. **Trilhas** (com atenção), 17. **Praxias**,
     18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
 20. **Interpretação dos resultados** – um campo por domínio.

@@ -31,15 +31,26 @@ const KATZ_INTERPRETACAO = [
   "Dependente em todas as seis funções"
 ];
 
-/* RAVLT A1 (primeira tentativa): referência por faixa de idade e sexo. */
-const RAVLT_A1 = [
-  { de: 60, ate: 64, homem: 5.6, mulher: 6.0 },
-  { de: 65, ate: 69, homem: 5.3, mulher: 6.0 },
-  { de: 70, ate: 74, homem: 5.0, mulher: 6.1 },
-  { de: 75, ate: 79, homem: 4.9, mulher: 4.8 },
-  { de: 80, ate: 84, homem: 3.5, mulher: 4.9 },
-  { de: 85, ate: 89, homem: 4.1, mulher: 4.5 }
-];
+/* RAVLT: valores de referência por faixa de idade (60 a 89 anos), [homem, mulher]. */
+const RAVLT_FAIXAS = [[60, 64], [65, 69], [70, 74], [75, 79], [80, 84], [85, 89]];
+
+function referenciaRavlt(valores) {
+  return RAVLT_FAIXAS.map(function (faixa, i) {
+    return { de: faixa[0], ate: faixa[1], homem: valores[i][0], mulher: valores[i][1] };
+  });
+}
+
+const RAVLT_REFERENCIA = {
+  a1: referenciaRavlt([[5.6, 6.0], [5.3, 6.0], [5.0, 6.1], [4.9, 4.8], [3.5, 4.9], [4.1, 4.5]]),
+  a2: referenciaRavlt([[7.6, 7.9], [7.8, 8.7], [7.4, 7.6], [6.3, 5.9], [5.5, 8.1], [6.1, 8.0]]),
+  a3: referenciaRavlt([[9.0, 10.0], [9.0, 9.9], [7.8, 9.4], [7.0, 6.9], [6.5, 6.9], [6.6, 6.5]]),
+  a4: referenciaRavlt([[10.2, 11.3], [9.9, 10.8], [10.0, 10.7], [8.0, 8.0], [8.5, 7.9], [7.8, 7.4]]),
+  a5: referenciaRavlt([[11.8, 12.2], [11.1, 12.0], [10.1, 11.3], [10.7, 10.5], [9.4, 10.1], [9.5, 10.1]]),
+  b1: referenciaRavlt([[4.6, 4.7], [4.4, 5.0], [4.4, 4.8], [4.1, 3.7], [2.8, 3.0], [3.8, 3.6]]),
+  a6: referenciaRavlt([[10.7, 11.1], [9.3, 10.6], [9.2, 9.5], [8.4, 8.6], [8.2, 9.2], [7.4, 7.5]]),
+  a7: referenciaRavlt([[9.8, 10.6], [9.1, 10.5], [8.2, 9.2], [7.9, 7.9], [7.2, 7.3], [6.1, 6.6]]),
+  itp: referenciaRavlt([[0.9, 0.8], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.8, 0.6], [0.9, 0.9]])
+};
 
 const IQCODE_CORTE = 3.5;
 const IQCODE_DIVISOR = 26;
@@ -580,6 +591,7 @@ const DEFINICOES = [
   {
     id: "curva",
     titulo: "Curva de aprendizagem",
+    mostrarIdade: true,
     descricao: "Teste Auditivo Verbal de Rey (RAVLT): digite os escores; total, interferências e esquecimento são calculados automaticamente. A classificação (abaixo ou dentro do esperado) é definida pelo profissional, não pelo escore.",
     blocos: [
       {
@@ -593,11 +605,11 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
         ],
         linhas: [
-          { rotulo: "A1", chave: "a1", referencia: RAVLT_A1 },
-          { rotulo: "A2", chave: "a2" },
-          { rotulo: "A3", chave: "a3" },
-          { rotulo: "A4", chave: "a4" },
-          { rotulo: "A5", chave: "a5" },
+          { rotulo: "A1", chave: "a1", referencia: RAVLT_REFERENCIA.a1 },
+          { rotulo: "A2", chave: "a2", referencia: RAVLT_REFERENCIA.a2 },
+          { rotulo: "A3", chave: "a3", referencia: RAVLT_REFERENCIA.a3 },
+          { rotulo: "A4", chave: "a4", referencia: RAVLT_REFERENCIA.a4 },
+          { rotulo: "A5", chave: "a5", referencia: RAVLT_REFERENCIA.a5 },
           {
             rotulo: "Total A1 – A5",
             chave: "total",
@@ -608,11 +620,12 @@ const DEFINICOES = [
               }
             }
           },
-          { rotulo: "B1", chave: "b1" },
-          { rotulo: "A6", chave: "a6" },
-          { rotulo: "A7", chave: "a7" },
+          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1 },
+          { rotulo: "A6", chave: "a6", referencia: RAVLT_REFERENCIA.a6 },
+          { rotulo: "A7", chave: "a7", referencia: RAVLT_REFERENCIA.a7 },
           {
             rotulo: "Interferência proativa (B1/A1)",
+            referencia: RAVLT_REFERENCIA.itp,
             calculos: { 0: function (t) { return razao(t.num("b1", 0), t.num("a1", 0)); } }
           },
           {

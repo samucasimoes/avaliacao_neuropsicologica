@@ -917,7 +917,17 @@ const Secoes = (function () {
     secao.api = { bloco: secao.bloco };
 
     const cabeca = criar("div", "card-head");
-    cabeca.appendChild(criar("h2", "card-title", def.titulo));
+    if (def.mostrarIdade) {
+      /* Idade do paciente só na tela, como referência para o profissional. */
+      const linhaTitulo = criar("div", "card-title-linha");
+      linhaTitulo.appendChild(criar("h2", "card-title", def.titulo));
+      secao.idadeEl = criar("span", "idade-paciente");
+      secao.idadeEl.title = "Idade do paciente, calculada pela data de nascimento e pela data da avaliação";
+      linhaTitulo.appendChild(secao.idadeEl);
+      cabeca.appendChild(linhaTitulo);
+    } else {
+      cabeca.appendChild(criar("h2", "card-title", def.titulo));
+    }
     if (def.descricao) cabeca.appendChild(criar("p", "card-text", def.descricao));
     el.appendChild(cabeca);
 
@@ -944,6 +954,11 @@ const Secoes = (function () {
         if (bloco.atualizar) bloco.atualizar();
       });
       if (secao.resumoEl) montarResumo(secao);
+      if (secao.idadeEl) {
+        const p = contexto.paciente();
+        const idade = p.idade === null || p.idade === undefined ? "—" : p.idade + (p.idade === 1 ? " ano" : " anos");
+        secao.idadeEl.textContent = "Idade: " + idade;
+      }
     });
   }
 

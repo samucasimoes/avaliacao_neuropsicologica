@@ -446,7 +446,7 @@ const Secoes = (function () {
               const grupo = criar("div", "classe-opcoes");
               grupo.setAttribute("role", "radiogroup");
               grupo.setAttribute("aria-label", rotulo);
-              coluna.opcoes.forEach(function (opcao) {
+              (linha.opcoesClasse || coluna.opcoes).forEach(function (opcao) {
                 grupo.appendChild(pilula(nome(linha, c), opcao, opcao.replace(" do esperado", ""), null,
                   linha.rotulo + ": " + opcao));
               });

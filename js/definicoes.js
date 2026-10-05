@@ -524,8 +524,7 @@ const DEFINICOES = [
         id: "comentario",
         rotulo: "Comentário",
         alto: true,
-        folhaPropria: true,
-        placeholder: "Escreva um comentário sobre o desempenho no MoCA (sai em uma folha própria no relatório)..."
+        folhaPropria: true
       }
     ],
     resumo: function (s) {
@@ -782,8 +781,7 @@ const DEFINICOES = [
         linhas: [
           { rotulo: "Controle mental" },
           { rotulo: "Meses do ano (modo inverso)" },
-          { rotulo: "Trilha A" },
-          { rotulo: "Sequência de números e letras" }
+          { rotulo: "Trilha A" }
         ]
       },
       {

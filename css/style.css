@@ -287,7 +287,7 @@ a.step:not(.active):hover {
 }
 
 .row-b {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1.27fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .row-c {
@@ -827,90 +827,10 @@ td.estreita .input-tabela {
 
 /* ---------- Relógio de Shulman ---------- */
 
-.shulman {
-  max-width: 740px;
-}
-
 .shulman-instrucao {
   font-size: 17px;
   font-weight: 600;
   color: var(--ink);
-}
-
-.shulman-desenho {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.shulman-ferramentas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.ferramentas-espaco {
-  flex: 1;
-}
-
-.ferramenta[aria-pressed="true"] {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green);
-}
-
-.shulman-folha {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #fff;
-  overflow: hidden;
-}
-
-.shulman-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.shulman-canvas {
-  touch-action: none;
-  cursor: crosshair;
-}
-
-.shulman-canvas.modo-borracha {
-  cursor: cell;
-}
-
-/* Tela cheia para desenhar no celular ou tablet */
-body.desenho-expandido {
-  overflow: hidden;
-}
-
-.shulman-desenho.expandido {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  max-width: none;
-  margin: 0;
-  padding: 10px 8px;
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-  background: var(--bg);
-}
-
-.shulman-desenho.expandido .shulman-ferramentas {
-  width: min(100%, 900px);
-}
-
-.shulman-desenho.expandido .shulman-folha {
-  flex: none;
-  width: min(100%, calc(100vh - 110px));
-  width: min(100%, calc(100dvh - 110px));
 }
 
 .shulman-opcao {
@@ -1252,16 +1172,6 @@ body.desenho-expandido {
 
   .checklist {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .shulman {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .shulman-desenho {
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
   }
 }
 

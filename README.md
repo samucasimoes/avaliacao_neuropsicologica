@@ -6,8 +6,7 @@ Nenhum campo é obrigatório: ao gerar o relatório, um aviso lista o que ficou 
 As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
 1. **Dados do paciente**
-2. **Resumo** – fatores de risco (Sim / Não / Não disponível). "Sexo feminino" é
-   marcado sozinho a partir do sexo informado.
+2. **Resumo** – fatores de risco (Sim / Não / Não disponível).
 3. **Funções avaliadas** – lista já marcada; sai em uma folha única no relatório.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão, em uma folha única.
 5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta.
@@ -18,7 +17,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 9. **Humor e comportamento** – total de Katz, Pfeffer, IQCODE e Cornell (vindos das
    abas) e GAI, GDS e BHS (digitados), com interpretação.
 10. **MoCA** – escore por domínio (não passa do máximo) e total.
-11. **Relógio de Shulman** – tela em branco: "Marque no relógio 11 horas e 10 minutos".
+11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
+    no relatório sai uma folha em branco para o desenho no papel.
 12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
 13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
 14. **Curva de aprendizagem** – RAVLT com total, interferências, esquecimento e
@@ -53,6 +53,6 @@ escolha esse arquivo e os campos serão preenchidos novamente.
 - `js/definicoes.js` – conteúdo das demais etapas: itens, colunas, textos e cálculos da planilha
 - `js/secoes.js` – monta as etapas de `definicoes.js` na tela e no relatório
 - `js/cornell.js` – itens, pontuação e interpretação da Escala Cornell
-- `js/shulman.js` – área de desenho, pontuação e imagem do Relógio de Shulman
+- `js/shulman.js` – folha do Relógio de Shulman no relatório
 - `js/relatorio.js` – geração do PDF, do Excel e do backup `.json`
 - `libs/` – jsPDF, jsPDF-AutoTable e ExcelJS (cópias locais)

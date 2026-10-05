@@ -208,42 +208,10 @@ a.step:not(.active):hover {
   font-weight: 500;
 }
 
-.topbar-info {
+.topbar-acoes {
   display: flex;
   align-items: center;
-  gap: 18px;
-  color: var(--ink-soft);
-  font-size: 13px;
-}
-
-.status {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.status-icon {
-  width: 15px;
-  height: 15px;
-  fill: var(--green-ok);
-  stroke: #fff;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.status-icon circle {
-  stroke: none;
-}
-
-.divider {
-  width: 1px;
-  height: 24px;
-  background: var(--line);
-}
-
-.clock {
-  font-variant-numeric: tabular-nums;
+  gap: 8px;
 }
 
 .icon-btn {
@@ -435,6 +403,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .secao > .card-head {
@@ -579,11 +548,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .escala-opcoes {
   display: grid;
-  grid-template-columns: repeat(4, 130px);
+  grid-template-columns: repeat(var(--colunas, 4), 124px);
   gap: 6px;
 }
 
+/* Opções longas (Pfeffer): texto em cima e opções quebrando linha embaixo. */
+.escala-item.empilhado {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 8px 0;
+}
+
+.escala-item.empilhado .escala-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 24px;
+}
+
+/* position: relative mantém o rádio escondido dentro da opção (evita rolagem lateral no celular). */
 .opcao {
+  position: relative;
   cursor: pointer;
 }
 
@@ -638,6 +621,219 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .opcao-radio:focus-visible + .opcao-caixa {
   box-shadow: 0 0 0 3px rgba(43, 94, 78, 0.18);
+}
+
+/* ---------- Etapas montadas por secoes.js ---------- */
+
+.escala-grupo.subtitulo {
+  margin-top: 18px;
+  font-size: 13px;
+}
+
+.paragrafo {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.frase {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lista-fixa {
+  margin: 0;
+  padding-left: 20px;
+  columns: 2;
+  column-gap: 32px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.lista-fixa li {
+  break-inside: avoid;
+}
+
+.textarea.alta {
+  height: 160px;
+}
+
+/* Escala de Katz: uma descrição por área */
+.escolha-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.escolha-item .escala-texto {
+  font-weight: 600;
+}
+
+.escolha-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 24px;
+}
+
+.escolha-tag {
+  flex: none;
+  margin-left: auto;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--gray-soft);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.opcao-radio:checked + .shulman-opcao-caixa .escolha-tag {
+  background: var(--green);
+  color: #fff;
+}
+
+/* Funções avaliadas */
+.checklist {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 16px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.check:hover {
+  border-color: #bfc9c5;
+}
+
+.check-caixa {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+
+.check:has(.check-caixa:not(:checked)) .check-texto {
+  color: var(--muted);
+}
+
+/* Tabelas de testes */
+.tabela-rolagem {
+  overflow-x: auto;
+}
+
+.tabela-teste {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabela-teste th,
+.tabela-teste td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tabela-teste thead th {
+  padding-top: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tabela-teste tbody th {
+  min-width: 200px;
+  font-weight: 500;
+}
+
+.tabela-teste th.estreita,
+.tabela-teste td.estreita {
+  width: 1%;
+}
+
+.tabela-teste th.classe {
+  width: 1%;
+}
+
+.tabela-teste tr.destaque th,
+.tabela-teste tr.destaque .calc {
+  font-weight: 700;
+}
+
+.input-tabela {
+  width: 100%;
+  min-width: 90px;
+  max-width: 200px;
+  height: 32px;
+}
+
+td.estreita .input-tabela {
+  width: 76px;
+  min-width: 76px;
+}
+
+.calc {
+  display: inline-block;
+  min-width: 48px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.fixo {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.classe-opcoes {
+  display: flex;
+  gap: 5px;
+}
+
+.classe-opcoes .opcao-caixa {
+  height: 30px;
+  padding: 0 11px;
+  font-size: 12.5px;
+}
+
+.campos-grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.grafico {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 0;
+}
+
+.grafico-canvas {
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
 }
 
 /* ---------- Relógio de Shulman ---------- */
@@ -750,6 +946,7 @@ body.desenho-expandido {
 }
 
 .shulman-opcao {
+  position: relative;
   cursor: pointer;
 }
 
@@ -816,6 +1013,14 @@ body.desenho-expandido {
 .actions-group {
   display: flex;
   gap: 10px;
+  min-width: 0;
+}
+
+.btn-rotulo {
+  overflow: hidden;
+  max-width: 280px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .btn {
@@ -1053,7 +1258,11 @@ body.desenho-expandido {
   }
 
   .escala-opcoes {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--colunas, 4), minmax(0, 1fr));
+  }
+
+  .checklist {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .shulman {
@@ -1110,10 +1319,6 @@ body.desenho-expandido {
     flex-wrap: wrap;
   }
 
-  .topbar-info {
-    gap: 12px;
-    font-size: 13px;
-  }
 
   .card {
     padding: 16px 14px;
@@ -1140,9 +1345,18 @@ body.desenho-expandido {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .topbar-info .divider,
-  .topbar-info .clock {
-    display: none;
+  .checklist,
+  .campos-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lista-fixa {
+    columns: 1;
+  }
+
+  .btn-rotulo {
+    max-width: none;
+    white-space: normal;
   }
 
   .actions {

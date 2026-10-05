@@ -20,7 +20,7 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
    abas) e GAI, GDS e BHS (digitados), com interpretação na tela. Na impressão saem só os
    resultados e a legenda das escalas.
 10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
-    e não entra no total até ser corrigido. O comentário sai numa folha própria no relatório.
+    e não entra no total até ser corrigido. O comentário sai na mesma folha da tabela.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     no relatório sai uma folha em branco para o desenho no papel.
 12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
@@ -36,7 +36,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 21. **Conclusão** – texto e assinaturas dos profissionais.
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
-Cada aba ocupa uma folha: se o conteúdo for grande, a letra diminui até caber.
+Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela) e,
+se o conteúdo for grande, a letra diminui até caber.
 Ao gerar, escolha entre **dados do paciente + escalas** ou **somente os dados do paciente**.
 Nenhum dado é salvo: tudo acontece no navegador.
 

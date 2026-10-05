@@ -192,8 +192,8 @@ const Cornell = (function () {
           tipo: "caixas",
           caixas: [
             ["Escore total", r.total + " / " + r.pontuacaoMaxima],
-            ["Itens respondidos", r.respondidos + " de " + r.totalItens],
-            ["Interpretação", r.interpretacao + (r.respondidos < r.totalItens ? " (parcial)" : "")]
+            /* A interpretação da Cornell aparece só na tela, nunca na impressão. */
+            ["Itens respondidos", r.respondidos + " de " + r.totalItens]
           ]
         },
         {
@@ -201,11 +201,6 @@ const Cornell = (function () {
           cabecalho: ["Nº", "Sinal avaliado", "Avaliação", "Pontos"],
           linhas: linhas,
           estilos: { 0: { cellWidth: 10, halign: "center" }, 2: { cellWidth: 42 }, 3: { cellWidth: 16, halign: "center" } }
-        },
-        {
-          tipo: "nota",
-          texto: "Referência: " + r.referencia +
-            " Pontuação por item: impossibilitado de avaliar 0, ausente 0, leve 1, intenso 2."
         }
       ]
     };

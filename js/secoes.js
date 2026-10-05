@@ -6,6 +6,12 @@ const Secoes = (function () {
   const secoes = [];
   const porId = {};
 
+  /* Limites de caracteres para cada texto caber na folha da impressão. */
+  const LIMITE_TEXTO = 600;
+  const LIMITE_TEXTO_ALTO = 1500;
+  const LIMITE_CAMPO = 120;
+  const LIMITE_CELULA = 30;
+
   /* ---------- Utilidades ---------- */
 
   function criar(tag, classe, texto) {
@@ -288,6 +294,7 @@ const Secoes = (function () {
           area.id = nome("outros");
           area.name = nome("outros");
           area.placeholder = "Uma por linha";
+          area.maxLength = 300;
           campo.appendChild(label);
           campo.appendChild(area);
           container.appendChild(campo);
@@ -301,7 +308,7 @@ const Secoes = (function () {
       },
       relatorio: function () {
         const lista = marcados();
-        return lista.length ? [{ tipo: "lista", itens: lista }] : [];
+        return lista.length ? [{ tipo: "lista", itens: lista, preencherFolha: !!b.preencherFolha }] : [];
       }
     };
   }
@@ -320,7 +327,7 @@ const Secoes = (function () {
       relatorio: function () {
         const blocos = [];
         if (b.introducao) blocos.push({ tipo: "paragrafo", texto: b.introducao });
-        blocos.push({ tipo: "lista", itens: b.itens });
+        blocos.push({ tipo: "lista", itens: b.itens, preencherFolha: !!b.preencherFolha });
         return blocos;
       }
     };
@@ -456,6 +463,7 @@ const Secoes = (function () {
               input.name = nome(linha, c);
               input.setAttribute("aria-label", rotulo);
               input.title = rotulo + (linha.maximo !== undefined ? " (de 0 a " + linha.maximo + ")" : "");
+              input.maxLength = LIMITE_CELULA;
               input.autocomplete = "off";
               if (coluna.tipo === "numero") {
                 input.inputMode = "decimal";
@@ -532,6 +540,7 @@ const Secoes = (function () {
         area.id = nome;
         area.name = nome;
         area.placeholder = b.placeholder || "Digite aqui...";
+        area.maxLength = b.limite || (b.alto ? LIMITE_TEXTO_ALTO : LIMITE_TEXTO);
         area.title = b.rotulo;
         campo.appendChild(label);
         campo.appendChild(area);
@@ -545,7 +554,7 @@ const Secoes = (function () {
       },
       relatorio: function () {
         const texto = valorDe(nome);
-        return texto ? [{ tipo: "texto", rotulo: b.rotulo, texto: texto, folhaPropria: !!b.folhaPropria }] : [];
+        return texto ? [{ tipo: "texto", rotulo: b.rotulo, texto: texto }] : [];
       }
     };
   }
@@ -577,6 +586,7 @@ const Secoes = (function () {
           input.id = nome(i + 1);
           input.name = nome(i + 1);
           input.title = rotulo;
+          input.maxLength = LIMITE_CAMPO;
           input.autocomplete = "off";
           campo.appendChild(label);
           campo.appendChild(input);
@@ -861,6 +871,7 @@ const Secoes = (function () {
       input.id = nomeCampo;
       input.name = nomeCampo;
       input.defaultValue = padrao;
+      input.maxLength = 60;
       input.title = rotulo;
       input.autocomplete = "off";
       campo.appendChild(label);

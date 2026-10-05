@@ -130,6 +130,7 @@ const DEFINICOES = [
       {
         tipo: "checklist",
         id: "lista",
+        preencherFolha: true,
         outros: "Outras funções avaliadas",
         itens: [
           "Atenção",
@@ -161,6 +162,7 @@ const DEFINICOES = [
       {
         tipo: "lista",
         id: "lista",
+        preencherFolha: true,
         introducao: "Foram aplicados protocolos fixos: CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e testes complementares para todos os domínios cognitivos:",
         itens: [
           "Testes de Atenção",
@@ -174,7 +176,7 @@ const DEFINICOES = [
           "Stroop Test",
           "Testes de Figuras Geométricas",
           "Mini Exame do Estado Mental",
-          "Montreal Cognitive Assessment (MoCA)",
+          "Montreal Cognitive Assessment (MoCa)",
           "Fluência Verbal – Fonética e Semântica",
           "Curva de Aprendizagem Verbal – RAVLT",
           "Teste de Dígitos",
@@ -483,7 +485,7 @@ const DEFINICOES = [
 
   {
     id: "moca",
-    titulo: "Montreal Cognitive Assessment (MoCA)",
+    titulo: "Montreal Cognitive Assessment (MoCa)",
     descricao: "Digite o escore do paciente em cada domínio. O total é calculado automaticamente.",
     blocos: [
       {
@@ -523,8 +525,7 @@ const DEFINICOES = [
         tipo: "texto",
         id: "comentario",
         rotulo: "Comentário",
-        alto: true,
-        folhaPropria: true
+        alto: true
       }
     ],
     resumo: function (s) {
@@ -551,7 +552,7 @@ const DEFINICOES = [
           { rotulo: "Fluência verbal: Animais" },
           { rotulo: "Fluência verbal: Frutas" },
           { rotulo: "Nomeação de Boston" },
-          { rotulo: "MoCA (Montreal Cognitive Assessment)" },
+          { rotulo: "MoCa (Montreal Cognitive Assessment)" },
           { rotulo: "Memória verbal (fixação)" },
           { rotulo: "Praxia construtiva" },
           { rotulo: "Memória verbal (evocação)" },

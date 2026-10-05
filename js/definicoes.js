@@ -524,8 +524,7 @@ const DEFINICOES = [
         id: "comentario",
         rotulo: "Comentário",
         alto: true,
-        folhaPropria: true,
-        placeholder: "Escreva um comentário sobre o desempenho no MoCA (sai em uma folha própria no relatório)..."
+        folhaPropria: true
       }
     ],
     resumo: function (s) {

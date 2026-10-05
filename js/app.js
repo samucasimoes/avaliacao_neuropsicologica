@@ -291,7 +291,8 @@
   Secoes.iniciar(form, {
     aviso: mostrarAviso,
     paciente: function () {
-      return { nome: valor("nome") };
+      const idade = parseInt(campoIdade.value, 10);
+      return { nome: valor("nome"), idade: isNaN(idade) ? null : idade, sexo: valor("sexo") };
     },
     origens: {
       cornell: function () {

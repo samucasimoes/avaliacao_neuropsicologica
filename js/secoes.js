@@ -321,6 +321,7 @@ const Secoes = (function () {
     const porChave = {};
     linhas.forEach(function (linha) { porChave[linha.chave] = linha; });
     const saidas = [];
+    const referencias = [];
 
     function nome(linha, coluna) {
       return secao.id + "-" + b.id + "-" + linha.indice + "-" + (coluna + 1);
@@ -339,9 +340,26 @@ const Secoes = (function () {
       }
     };
 
+    /* Valor de referência da linha conforme a idade e o sexo do paciente. */
+    function referencia(linha) {
+      if (!linha.referencia) return "";
+      const p = contexto.paciente();
+      if (p.idade === null || p.idade === undefined || !p.sexo) return "";
+      const faixa = linha.referencia.find(function (f) { return p.idade >= f.de && p.idade <= f.ate; });
+      if (!faixa) return "";
+      return (p.sexo === "Masculino" ? faixa.homem : faixa.mulher)
+        .toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+
+    /* Colunas que não são digitadas nem contam como preenchimento. */
+    function informativa(coluna) {
+      return coluna.tipo === "fixo" || coluna.tipo === "referencia";
+    }
+
     /* Valor de uma célula como texto (vazio se não preenchida). */
     function celula(linha, coluna) {
       const tipo = b.colunas[coluna].tipo;
+      if (tipo === "referencia") return referencia(linha);
       if (calculado(linha, coluna)) {
         const v = linha.calculos[coluna](acesso);
         return v === null ? "" : formatarNumero(v);
@@ -353,21 +371,21 @@ const Secoes = (function () {
 
     function linhaPreenchida(linha) {
       return b.colunas.some(function (coluna, c) {
-        return coluna.tipo !== "fixo" && celula(linha, c) !== "";
+        return !informativa(coluna) && celula(linha, c) !== "";
       });
     }
 
     /* Todas as células digitáveis da linha preenchidas. */
     function linhaCompleta(linha) {
       return b.colunas.every(function (coluna, c) {
-        return coluna.tipo === "fixo" || coluna.tipo === "calculo" || calculado(linha, c) ||
+        return informativa(coluna) || coluna.tipo === "calculo" || calculado(linha, c) ||
           celula(linha, c) !== "";
       });
     }
 
     function linhaDigitada(linha) {
       return b.colunas.some(function (coluna, c) {
-        return coluna.tipo !== "fixo" && !calculado(linha, c) && celula(linha, c) !== "";
+        return !informativa(coluna) && !calculado(linha, c) && celula(linha, c) !== "";
       });
     }
 
@@ -402,6 +420,10 @@ const Secoes = (function () {
               td.appendChild(saida);
             } else if (coluna.tipo === "fixo") {
               td.appendChild(criar("span", "fixo", linha.fixos ? linha.fixos[c] : ""));
+            } else if (coluna.tipo === "referencia") {
+              const ref = criar("span", "fixo referencia", "");
+              if (linha.referencia) referencias.push({ el: ref, linha: linha });
+              td.appendChild(ref);
             } else if (coluna.tipo === "calculo") {
               td.appendChild(criar("span", "fixo", ""));
             } else if (coluna.tipo === "classe") {
@@ -446,6 +468,12 @@ const Secoes = (function () {
       atualizar: function () {
         saidas.forEach(function (s) {
           s.el.value = textoNumero(s.linha.calculos[s.coluna](acesso));
+        });
+        referencias.forEach(function (r) {
+          const valor = referencia(r.linha);
+          r.el.textContent = valor || "—";
+          r.el.title = valor ? "Referência para a idade e o sexo do paciente"
+            : "Informe a data de nascimento e o sexo (60 a 89 anos) nos dados do paciente";
         });
       },
       valor: function (chave, coluna) {

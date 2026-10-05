@@ -31,6 +31,16 @@ const KATZ_INTERPRETACAO = [
   "Dependente em todas as seis funções"
 ];
 
+/* RAVLT A1 (primeira tentativa): referência por faixa de idade e sexo. */
+const RAVLT_A1 = [
+  { de: 60, ate: 64, homem: 5.6, mulher: 6.0 },
+  { de: 65, ate: 69, homem: 5.3, mulher: 6.0 },
+  { de: 70, ate: 74, homem: 5.0, mulher: 6.1 },
+  { de: 75, ate: 79, homem: 4.9, mulher: 4.8 },
+  { de: 80, ate: 84, homem: 3.5, mulher: 4.9 },
+  { de: 85, ate: 89, homem: 4.1, mulher: 4.5 }
+];
+
 const IQCODE_CORTE = 3.5;
 const IQCODE_DIVISOR = 26;
 
@@ -322,11 +332,6 @@ const DEFINICOES = [
     descricao: "Peça ao informante que se lembre de como o paciente estava há 10 anos e compare com o estado atual. Se a pessoa nunca fez a tarefa, marque “Não se aplica”; se o familiar não tiver certeza, marque “Não sabe”.",
     blocos: [
       {
-        tipo: "campos",
-        id: "entrevistado",
-        itens: ["Nome do entrevistado", "Grau de relacionamento", "Idade", "Tempo de convívio"]
-      },
-      {
         tipo: "opcoes",
         id: "itens",
         colunaItem: "Comparado a 10 anos atrás, como essa pessoa está em",
@@ -584,10 +589,11 @@ const DEFINICOES = [
         colunaRotulo: "Tentativa",
         colunas: [
           { rotulo: "Escore", tipo: "numero" },
+          { rotulo: "Referência", tipo: "referencia" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
         ],
         linhas: [
-          { rotulo: "A1", chave: "a1" },
+          { rotulo: "A1", chave: "a1", referencia: RAVLT_A1 },
           { rotulo: "A2", chave: "a2" },
           { rotulo: "A3", chave: "a3" },
           { rotulo: "A4", chave: "a4" },

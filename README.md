@@ -5,7 +5,7 @@ As etapas aparecem no menu lateral e podem ser abertas em qualquer ordem.
 Nenhum campo é obrigatório: ao gerar o relatório, um aviso lista o que ficou vazio.
 As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
-1. **Dados do paciente**
+1. **Dados do paciente** – o sexo é usado só nas referências e não sai no relatório.
 2. **Resumo** – fatores de risco (Sim / Não / Não disponível).
 3. **Funções avaliadas** – lista já marcada.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão.
@@ -22,7 +22,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
 13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
 14. **Curva de aprendizagem** – RAVLT com total, interferências, esquecimento e
-    gráfico; a classificação é escolhida pelo profissional.
+    gráfico; a classificação é escolhida pelo profissional. A coluna Referência mostra
+    o valor esperado para A1 conforme a idade (60 a 89 anos) e o sexo do paciente.
 15. **Digit Span**, 16. **Trilhas** (com atenção), 17. **Praxias**,
     18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
 20. **Interpretação dos resultados** – um campo por domínio.

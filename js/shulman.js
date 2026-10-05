@@ -7,7 +7,6 @@ const Shulman = (function () {
   function relatorio() {
     return {
       titulo: "Relógio de Shulman",
-      paginaPropria: true,
       blocos: [{ tipo: "paragrafo", texto: INSTRUCAO, negrito: true }]
     };
   }

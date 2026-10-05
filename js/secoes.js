@@ -545,7 +545,7 @@ const Secoes = (function () {
       },
       relatorio: function () {
         const texto = valorDe(nome);
-        return texto ? [{ tipo: "texto", rotulo: b.rotulo, texto: texto }] : [];
+        return texto ? [{ tipo: "texto", rotulo: b.rotulo, texto: texto, folhaPropria: !!b.folhaPropria }] : [];
       }
     };
   }

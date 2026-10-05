@@ -518,6 +518,14 @@ const DEFINICOES = [
             }
           }
         ]
+      },
+      {
+        tipo: "texto",
+        id: "comentario",
+        rotulo: "Comentário",
+        alto: true,
+        folhaPropria: true,
+        placeholder: "Escreva um comentário sobre o desempenho no MoCA (sai em uma folha própria no relatório)..."
       }
     ],
     resumo: function (s) {
@@ -702,11 +710,18 @@ const DEFINICOES = [
         rotulo: "Curva de aprendizagem",
         alto: true,
         placeholder: "Descreva o desempenho: memória de curto e longo prazo, interferências, reconhecimento, velocidade de esquecimento..."
-      },
-      { tipo: "subtitulo", texto: "Memória verbal e visual" },
+      }
+    ]
+  },
+
+  {
+    id: "memoria",
+    titulo: "Memória verbal e visual",
+    descricao: "Memória lógica e memória visual. A classificação é definida pelo profissional.",
+    blocos: [
       {
         tipo: "tabela",
-        id: "memoria",
+        id: "testes",
         colunaRotulo: "Teste",
         colunas: [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }

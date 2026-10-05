@@ -60,17 +60,30 @@ const Secoes = (function () {
   }
 
   /* Não deixa digitar valor acima do máximo (ex.: escore máximo do MoCA). */
+  /* Valor acima do máximo (ex.: escore máximo do MoCA): circula o campo em vermelho,
+     avisa e não usa o valor nos cálculos até ser corrigido. */
+  function acimaDoMaximo(valor, maximo) {
+    const n = numero(valor);
+    return maximo !== undefined && n !== null && (n > maximo || n < 0);
+  }
+
   function limitarMaximo(input, maximo, rotulo) {
-    input.addEventListener("input", function () {
-      const n = numero(input.value);
-      if (n === null) return;
-      if (n > maximo) {
-        input.value = String(maximo);
-        if (contexto.aviso) contexto.aviso("O valor máximo para " + rotulo + " é " + maximo + ".");
-      } else if (n < 0) {
-        input.value = "0";
+    const aviso = criar("span", "campo-erro", "Valor acima do permitido (máximo " + maximo + ").");
+    aviso.hidden = true;
+    function conferir(avisar) {
+      const invalido = acimaDoMaximo(input.value, maximo);
+      if (!aviso.isConnected && input.parentNode) input.insertAdjacentElement("afterend", aviso);
+      input.classList.toggle("invalido", invalido);
+      input.setAttribute("aria-invalid", String(invalido));
+      aviso.hidden = !invalido;
+      if (invalido && avisar && contexto.aviso) {
+        contexto.aviso("O valor de " + rotulo + " está acima do permitido (máximo " + maximo + "). Insira outro valor.");
       }
-    });
+    }
+    input.addEventListener("input", function () { conferir(true); });
+    input.addEventListener("change", function () { conferir(false); });
+    form.addEventListener("reset", function () { setTimeout(function () { conferir(false); }); });
+    input.conferirMaximo = conferir;
   }
 
   /* ---------- Blocos ---------- */
@@ -336,7 +349,9 @@ const Secoes = (function () {
         const linha = porChave[chave];
         if (!linha) return null;
         if (calculado(linha, coluna)) return linha.calculos[coluna](acesso);
-        return numero(valorDe(nome(linha, coluna)));
+        const valor = valorDe(nome(linha, coluna));
+        if (acimaDoMaximo(valor, linha.maximo)) return null;
+        return numero(valor);
       }
     };
 
@@ -366,7 +381,8 @@ const Secoes = (function () {
       }
       if (tipo === "fixo") return linha.fixos ? linha.fixos[coluna] || "" : "";
       if (tipo === "calculo") return "";
-      return valorDe(nome(linha, coluna));
+      const valor = valorDe(nome(linha, coluna));
+      return acimaDoMaximo(valor, linha.maximo) ? "" : valor;
     }
 
     function linhaPreenchida(linha) {
@@ -591,7 +607,8 @@ const Secoes = (function () {
         preenchido: function () { return false; },
       completo: function () { return true; },
         relatorio: function (grupoPreenchido) {
-          return grupoPreenchido ? [{ tipo: tipoRelatorio, texto: b.texto }] : [];
+          if (!grupoPreenchido) return [];
+          return [{ tipo: b.legenda ? "legenda" : tipoRelatorio, texto: b.texto }];
         }
       };
     };
@@ -744,7 +761,9 @@ const Secoes = (function () {
         if (contexto.origens[item.origem]) return contexto.origens[item.origem]();
         return resultado(item.origem);
       }
-      const n = numero(valorDe(nome(i + 1)));
+      const valor = valorDe(nome(i + 1));
+      if (acimaDoMaximo(valor, item.maximo)) return null;
+      const n = numero(valor);
       if (n === null) return null;
       const r = item.interpretar(n);
       return { valor: formatarNumero(n), texto: r.texto, nivel: r.nivel };
@@ -814,14 +833,14 @@ const Secoes = (function () {
         const corpo = [];
         b.itens.forEach(function (item, i) {
           const r = resultadoDe(item, i);
-          if (r) corpo.push([item.rotulo, r.valor, r.texto]);
+          if (r) corpo.push([item.rotulo, r.valor]);
         });
         if (!corpo.length) return [];
         return [{
           tipo: "tabela",
-          cabecalho: ["Escalas, inventários e questionários", "Resultado", "Interpretação"],
+          cabecalho: ["Escalas, inventários e questionários", "Resultado"],
           linhas: corpo,
-          estilos: { 1: { cellWidth: 24, halign: "center" }, 2: { cellWidth: 62 } }
+          estilos: { 1: { cellWidth: 30, halign: "center" } }
         }];
       }
     };

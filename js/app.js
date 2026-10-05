@@ -286,6 +286,7 @@
     capitalizarNome();
     calcularIdade();
     atualizarTitulo();
+    atualizarContadores();
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
     Cornell.limparPendentes();
@@ -322,6 +323,29 @@
         else if (dica && el.type !== "checkbox") dica = "Preencha: " + dica;
       }
       if (dica) el.title = dica.replace(/\s+/g, " ");
+    });
+  }
+
+  /* Contador de caracteres nos textos longos ("120 / 700"), para o texto caber na folha. */
+  const contadores = [];
+
+  function criarContadores() {
+    form.querySelectorAll("textarea[maxlength]").forEach(function (area) {
+      const contador = document.createElement("span");
+      contador.className = "contador";
+      contador.setAttribute("aria-live", "polite");
+      area.insertAdjacentElement("afterend", contador);
+      contadores.push({ area: area, el: contador });
+    });
+    atualizarContadores();
+  }
+
+  function atualizarContadores() {
+    contadores.forEach(function (c) {
+      const usados = c.area.value.length;
+      c.el.textContent = usados + " / " + c.area.maxLength + " caracteres";
+      c.el.title = "Limite de caracteres para o texto caber na folha da impressão";
+      c.el.classList.toggle("no-limite", usados >= c.area.maxLength);
     });
   }
 
@@ -374,7 +398,10 @@
   atualizarEtapas();
   atualizarNavegacao();
   atualizarTitulo();
+  criarContadores();
   aplicarTitulos();
+  form.addEventListener("input", atualizarContadores);
+  form.addEventListener("reset", function () { setTimeout(atualizarContadores); });
 
   linksSecao.forEach(function (link) {
     link.addEventListener("click", function (evento) {

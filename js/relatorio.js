@@ -119,7 +119,7 @@ const Relatorio = (function () {
     function tituloSecao(texto) {
       garantirEspaco(e(24));
       fonte(10, "bold", COR.escuro);
-      doc.text(textoPdf(texto).toUpperCase(), margem, y, { charSpace: 0.4 });
+      doc.text(textoPdf(texto).toUpperCase().replace(/\bMOCA\b/g, "MoCa"), margem, y, { charSpace: 0.4 });
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
       doc.line(margem, y + e(2.5), margem + util, y + e(2.5));
@@ -168,7 +168,13 @@ const Relatorio = (function () {
       const ultima = lista.length - 1;
       fonte(12, "bold");
       const larguras = lista.map(function (caixa, i) {
-        return i === ultima ? 0 : Math.max(34, doc.getTextWidth(textoPdf(caixa[1])) + 12);
+        if (i === ultima) return 0;
+        fonte(12, "bold");
+        const valor = doc.getTextWidth(textoPdf(caixa[1]));
+        fonte(7, "normal");
+        const rotulo = textoPdf(caixa[0]).toUpperCase();
+        const larguraRotulo = doc.getTextWidth(rotulo) + rotulo.length * 0.3;
+        return Math.max(34, valor + 12, larguraRotulo + 10);
       });
       const usadas = larguras.reduce(function (a, b) { return a + b; }, 0) + espaco * ultima;
       larguras[ultima] = util - usadas;
@@ -241,14 +247,22 @@ const Relatorio = (function () {
       y = doc.lastAutoTable.finalY + e(6);
     }
 
-    function lista(itens) {
-      itens.forEach(function (item) {
-        fonte(10, "normal");
-        const linhasItem = doc.splitTextToSize(textoPdf(item), util - 6);
+    /* Lista em tópicos. Com preencherFolha, os itens se espalham para ocupar a folha toda. */
+    function lista(itens, preencherFolha) {
+      fonte(10.5, "normal");
+      const quebras = itens.map(function (item) { return doc.splitTextToSize(textoPdf(item), util - 6); });
+      const linhasTotal = quebras.reduce(function (t, l) { return t + l.length; }, 0);
+      let folga = e(0.8);
+      if (preencherFolha) {
+        const sobra = limite - y - e(6) - linhasTotal * alturaTexto();
+        folga = Math.min(e(14), Math.max(folga, sobra / Math.max(1, itens.length)));
+      }
+      quebras.forEach(function (linhasItem) {
+        fonte(10.5, "normal");
         garantirEspaco(linhasItem.length * alturaTexto() + 1);
         doc.text("•", margem + 1, y);
         doc.text(linhasItem, margem + 6, y, { lineHeightFactor: 1.35 });
-        y += linhasItem.length * alturaTexto() + e(0.8);
+        y += linhasItem.length * alturaTexto() + folga;
       });
       y += e(4);
     }
@@ -294,7 +308,7 @@ const Relatorio = (function () {
         case "caixas": caixas(bloco.caixas); break;
         case "tabela": tabela(bloco); break;
         case "texto": caixaTexto(bloco.rotulo, bloco.texto); break;
-        case "lista": lista(bloco.itens); break;
+        case "lista": lista(bloco.itens, bloco.preencherFolha); break;
         case "imagem": imagem(bloco); break;
         case "assinaturas": assinaturas(bloco.pessoas); break;
         case "subtitulo":
@@ -410,17 +424,9 @@ const Relatorio = (function () {
 
     folhaUnica(folhaDados);
     (secoes || []).forEach(function (secao) {
-      /* Blocos marcados com folhaPropria (ex.: comentário do MoCA) saem numa folha só deles. */
-      const folhas = [[]];
-      secao.blocos.forEach(function (bloco) {
-        if (bloco.folhaPropria) folhas.push([bloco], []);
-        else folhas[folhas.length - 1].push(bloco);
-      });
-      folhas.filter(function (blocos) { return blocos.length; }).forEach(function (blocos) {
-        folhaUnica(function () {
-          tituloSecao(secao.titulo);
-          blocos.forEach(desenharBloco);
-        });
+      folhaUnica(function () {
+        tituloSecao(secao.titulo);
+        secao.blocos.forEach(desenharBloco);
       });
     });
     /* A primeira página criada pelo jsPDF fica em branco: as folhas começam na segunda. */

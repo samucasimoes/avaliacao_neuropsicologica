@@ -57,7 +57,7 @@
 
       <div class="sidebar-rodape">
         <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um documento (.json) salvo junto com um relatório para continuar ou corrigir a avaliação">
-          Carregar documento
+          Carregar Documento
         </button>
         <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
       </div>
@@ -90,7 +90,7 @@
             <div class="row row-a">
               <div class="field">
                 <label class="label" for="nome">Nome completo</label>
-                <input class="input" type="text" id="nome" name="nome" placeholder="Digite o nome do paciente">
+                <input class="input" type="text" id="nome" maxlength="100" name="nome" placeholder="Digite o nome do paciente">
               </div>
               <div class="field">
                 <label class="label" for="nascimento">Data de nascimento</label>
@@ -127,7 +127,7 @@
               </div>
               <div class="field">
                 <label class="label" for="profissao">Profissão</label>
-                <input class="input" type="text" id="profissao" name="profissao" placeholder="Digite a profissão">
+                <input class="input" type="text" id="profissao" maxlength="60" name="profissao" placeholder="Digite a profissão">
               </div>
             </div>
 
@@ -138,7 +138,7 @@
               </div>
               <div class="field">
                 <label class="label" for="encaminhador">Encaminhador</label>
-                <input class="input" type="text" id="encaminhador" name="encaminhador" placeholder="Digite o nome">
+                <input class="input" type="text" id="encaminhador" maxlength="80" name="encaminhador" placeholder="Digite o nome">
               </div>
               <div class="field">
                 <label class="label" for="data-avaliacao">Data da avaliação</label>
@@ -149,29 +149,29 @@
             <div class="row row-half">
               <div class="field">
                 <label class="label" for="informante">Informante</label>
-                <textarea class="input textarea" id="informante" name="informante" placeholder="Ex.: familiar, cuidador, acompanhante..."></textarea>
+                <textarea class="input textarea" maxlength="700" id="informante" name="informante" placeholder="Ex.: familiar, cuidador, acompanhante..."></textarea>
               </div>
               <div class="field">
                 <label class="label" for="medicamentos">Medicamentos em uso</label>
-                <textarea class="input textarea" id="medicamentos" name="medicamentos" placeholder="Descreva os medicamentos em uso..."></textarea>
+                <textarea class="input textarea" maxlength="700" id="medicamentos" name="medicamentos" placeholder="Descreva os medicamentos em uso..."></textarea>
               </div>
             </div>
 
             <div class="row row-half">
               <div class="field">
                 <label class="label" for="historia-patologica">História patológica pregressa</label>
-                <textarea class="input textarea" id="historia-patologica" name="historiaPatologica" placeholder="Descreva a história patológica pregressa..."></textarea>
+                <textarea class="input textarea" maxlength="700" id="historia-patologica" name="historiaPatologica" placeholder="Descreva a história patológica pregressa..."></textarea>
               </div>
               <div class="field">
                 <label class="label" for="historia-familiar">História familiar</label>
-                <textarea class="input textarea" id="historia-familiar" name="historiaFamiliar" placeholder="Descreva a história familiar..."></textarea>
+                <textarea class="input textarea" maxlength="700" id="historia-familiar" name="historiaFamiliar" placeholder="Descreva a história familiar..."></textarea>
               </div>
             </div>
 
             <div class="row">
               <div class="field">
                 <label class="label" for="avaliacoes">Avaliações</label>
-                <textarea class="input textarea short" id="avaliacoes" name="avaliacoes" placeholder="Ex.: datas das sessões ou avaliações realizadas..."></textarea>
+                <textarea class="input textarea short" maxlength="400" id="avaliacoes" name="avaliacoes" placeholder="Ex.: datas das sessões ou avaliações realizadas..."></textarea>
               </div>
             </div>
           </section>

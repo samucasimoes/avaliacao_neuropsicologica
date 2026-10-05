@@ -170,6 +170,47 @@ const Cornell = (function () {
     };
   }
 
+  /* Conteúdo para o relatório (só entra se algum item foi respondido). */
+  function relatorio() {
+    const r = resultado();
+    if (!r.respondidos) return null;
+    const linhas = [];
+    r.grupos.forEach(function (grupo) {
+      linhas.push({ grupo: grupo.titulo });
+      grupo.itens.forEach(function (item) {
+        linhas.push(item.pontos === null
+          ? { celulas: [item.numero, item.texto, "Não respondido", "—"], suave: true }
+          : [item.numero, item.texto, item.resposta, item.pontos]);
+      });
+    });
+    linhas.push({ celulas: ["", "Escore total", "", r.total], destaque: true });
+
+    return {
+      titulo: "Escala Cornell para Depressão",
+      blocos: [
+        {
+          tipo: "caixas",
+          caixas: [
+            ["Escore total", r.total + " / " + r.pontuacaoMaxima],
+            ["Itens respondidos", r.respondidos + " de " + r.totalItens],
+            ["Interpretação", r.interpretacao + (r.respondidos < r.totalItens ? " (parcial)" : "")]
+          ]
+        },
+        {
+          tipo: "tabela",
+          cabecalho: ["Nº", "Sinal avaliado", "Avaliação", "Pontos"],
+          linhas: linhas,
+          estilos: { 0: { cellWidth: 10, halign: "center" }, 2: { cellWidth: 42 }, 3: { cellWidth: 16, halign: "center" } }
+        },
+        {
+          tipo: "nota",
+          texto: "Referência: " + r.referencia +
+            " Pontuação por item: impossibilitado de avaliar 0, ausente 0, leve 1, intenso 2."
+        }
+      ]
+    };
+  }
+
   function atualizar() {
     const r = resultado();
     document.getElementById("cornell-total").textContent = r.total;
@@ -243,6 +284,7 @@ const Cornell = (function () {
     iniciar: iniciar,
     atualizar: atualizar,
     resultado: resultado,
+    relatorio: relatorio,
     completa: completa,
     validar: validar,
     limparPendentes: limparPendentes

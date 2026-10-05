@@ -1,4 +1,5 @@
-/* Geração do relatório em PDF (jsPDF + AutoTable) e Excel (ExcelJS). */
+/* Geração do relatório em PDF (jsPDF + AutoTable) e Excel (ExcelJS).
+   Cada etapa entrega uma lista de blocos ({ tipo, ... }) e aqui eles viram páginas. */
 
 const Relatorio = (function () {
   const TITULO = "Avaliação Neuropsicológica";
@@ -13,12 +14,6 @@ const Relatorio = (function () {
     return "avaliacao-neuropsicologica-" + (base || "paciente") + "." + extensao;
   }
 
-  function carimbo() {
-    const agora = new Date();
-    return agora.toLocaleDateString("pt-BR") + " às " +
-      agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  }
-
   function baixar(blob, nome) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -30,12 +25,23 @@ const Relatorio = (function () {
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
+  /* A fonte padrão do PDF não tem alguns símbolos. */
+  function textoPdf(texto) {
+    return String(texto === null || texto === undefined ? "" : texto)
+      .replace(/≥/g, ">=")
+      .replace(/≤/g, "<=")
+      .replace(/▪/g, "•");
+  }
+
+  /* Linha de tabela: array simples ou { celulas, destaque, suave } ou { grupo }. */
+  function celulasDe(linha) {
+    return Array.isArray(linha) ? linha : linha.celulas;
+  }
+
   /* ---------- PDF ---------- */
 
   const COR = {
     escuro: [33, 33, 33],
-    claro: [241, 241, 241],
-    fundo: [248, 248, 248],
     tinta: [25, 25, 25],
     suave: [112, 112, 112],
     linha: [214, 214, 214]
@@ -50,9 +56,9 @@ const Relatorio = (function () {
   ];
 
   /* Já aparecem no cabeçalho e no cartão do paciente. */
-  const EXIBIDOS_NO_TOPO = ["Nome", "Idade", "Sexo", "Data de Nascimento", "Data da Avaliação"];
+  const EXIBIDOS_NO_TOPO = ["Nome", "Idade", "Data de Nascimento", "Data da Avaliação"];
 
-  function gerarPdf(linhas, nomePaciente, cornell, shulman) {
+  function gerarPdf(linhas, nomePaciente, secoes) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: "mm", format: "a4" });
     const largura = doc.internal.pageSize.getWidth();
@@ -60,7 +66,7 @@ const Relatorio = (function () {
     const margem = 18;
     const util = largura - margem * 2;
     const limite = altura - 20;
-    const geradoEm = carimbo();
+    const alturaTexto = 4.9;
     const dados = {};
     linhas.forEach(function (linha) { dados[linha[0]] = linha[1]; });
     let y = 0;
@@ -77,10 +83,14 @@ const Relatorio = (function () {
       cor(rgb || COR.tinta);
     }
 
-    function novaPagina() {
-      doc.addPage();
+    function faixaTopo() {
       cor(COR.escuro, "fill");
       doc.rect(0, 0, largura, 2.5, "F");
+    }
+
+    function novaPagina() {
+      doc.addPage();
+      faixaTopo();
       y = 16;
     }
 
@@ -88,50 +98,277 @@ const Relatorio = (function () {
       if (y + necessario > limite) novaPagina();
     }
 
+    function borda(x, topo, w, h) {
+      cor(COR.linha, "draw");
+      doc.setLineWidth(0.2);
+      doc.roundedRect(x, topo, w, h, 2, 2, "S");
+    }
+
     function tituloSecao(texto) {
-      garantirEspaco(16);
+      garantirEspaco(24);
       fonte(10, "bold", COR.escuro);
-      doc.text(texto.toUpperCase(), margem, y, { charSpace: 0.4 });
+      doc.text(textoPdf(texto).toUpperCase(), margem, y, { charSpace: 0.4 });
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
       doc.line(margem, y + 2.5, margem + util, y + 2.5);
       y += 9;
     }
 
-    /* Cabeçalho */
-    cor(COR.escuro, "fill");
-    doc.rect(0, 0, largura, 2.5, "F");
+    /* Texto corrido que pode continuar na página seguinte. */
+    function paragrafo(texto, tamanho, estilo, rgb, largura) {
+      fonte(tamanho, estilo, rgb);
+      const linhasTexto = doc.splitTextToSize(textoPdf(texto), largura || util);
+      const passo = tamanho * 0.47;
+      linhasTexto.forEach(function (linhaTexto) {
+        garantirEspaco(passo + 1);
+        doc.text(linhaTexto, margem, y);
+        y += passo;
+      });
+    }
 
+    /* Rótulo em negrito + caixa com borda (sem fundo), dividida entre páginas se preciso. */
+    function caixaTexto(rotulo, valor) {
+      fonte(10, "normal");
+      const texto = doc.splitTextToSize(textoPdf(valor || "Não informado"), util - 10);
+
+      garantirEspaco(18);
+      fonte(9.5, "bold", COR.escuro);
+      doc.text(textoPdf(rotulo), margem, y);
+      y += 3;
+
+      let inicio = 0;
+      while (inicio < texto.length) {
+        const cabem = Math.max(1, Math.floor((limite - y - 8) / alturaTexto));
+        const trecho = texto.slice(inicio, inicio + cabem);
+        const alturaBloco = trecho.length * alturaTexto + 6;
+        borda(margem, y, util, alturaBloco);
+        fonte(10, valor ? "normal" : "italic", valor ? COR.tinta : COR.suave);
+        doc.text(trecho, margem + 5, y + 6.2, { lineHeightFactor: 1.35 });
+        inicio += trecho.length;
+        y += alturaBloco;
+        if (inicio < texto.length) novaPagina();
+      }
+      y += 7;
+    }
+
+    /* Caixas de resultado lado a lado; a última ocupa o resto e quebra linha se preciso. */
+    function caixas(lista) {
+      const espaco = 4;
+      const ultima = lista.length - 1;
+      fonte(12, "bold");
+      const larguras = lista.map(function (caixa, i) {
+        return i === ultima ? 0 : Math.max(34, doc.getTextWidth(textoPdf(caixa[1])) + 12);
+      });
+      const usadas = larguras.reduce(function (a, b) { return a + b; }, 0) + espaco * ultima;
+      larguras[ultima] = util - usadas;
+      fonte(10.5, "bold");
+      const linhasUltima = doc.splitTextToSize(textoPdf(lista[ultima][1]), larguras[ultima] - 8);
+      const alturaCaixa = 10.5 + linhasUltima.length * 4.6;
+      garantirEspaco(alturaCaixa + 6);
+      let x = margem;
+      lista.forEach(function (caixa, i) {
+        borda(x, y, larguras[i], alturaCaixa);
+        fonte(7, "normal", COR.suave);
+        doc.text(textoPdf(caixa[0]).toUpperCase(), x + 4, y + 5.5, { charSpace: 0.3 });
+        if (i === ultima) {
+          fonte(10.5, "bold");
+          doc.text(linhasUltima, x + 4, y + 11.5, { lineHeightFactor: 1.25 });
+        } else {
+          fonte(12, "bold");
+          doc.text(textoPdf(caixa[1]), x + 4, y + 11.5);
+        }
+        x += larguras[i] + espaco;
+      });
+      y += alturaCaixa + 6;
+    }
+
+    function tabela(bloco) {
+      const colunas = bloco.cabecalho.length;
+      const corpo = bloco.linhas.map(function (linha) {
+        if (linha.grupo) {
+          return [{
+            content: textoPdf(linha.grupo),
+            colSpan: colunas,
+            styles: { fontStyle: "bold", textColor: COR.escuro, fontSize: 8.5, halign: "left" }
+          }];
+        }
+        const estilo = linha.destaque ? { fontStyle: "bold" }
+          : linha.suave ? { fontStyle: "italic", textColor: COR.suave } : null;
+        return celulasDe(linha).map(function (valor) {
+          const texto = textoPdf(valor);
+          return estilo ? { content: texto, styles: estilo } : texto;
+        });
+      });
+
+      garantirEspaco(16);
+      doc.autoTable({
+        startY: y,
+        margin: { left: margem, right: margem, top: 16, bottom: 22 },
+        head: [bloco.cabecalho.map(textoPdf)],
+        body: corpo,
+        theme: "plain",
+        rowPageBreak: "avoid",
+        styles: {
+          font: "helvetica",
+          fontSize: 9,
+          textColor: COR.tinta,
+          cellPadding: { top: 1.8, bottom: 1.8, left: 2.5, right: 2.5 },
+          lineColor: COR.linha,
+          lineWidth: { bottom: 0.2 },
+          valign: "middle"
+        },
+        headStyles: {
+          fontStyle: "bold",
+          fontSize: 8,
+          textColor: COR.suave,
+          lineWidth: { bottom: 0.4 },
+          lineColor: COR.escuro
+        },
+        columnStyles: bloco.estilos || {},
+        didDrawPage: faixaTopo
+      });
+      y = doc.lastAutoTable.finalY + 6;
+    }
+
+    function lista(itens) {
+      itens.forEach(function (item) {
+        fonte(10, "normal");
+        const linhasItem = doc.splitTextToSize(textoPdf(item), util - 6);
+        garantirEspaco(linhasItem.length * alturaTexto + 1);
+        doc.text("•", margem + 1, y);
+        doc.text(linhasItem, margem + 6, y, { lineHeightFactor: 1.35 });
+        y += linhasItem.length * alturaTexto + 0.8;
+      });
+      y += 4;
+    }
+
+    function imagem(bloco) {
+      const alturaTotal = bloco.altura + (bloco.titulo ? 7 : 0);
+      garantirEspaco(alturaTotal + 4);
+      if (bloco.titulo) {
+        fonte(9.5, "bold", COR.escuro);
+        doc.text(textoPdf(bloco.titulo), margem, y);
+        y += 4;
+      }
+      const x = margem + (util - bloco.largura) / 2;
+      doc.addImage(bloco.imagem, "PNG", x, y, bloco.largura, bloco.altura);
+      y += bloco.altura + 6;
+    }
+
+    function shulman(r) {
+      const lado = 78;
+      garantirEspaco(lado + 8);
+      const xTexto = r.imagem ? margem + lado + 8 : margem;
+      const larguraTexto = util - (xTexto - margem);
+      const topo = y;
+
+      if (r.imagem) {
+        borda(margem, topo, lado, lado);
+        doc.addImage(r.imagem, "PNG", margem + 2, topo + 2, lado - 4, lado - 4);
+      }
+
+      borda(xTexto, topo, larguraTexto, 15);
+      fonte(7, "normal", COR.suave);
+      doc.text("PONTUAÇÃO", xTexto + 4, topo + 5.5, { charSpace: 0.3 });
+      fonte(12, "bold");
+      doc.text(r.pontuacao === null ? "Não pontuado"
+        : r.pontuacao + " / " + r.pontuacaoMaxima, xTexto + 4, topo + 11.5);
+
+      let yTexto = topo + 22;
+      if (r.descricao) {
+        fonte(9.5, "bold", COR.escuro);
+        doc.text("Classificação", xTexto, yTexto);
+        fonte(10, "normal");
+        const linhasDescricao = doc.splitTextToSize(textoPdf(r.descricao), larguraTexto);
+        doc.text(linhasDescricao, xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
+        yTexto += 8 + linhasDescricao.length * alturaTexto;
+      }
+      fonte(9.5, "bold", COR.escuro);
+      doc.text("Observações", xTexto, yTexto);
+      fonte(10, r.observacoes ? "normal" : "italic", r.observacoes ? COR.tinta : COR.suave);
+      const linhasObs = doc.splitTextToSize(textoPdf(r.observacoes || "Não informado"), larguraTexto);
+      const espacoObs = Math.max(1, Math.floor((limite - yTexto - 5) / alturaTexto));
+      doc.text(linhasObs.slice(0, espacoObs), xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
+      yTexto += 5 + Math.min(linhasObs.length, espacoObs) * alturaTexto;
+
+      y = Math.max(r.imagem ? topo + lado : 0, yTexto) + 6;
+    }
+
+    function assinaturas(pessoas) {
+      garantirEspaco(42);
+      y += 4;
+      fonte(10, "normal");
+      doc.text("Atenciosamente,", margem, y);
+      y += 24;
+      const coluna = util / pessoas.length;
+      pessoas.forEach(function (pessoa, i) {
+        const centro = margem + coluna * i + coluna / 2;
+        const meia = Math.min(32, coluna / 2 - 6);
+        cor(COR.tinta, "draw");
+        doc.setLineWidth(0.3);
+        doc.line(centro - meia, y, centro + meia, y);
+        fonte(10, "bold");
+        doc.text(textoPdf(pessoa.nome), centro, y + 5, { align: "center" });
+        fonte(9, "normal", COR.suave);
+        doc.text(textoPdf(pessoa.registro), centro, y + 10, { align: "center" });
+      });
+      y += 16;
+    }
+
+    function desenharBloco(bloco) {
+      switch (bloco.tipo) {
+        case "caixas": caixas(bloco.caixas); break;
+        case "tabela": tabela(bloco); break;
+        case "texto": caixaTexto(bloco.rotulo, bloco.texto); break;
+        case "lista": lista(bloco.itens); break;
+        case "imagem": imagem(bloco); break;
+        case "shulman": shulman(bloco.resultado); break;
+        case "assinaturas": assinaturas(bloco.pessoas); break;
+        case "subtitulo":
+          y += bloco.menor ? 1 : 3;
+          garantirEspaco(18);
+          fonte(bloco.menor ? 9.5 : 10.5, "bold", COR.escuro);
+          doc.text(textoPdf(bloco.texto), margem, y);
+          y += bloco.menor ? 3 : 6;
+          break;
+        case "paragrafo":
+          paragrafo(bloco.texto, 10, bloco.negrito ? "bold" : "normal", COR.tinta);
+          y += 4;
+          break;
+        case "nota":
+          paragrafo(bloco.texto, 8, "normal", COR.suave);
+          y += 5;
+          break;
+      }
+    }
+
+    /* Cabeçalho */
+    faixaTopo();
     fonte(19, "bold", COR.escuro);
     doc.text(TITULO, margem, 20);
     fonte(9.5, "normal", COR.suave);
     doc.text("Relatório da avaliação", margem, 26);
 
-    const dataAvaliacao = dados["Data da Avaliação"] || "—";
     fonte(8, "normal", COR.suave);
     doc.text("DATA DA AVALIAÇÃO", largura - margem, 18.5, { align: "right", charSpace: 0.3 });
     fonte(11, "bold");
-    doc.text(dataAvaliacao, largura - margem, 24.5, { align: "right" });
+    doc.text(dados["Data da Avaliação"] || "—", largura - margem, 24.5, { align: "right" });
 
-    /* Cartão do paciente */
+    /* Cartão do paciente (só borda, sem fundo) */
     y = 34;
     const resumo = [
       dados["Idade"],
-      dados["Sexo"],
       dados["Data de Nascimento"] ? "Nascimento: " + dados["Data de Nascimento"] : ""
     ].filter(Boolean).join("   •   ");
     const alturaCartao = resumo ? 22 : 16;
-    cor(COR.claro, "fill");
-    doc.roundedRect(margem, y, util, alturaCartao, 2.5, 2.5, "F");
-    cor(COR.escuro, "fill");
-    doc.roundedRect(margem, y, 2.2, alturaCartao, 1, 1, "F");
+    borda(margem, y, util, alturaCartao);
     fonte(7.5, "normal", COR.suave);
-    doc.text("PACIENTE", margem + 8, y + 6.5, { charSpace: 0.3 });
+    doc.text("PACIENTE", margem + 6, y + 6.5, { charSpace: 0.3 });
     fonte(14, "bold");
-    doc.text(doc.splitTextToSize(dados["Nome"] || "—", util - 14)[0], margem + 8, y + 12.5);
+    doc.text(doc.splitTextToSize(textoPdf(dados["Nome"] || "—"), util - 12)[0], margem + 6, y + 12.5);
     if (resumo) {
       fonte(9.5, "normal", COR.suave);
-      doc.text(resumo, margem + 8, y + 18);
+      doc.text(resumo, margem + 6, y + 18);
     }
     y += alturaCartao + 12;
 
@@ -143,7 +380,7 @@ const Relatorio = (function () {
     const coluna = (util - 8) / 2;
     for (let i = 0; i < identificacao.length; i += 2) {
       const par = identificacao.slice(i, i + 2).map(function (linha) {
-        return { rotulo: linha[0], valor: doc.splitTextToSize(linha[1] || "—", coluna) };
+        return { rotulo: linha[0], valor: doc.splitTextToSize(textoPdf(linha[1] || "—"), coluna) };
       });
       const linhasTexto = Math.max.apply(null, par.map(function (c) { return c.valor.length; }));
       const alturaLinha = 6 + linhasTexto * 4.8 + 4;
@@ -167,179 +404,18 @@ const Relatorio = (function () {
 
     /* Informações clínicas em blocos de texto */
     tituloSecao("Informações clínicas");
-    const larguraTexto = util - 10;
-    const alturaTexto = 4.9;
     CAMPOS_TEXTO.forEach(function (rotulo) {
-      const valor = dados[rotulo];
-      fonte(10, "normal");
-      const texto = doc.splitTextToSize(valor || "Não informado", larguraTexto);
-
-      garantirEspaco(18);
-      fonte(9.5, "bold", COR.escuro);
-      doc.text(rotulo, margem, y);
-      y += 3;
-
-      let inicio = 0;
-      while (inicio < texto.length) {
-        const cabem = Math.max(1, Math.floor((limite - y - 8) / alturaTexto));
-        const trecho = texto.slice(inicio, inicio + cabem);
-        const alturaBloco = trecho.length * alturaTexto + 6;
-        cor(COR.fundo, "fill");
-        cor(COR.linha, "draw");
-        doc.setLineWidth(0.2);
-        doc.roundedRect(margem, y, util, alturaBloco, 2, 2, "FD");
-        fonte(10, valor ? "normal" : "italic", valor ? COR.tinta : COR.suave);
-        doc.text(trecho, margem + 5, y + 6.2, { lineHeightFactor: 1.35 });
-        inicio += trecho.length;
-        y += alturaBloco;
-        if (inicio < texto.length) novaPagina();
-      }
-      y += 7;
+      caixaTexto(rotulo, dados[rotulo]);
     });
 
-    /* Escala Cornell (só entra no relatório se algum item foi respondido) */
-    if (cornell && cornell.respondidos > 0) {
-      y += 3;
-      garantirEspaco(70);
-      tituloSecao("Escala Cornell para Depressão");
+    /* Etapas da avaliação, na ordem do menu */
+    (secoes || []).forEach(function (secao) {
+      y += 4;
+      tituloSecao(secao.titulo);
+      secao.blocos.forEach(desenharBloco);
+    });
 
-      const caixas = [
-        ["ESCORE TOTAL", cornell.total + " / " + cornell.pontuacaoMaxima],
-        ["ITENS RESPONDIDOS", cornell.respondidos + " de " + cornell.totalItens],
-        ["INTERPRETAÇÃO", cornell.interpretacao +
-          (cornell.respondidos < cornell.totalItens ? " (parcial)" : "")]
-      ];
-      const larguras = [36, 40, util - 36 - 40 - 8];
-      let x = margem;
-      caixas.forEach(function (caixa, i) {
-        cor(COR.fundo, "fill");
-        cor(COR.linha, "draw");
-        doc.setLineWidth(0.2);
-        doc.roundedRect(x, y, larguras[i], 15, 2, 2, "FD");
-        fonte(7, "normal", COR.suave);
-        doc.text(caixa[0], x + 4, y + 5.5, { charSpace: 0.3 });
-        fonte(i === 2 ? 10.5 : 12, "bold");
-        doc.text(doc.splitTextToSize(caixa[1], larguras[i] - 8)[0], x + 4, y + 11.5);
-        x += larguras[i] + 4;
-      });
-      y += 21;
-
-      const corpo = [];
-      cornell.grupos.forEach(function (grupo) {
-        corpo.push([{
-          content: grupo.titulo,
-          colSpan: 4,
-          styles: { fontStyle: "bold", fillColor: COR.claro, textColor: COR.escuro, fontSize: 8.5 }
-        }]);
-        grupo.itens.forEach(function (item) {
-          const respondido = item.pontos !== null;
-          corpo.push([
-            item.numero,
-            item.texto,
-            respondido ? item.resposta
-              : { content: "Não respondido", styles: { fontStyle: "italic", textColor: COR.suave } },
-            respondido ? item.pontos : "—"
-          ]);
-        });
-      });
-      corpo.push([
-        { content: "Escore total", colSpan: 3, styles: { fontStyle: "bold", halign: "right" } },
-        { content: String(cornell.total), styles: { fontStyle: "bold" } }
-      ]);
-
-      doc.autoTable({
-        startY: y,
-        margin: { left: margem, right: margem, top: 16, bottom: 22 },
-        head: [["Nº", "Sinal avaliado", "Avaliação", "Pontos"]],
-        body: corpo,
-        theme: "plain",
-        styles: {
-          font: "helvetica",
-          fontSize: 9,
-          textColor: COR.tinta,
-          cellPadding: { top: 1.8, bottom: 1.8, left: 2.5, right: 2.5 },
-          lineColor: COR.linha,
-          lineWidth: { bottom: 0.2 },
-          valign: "middle"
-        },
-        headStyles: {
-          fontStyle: "bold",
-          fontSize: 8,
-          textColor: COR.suave,
-          lineWidth: { bottom: 0.4 },
-          lineColor: COR.escuro
-        },
-        columnStyles: {
-          0: { cellWidth: 10, halign: "center", textColor: COR.suave },
-          2: { cellWidth: 42 },
-          3: { cellWidth: 16, halign: "center" }
-        },
-        didDrawPage: function () {
-          cor(COR.escuro, "fill");
-          doc.rect(0, 0, largura, 2.5, "F");
-        }
-      });
-      y = doc.lastAutoTable.finalY + 5;
-
-      garantirEspaco(10);
-      fonte(8, "normal", COR.suave);
-      doc.text(doc.splitTextToSize("Referência: " + cornell.referencia +
-        " Pontuação por item: impossibilitado de avaliar 0, ausente 0, leve 1, intenso 2.", util), margem, y);
-      y += 8;
-    }
-
-    /* Relógio de Shulman (opcional: só entra se algo foi preenchido) */
-    if (shulman && shulman.preenchido) {
-      y += 6;
-      const lado = 78;
-      garantirEspaco(lado + 30);
-      tituloSecao("Relógio de Shulman");
-
-      const xTexto = shulman.imagem ? margem + lado + 8 : margem;
-      const larguraTexto = util - (xTexto - margem);
-      const topo = y;
-
-      if (shulman.imagem) {
-        cor(COR.linha, "draw");
-        doc.setLineWidth(0.2);
-        doc.roundedRect(margem, topo, lado, lado, 2, 2, "S");
-        doc.addImage(shulman.imagem, "PNG", margem + 2, topo + 2, lado - 4, lado - 4);
-      }
-
-      cor(COR.fundo, "fill");
-      cor(COR.linha, "draw");
-      doc.setLineWidth(0.2);
-      doc.roundedRect(xTexto, topo, larguraTexto, 15, 2, 2, "FD");
-      fonte(7, "normal", COR.suave);
-      doc.text("PONTUAÇÃO", xTexto + 4, topo + 5.5, { charSpace: 0.3 });
-      fonte(12, "bold");
-      doc.text(shulman.pontuacao === null ? "Não pontuado"
-        : shulman.pontuacao + " / " + shulman.pontuacaoMaxima, xTexto + 4, topo + 11.5);
-
-      let yTexto = topo + 22;
-      if (shulman.descricao) {
-        fonte(9.5, "bold", COR.escuro);
-        doc.text("Classificação", xTexto, yTexto);
-        fonte(10, "normal");
-        const linhasDescricao = doc.splitTextToSize(shulman.descricao, larguraTexto);
-        doc.text(linhasDescricao, xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
-        yTexto += 8 + linhasDescricao.length * 4.9;
-      }
-      fonte(9.5, "bold", COR.escuro);
-      doc.text("Observações", xTexto, yTexto);
-      fonte(10, shulman.observacoes ? "normal" : "italic", shulman.observacoes ? COR.tinta : COR.suave);
-      const linhasObs = doc.splitTextToSize(shulman.observacoes || "Não informado", larguraTexto);
-      const espacoObs = Math.max(1, Math.floor((limite - yTexto - 5) / 4.9));
-      doc.text(linhasObs.slice(0, espacoObs), xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
-      yTexto += 5 + Math.min(linhasObs.length, espacoObs) * 4.9;
-
-      y = Math.max(shulman.imagem ? topo + lado : 0, yTexto) + 6;
-      garantirEspaco(10);
-      fonte(8, "normal", COR.suave);
-      doc.text(doc.splitTextToSize("Referência: " + shulman.referencia, util), margem, y);
-    }
-
-    /* Rodapé */
+    /* Rodapé: só a numeração das páginas */
     const paginas = doc.getNumberOfPages();
     for (let i = 1; i <= paginas; i++) {
       doc.setPage(i);
@@ -347,7 +423,6 @@ const Relatorio = (function () {
       doc.setLineWidth(0.3);
       doc.line(margem, altura - 13, largura - margem, altura - 13);
       fonte(7.5, "normal", COR.suave);
-      doc.text("Gerado em " + geradoEm, margem, altura - 8.5);
       doc.text("Página " + i + " de " + paginas, largura - margem, altura - 8.5, { align: "right" });
     }
 
@@ -356,6 +431,8 @@ const Relatorio = (function () {
 
   /* ---------- Excel ---------- */
 
+  const COLUNAS_EXCEL = 5;
+
   function alturaLinha(texto, caracteresPorLinha) {
     const linhas = String(texto || "").split("\n").reduce(function (total, trecho) {
       return total + Math.max(1, Math.ceil(trecho.length / caracteresPorLinha));
@@ -363,10 +440,9 @@ const Relatorio = (function () {
     return Math.max(21, linhas * 15 + 6);
   }
 
-  async function gerarExcel(linhas, nomePaciente, cornell, shulman) {
+  async function gerarExcel(linhas, nomePaciente, secoes) {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = TITULO;
-    workbook.created = new Date();
 
     const sheet = workbook.addWorksheet("Avaliação", {
       pageSetup: {
@@ -379,119 +455,113 @@ const Relatorio = (function () {
       }
     });
 
-    sheet.columns = [{ width: 30 }, { width: 75 }];
+    sheet.columns = [{ width: 42 }, { width: 22 }, { width: 22 }, { width: 22 }, { width: 22 }];
 
     const borda = { style: "thin", color: { argb: "FF3C3C3C" } };
     const bordas = { top: borda, left: borda, bottom: borda, right: borda };
 
-    sheet.mergeCells("A1:B1");
-    const titulo = sheet.getCell("A1");
-    titulo.value = TITULO;
-    titulo.font = { name: "Calibri", size: 16, bold: true };
-    titulo.alignment = { horizontal: "center", vertical: "middle" };
-    titulo.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
-    titulo.border = bordas;
-    sheet.getCell("B1").border = bordas;
-    sheet.getRow(1).height = 30;
-
-    linhas.forEach(function (linha) {
-      const row = sheet.addRow([linha[0], linha[1]]);
-      row.height = alturaLinha(linha[1], 80);
-      row.getCell(1).font = { name: "Calibri", size: 11, bold: true };
-      row.getCell(2).font = { name: "Calibri", size: 11 };
+    function estilizar(row, negrito) {
       row.eachCell({ includeEmpty: true }, function (cell) {
         cell.border = bordas;
         cell.alignment = { vertical: "middle", wrapText: true };
+        cell.font = { name: "Calibri", size: 11, bold: !!negrito };
       });
+    }
+
+    /* Linha com o texto ocupando todas as colunas a partir de "inicio". */
+    function linhaMesclada(valores, inicio, negrito, caracteres) {
+      const conteudo = valores.slice();
+      while (conteudo.length < COLUNAS_EXCEL) conteudo.push("");
+      const row = sheet.addRow(conteudo);
+      if (inicio < COLUNAS_EXCEL) sheet.mergeCells(row.number, inicio, row.number, COLUNAS_EXCEL);
+      row.height = alturaLinha(valores[valores.length - 1], caracteres || 100);
+      estilizar(row, negrito);
+      return row;
+    }
+
+    function titulo(texto, tamanho) {
+      const row = linhaMesclada([texto], 1, true);
+      row.height = tamanho > 12 ? 30 : 24;
+      row.getCell(1).font = { name: "Calibri", size: tamanho, bold: true };
+      row.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+    }
+
+    function campo(rotulo, valor, negrito) {
+      const row = linhaMesclada([rotulo, valor], 2, negrito, 80);
+      row.getCell(1).font = { name: "Calibri", size: 11, bold: true };
+    }
+
+    function blocoExcel(bloco) {
+      switch (bloco.tipo) {
+        case "caixas":
+          bloco.caixas.forEach(function (c) { campo(c[0], c[1], true); });
+          break;
+        case "texto":
+          campo(bloco.rotulo, bloco.texto);
+          break;
+        case "paragrafo":
+        case "nota":
+          linhaMesclada([bloco.texto], 1, !!bloco.negrito, 130);
+          break;
+        case "subtitulo":
+          linhaMesclada([bloco.texto], 1, true);
+          break;
+        case "lista":
+          bloco.itens.forEach(function (item) { linhaMesclada(["• " + item], 1, false, 130); });
+          break;
+        case "tabela": {
+          const total = bloco.cabecalho.length;
+          const ajustar = function (valores, negrito) {
+            const conteudo = valores.map(function (v) { return v === null || v === undefined ? "" : v; });
+            if (total <= COLUNAS_EXCEL) {
+              const row = linhaMesclada(conteudo, total, negrito, 40);
+              row.height = alturaLinha(conteudo[0] || conteudo[1], 40);
+              return row;
+            }
+            const row = sheet.addRow(conteudo);
+            estilizar(row, negrito);
+            return row;
+          };
+          ajustar(bloco.cabecalho, true);
+          bloco.linhas.forEach(function (linha) {
+            if (linha.grupo) linhaMesclada([linha.grupo], 1, true);
+            else ajustar(celulasDe(linha), !!linha.destaque);
+          });
+          break;
+        }
+        case "shulman": {
+          const r = bloco.resultado;
+          campo("Pontuação", r.pontuacao === null ? "Não pontuado" : r.pontuacao + " / " + r.pontuacaoMaxima, true);
+          campo("Classificação", r.descricao || "—");
+          campo("Observações", r.observacoes || "Não informado");
+          if (r.imagem) adicionarImagem(r.imagem, 305, 305);
+          break;
+        }
+        case "imagem":
+          adicionarImagem(bloco.imagem, 520, Math.round(520 * bloco.altura / bloco.largura));
+          break;
+        case "assinaturas":
+          linhaMesclada(["Atenciosamente,"], 1, false);
+          bloco.pessoas.forEach(function (p) { campo(p.nome, p.registro); });
+          break;
+      }
+    }
+
+    function adicionarImagem(base64, w, h) {
+      const row = linhaMesclada([""], 1, false);
+      row.height = h * 0.78;
+      const id = workbook.addImage({ base64: base64, extension: "png" });
+      sheet.addImage(id, { tl: { col: 0.1, row: row.number - 1 + 0.05 }, ext: { width: w, height: h } });
+    }
+
+    titulo(TITULO, 16);
+    linhas.forEach(function (linha) { campo(linha[0], linha[1]); });
+
+    (secoes || []).forEach(function (secao) {
+      sheet.addRow([]).height = 10;
+      titulo(secao.titulo, 13);
+      secao.blocos.forEach(blocoExcel);
     });
-
-    if (cornell && cornell.respondidos > 0) {
-      sheet.addRow([]).height = 10;
-      const cabecalho = sheet.addRow(["Escala Cornell para Depressão"]);
-      sheet.mergeCells(cabecalho.number, 1, cabecalho.number, 2);
-      cabecalho.height = 24;
-      cabecalho.getCell(1).font = { name: "Calibri", size: 13, bold: true };
-      cabecalho.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
-      cabecalho.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
-      cabecalho.getCell(1).border = bordas;
-
-      function linhaCornell(rotulo, valorCelula, destaque) {
-        const row = sheet.addRow([rotulo, valorCelula]);
-        row.height = alturaLinha(rotulo, 32);
-        row.getCell(1).font = { name: "Calibri", size: 11, bold: !!destaque };
-        row.getCell(2).font = { name: "Calibri", size: 11, bold: !!destaque };
-        row.eachCell({ includeEmpty: true }, function (cell) {
-          cell.border = bordas;
-          cell.alignment = { vertical: "middle", wrapText: true };
-        });
-      }
-
-      cornell.grupos.forEach(function (grupo) {
-        const titulo = sheet.addRow([grupo.titulo]);
-        sheet.mergeCells(titulo.number, 1, titulo.number, 2);
-        titulo.getCell(1).font = { name: "Calibri", size: 11, bold: true, italic: true };
-        titulo.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F2F2" } };
-        titulo.getCell(1).border = bordas;
-        grupo.itens.forEach(function (item) {
-          linhaCornell(item.numero + ". " + item.texto,
-            item.pontos === null ? "Não respondido" : item.resposta + " (" + item.pontos + ")");
-        });
-      });
-      linhaCornell("Escore total", cornell.total + " / " + cornell.pontuacaoMaxima, true);
-      linhaCornell("Interpretação", cornell.interpretacao +
-        (cornell.respondidos < cornell.totalItens ? " (parcial: " + cornell.respondidos + " de " +
-          cornell.totalItens + " itens)" : ""), true);
-      linhaCornell("Referência", cornell.referencia);
-    }
-
-    if (shulman && shulman.preenchido) {
-      sheet.addRow([]).height = 10;
-      const cabecalho = sheet.addRow(["Relógio de Shulman"]);
-      sheet.mergeCells(cabecalho.number, 1, cabecalho.number, 2);
-      cabecalho.height = 24;
-      cabecalho.getCell(1).font = { name: "Calibri", size: 13, bold: true };
-      cabecalho.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
-      cabecalho.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
-      cabecalho.getCell(1).border = bordas;
-
-      [
-        ["Pontuação", shulman.pontuacao === null ? "Não pontuado"
-          : shulman.pontuacao + " / " + shulman.pontuacaoMaxima, true],
-        ["Classificação", shulman.descricao || "—"],
-        ["Observações", shulman.observacoes || "Não informado"],
-        ["Referência", shulman.referencia]
-      ].forEach(function (linha) {
-        const row = sheet.addRow([linha[0], linha[1]]);
-        row.height = alturaLinha(linha[1], 80);
-        row.getCell(1).font = { name: "Calibri", size: 11, bold: true };
-        row.getCell(2).font = { name: "Calibri", size: 11, bold: !!linha[2] };
-        row.eachCell({ includeEmpty: true }, function (cell) {
-          cell.border = bordas;
-          cell.alignment = { vertical: "middle", wrapText: true };
-        });
-      });
-
-      /* Desenho do relógio numa linha alta, ocupando as duas colunas. */
-      if (shulman.imagem) {
-        const linhaImagem = sheet.addRow(["Desenho"]);
-        sheet.mergeCells(linhaImagem.number, 1, linhaImagem.number, 2);
-        linhaImagem.height = 240;
-        linhaImagem.getCell(1).font = { name: "Calibri", size: 9, italic: true, color: { argb: "FF7A7A7A" } };
-        linhaImagem.getCell(1).alignment = { vertical: "top" };
-        linhaImagem.getCell(1).border = bordas;
-        const idImagem = workbook.addImage({ base64: shulman.imagem, extension: "png" });
-        sheet.addImage(idImagem, {
-          tl: { col: 1, row: linhaImagem.number - 1 + 0.04 },
-          ext: { width: 305, height: 305 }
-        });
-      }
-    }
-
-    const rodape = sheet.addRow([]);
-    rodape.height = 8;
-    const info = sheet.addRow(["Relatório gerado em " + carimbo()]);
-    sheet.mergeCells(info.number, 1, info.number, 2);
-    info.getCell(1).font = { name: "Calibri", size: 9, italic: true, color: { argb: "FF7A7A7A" } };
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
@@ -507,7 +577,7 @@ const Relatorio = (function () {
   function gerarBackup(campos, nomePaciente) {
     const conteudo = {
       tipo: TIPO_BACKUP,
-      versao: 1,
+      versao: 2,
       geradoEm: new Date().toISOString(),
       campos: campos
     };

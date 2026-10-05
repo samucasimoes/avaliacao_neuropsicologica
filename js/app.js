@@ -7,8 +7,8 @@
   const campoIdade = document.getElementById("idade");
   const campoTelefone = document.getElementById("telefone");
   const campoDataAvaliacao = document.getElementById("data-avaliacao");
+  const campoSexo = document.getElementById("sexo");
   const selects = form.querySelectorAll("select");
-  const relogio = document.getElementById("relogio");
   const modalRelatorio = document.getElementById("modal-relatorio");
   const formRelatorio = document.getElementById("form-relatorio");
   const modalLimpar = document.getElementById("modal-limpar");
@@ -36,15 +36,6 @@
     toast.hidden = false;
     clearTimeout(timerToast);
     timerToast = setTimeout(function () { toast.hidden = true; }, 3500);
-  }
-
-  /* ---------- Relógio ---------- */
-
-  function atualizarRelogio() {
-    const agora = new Date();
-    relogio.textContent = agora.toLocaleDateString("pt-BR") + "  " +
-      agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-    relogio.dateTime = agora.toISOString();
   }
 
   /* ---------- Idade ---------- */
@@ -116,33 +107,70 @@
   /* ---------- Etapas ---------- */
 
   const secoes = document.querySelectorAll(".secao");
-  const linksSecao = document.querySelectorAll("[data-secao]");
-  const linkDados = document.querySelector('[data-secao="dados"]');
-  const linkCornell = document.querySelector('[data-secao="cornell"]');
-  const linkShulman = document.querySelector('[data-secao="shulman"]');
-  const botoesIr = document.querySelectorAll("[data-ir]");
-  const botoesDaSecao = document.querySelectorAll("[data-na-secao]");
+  const linksSecao = Array.from(document.querySelectorAll("[data-secao]"));
+  const ordem = linksSecao.map(function (link) { return link.dataset.secao; });
+  const botaoAnterior = document.getElementById("btn-anterior");
+  const botaoProxima = document.getElementById("btn-proxima");
+  const botaoGerar = document.getElementById("btn-gerar");
+  const botaoGerarSecundario = document.getElementById("btn-gerar-secundario");
+  const ICONE_CADEADO = '<svg class="step-lock" viewBox="0 0 24 24" aria-hidden="true">' +
+    '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+  let secaoAtual = "dados";
 
-  /* Libera as escalas só depois dos dados obrigatórios do paciente. */
+  /* Nome da etapa como aparece no menu, sem o número. */
+  function nomeEtapa(id) {
+    const link = linksSecao[ordem.indexOf(id)];
+    const numero = link.querySelector(".step-num").textContent;
+    return link.textContent.trim().slice(numero.length).trim();
+  }
+
+  function etapaConcluida(id) {
+    if (id === "dados") return dadosCompletos();
+    if (id === "cornell") return Cornell.completa();
+    if (id === "shulman") return Shulman.pontuado();
+    return Secoes.preenchida(id);
+  }
+
+  /* Libera as etapas só depois dos dados obrigatórios do paciente. */
   function atualizarEtapas() {
     const liberada = dadosCompletos();
-    [linkCornell, linkShulman].forEach(function (link) {
-      link.classList.toggle("bloqueada", !liberada);
-      link.setAttribute("aria-disabled", String(!liberada));
-      link.title = liberada ? "" : "Preencha os dados do paciente para liberar";
+    linksSecao.forEach(function (link) {
+      const id = link.dataset.secao;
+      if (id !== "dados") {
+        link.classList.toggle("bloqueada", !liberada);
+        link.setAttribute("aria-disabled", String(!liberada));
+        link.title = liberada ? "" : "Preencha os dados do paciente para liberar";
+      }
+      link.classList.toggle("concluida", liberada && etapaConcluida(id));
     });
-    linkDados.classList.toggle("concluida", liberada);
-    linkCornell.classList.toggle("concluida", liberada && Cornell.completa());
-    linkShulman.classList.toggle("concluida", liberada && Shulman.pontuado());
+  }
+
+  function atualizarNavegacao() {
+    const posicao = ordem.indexOf(secaoAtual);
+    const anterior = ordem[posicao - 1];
+    const proxima = ordem[posicao + 1];
+    botaoAnterior.hidden = !anterior;
+    if (anterior) {
+      botaoAnterior.querySelector(".btn-rotulo").textContent = nomeEtapa(anterior);
+      botaoAnterior.title = "Voltar para " + nomeEtapa(anterior);
+    }
+    botaoProxima.hidden = !proxima;
+    botaoGerarSecundario.hidden = !proxima;
+    botaoGerar.hidden = !!proxima;
+    if (proxima) {
+      botaoProxima.querySelector(".btn-rotulo").textContent = "Continuar: " + nomeEtapa(proxima);
+      botaoProxima.title = "Continuar para " + nomeEtapa(proxima);
+    }
   }
 
   function mostrarSecao(nome) {
     if (nome !== "dados" && !dadosCompletos()) {
       mostrarSecao("dados");
       validar();
-      mostrarAviso("Preencha os dados obrigatórios do paciente para liberar as escalas.");
+      mostrarAviso("Preencha os dados obrigatórios do paciente para liberar as outras etapas.");
       return;
     }
+    secaoAtual = nome;
     secoes.forEach(function (secao) {
       secao.hidden = secao.id !== "secao-" + nome;
     });
@@ -152,10 +180,24 @@
       if (ativo) link.setAttribute("aria-current", "step");
       else link.removeAttribute("aria-current");
     });
-    botoesDaSecao.forEach(function (botao) {
-      botao.hidden = botao.dataset.naSecao.split(" ").indexOf(nome) === -1;
-    });
+    atualizarNavegacao();
     window.scrollTo({ top: 0 });
+  }
+
+  /* Etapas na ordem dos números do menu, para o relatório. */
+  function secoesDoRelatorio() {
+    return linksSecao
+      .map(function (link) {
+        return { id: link.dataset.secao, numero: Number(link.querySelector(".step-num").textContent) };
+      })
+      .filter(function (etapa) { return etapa.id !== "dados"; })
+      .sort(function (a, b) { return a.numero - b.numero; })
+      .map(function (etapa) {
+        if (etapa.id === "cornell") return Cornell.relatorio();
+        if (etapa.id === "shulman") return Shulman.relatorio();
+        return Secoes.relatorio(etapa.id);
+      })
+      .filter(Boolean);
   }
 
   /* ---------- Dados para o relatório ---------- */
@@ -170,7 +212,6 @@
       ["Nome", valor("nome")],
       ["Idade", idade],
       ["Data de Nascimento", formatarData(campoNascimento.value)],
-      ["Sexo", valor("sexo")],
       ["Escolaridade", valor("escolaridade")],
       ["Profissão", valor("profissao")],
       ["Telefone", valor("telefone")],
@@ -192,6 +233,8 @@
       if (el.type === "radio") {
         if (!(el.name in campos)) campos[el.name] = "";
         if (el.checked) campos[el.name] = el.value;
+      } else if (el.type === "checkbox") {
+        campos[el.name] = el.checked;
       } else {
         campos[el.name] = el.value;
       }
@@ -209,6 +252,10 @@
         el.checked = el.value === valorCampo;
         return;
       }
+      if (el.type === "checkbox") {
+        el.checked = campos[el.name] === true;
+        return;
+      }
       /* Mantém valores de listas que não existem mais nas opções. */
       if (el.tagName === "SELECT" && valorCampo &&
           !Array.from(el.options).some(function (o) { return o.value === valorCampo; })) {
@@ -224,6 +271,7 @@
     Cornell.limparPendentes();
     Shulman.carregar(campos.shulmanDesenho);
     Shulman.atualizar();
+    Secoes.atualizar();
     limparErros();
     atualizarEtapas();
   }
@@ -232,6 +280,8 @@
     return Array.from(form.elements).some(function (el) {
       if (el.readOnly || !el.name || el.id === "data-avaliacao") return false;
       if (el.type === "radio") return el.checked;
+      if (el.type === "checkbox") return el.checked !== el.defaultChecked;
+      if (el.defaultValue && el.value === el.defaultValue) return false;
       return el.value && el.value.trim() !== "";
     }) || Shulman.temDesenho();
   }
@@ -240,10 +290,28 @@
 
   Cornell.iniciar(form);
   Shulman.iniciar(form);
+  Secoes.iniciar(form, {
+    paciente: function () {
+      return { nome: valor("nome"), sexo: campoSexo.value };
+    },
+    origens: {
+      cornell: function () {
+        const r = Cornell.resultado();
+        if (!r.respondidos) return null;
+        const parcial = r.respondidos < r.totalItens;
+        return {
+          valor: r.total + " / " + r.pontuacaoMaxima,
+          texto: r.interpretacao + (parcial ? " (parcial)" : ""),
+          nivel: r.total >= 12 ? "alto" : r.total >= 9 ? "medio" : "baixo"
+        };
+      }
+    }
+  });
+  linksSecao.forEach(function (link) {
+    if (link.dataset.secao !== "dados") link.insertAdjacentHTML("beforeend", ICONE_CADEADO);
+  });
   campoNascimento.max = hojeISO();
   campoDataAvaliacao.value = hojeISO();
-  atualizarRelogio();
-  setInterval(atualizarRelogio, 15000);
   selects.forEach(atualizarSelect);
 
   campoNascimento.addEventListener("change", calcularIdade);
@@ -261,9 +329,22 @@
     });
   });
 
-  form.addEventListener("input", atualizarEtapas);
-  form.addEventListener("change", atualizarEtapas);
+  /* "Sexo feminino" do Resumo acompanha o sexo informado nos dados do paciente. */
+  campoSexo.addEventListener("change", function () {
+    if (!campoSexo.value) return;
+    const opcao = form.querySelector('input[name="resumo-fatores-3"][value="' +
+      (campoSexo.value === "Feminino" ? "sim" : "nao") + '"]');
+    if (opcao) opcao.checked = true;
+  });
+
+  ["input", "change"].forEach(function (tipo) {
+    form.addEventListener(tipo, function () {
+      Secoes.atualizar();
+      atualizarEtapas();
+    });
+  });
   atualizarEtapas();
+  atualizarNavegacao();
 
   linksSecao.forEach(function (link) {
     link.addEventListener("click", function (evento) {
@@ -272,8 +353,12 @@
     });
   });
 
-  botoesIr.forEach(function (botao) {
-    botao.addEventListener("click", function () { mostrarSecao(botao.dataset.ir); });
+  botaoAnterior.addEventListener("click", function () {
+    mostrarSecao(ordem[ordem.indexOf(secaoAtual) - 1]);
+  });
+
+  botaoProxima.addEventListener("click", function () {
+    mostrarSecao(ordem[ordem.indexOf(secaoAtual) + 1]);
   });
 
   document.getElementById("btn-topo").addEventListener("click", function () {
@@ -283,15 +368,16 @@
 
   const opcaoCompleto = document.getElementById("conteudo-completo");
   const infoCornell = document.getElementById("conteudo-cornell-info");
-  const infoShulman = document.getElementById("conteudo-shulman-info");
+  const infoEtapas = document.getElementById("conteudo-etapas-info");
 
   /* O modal só abre com a Cornell completa, então a opção com as escalas vem marcada. */
   function prepararConteudo() {
     infoCornell.textContent = "Cornell completa (escore " + Cornell.resultado().total + ")";
-    const shulman = Shulman.resultado();
-    if (!shulman.preenchido) infoShulman.textContent = "Relógio de Shulman não preenchido";
-    else if (shulman.pontuacao === null) infoShulman.textContent = "Relógio de Shulman sem pontuação";
-    else infoShulman.textContent = "Relógio de Shulman (" + shulman.pontuacao + " / " + shulman.pontuacaoMaxima + ")";
+    const outras = ordem.filter(function (id) {
+      return id !== "dados" && id !== "cornell" && etapaConcluida(id);
+    }).length;
+    infoEtapas.textContent = outras === 0 ? "Nenhuma outra etapa preenchida"
+      : outras === 1 ? "Mais 1 etapa preenchida" : "Mais " + outras + " etapas preenchidas";
     opcaoCompleto.checked = true;
   }
 
@@ -325,15 +411,14 @@
     const formato = formRelatorio.elements.formato.value;
     const dados = coletarDados();
     const comEscalas = formRelatorio.elements.conteudo.value === "completo";
-    const cornell = comEscalas ? Cornell.resultado() : null;
-    const shulman = comEscalas ? Shulman.resultado() : null;
+    const etapas = comEscalas ? secoesDoRelatorio() : [];
     const nome = valor("nome");
 
     botaoBaixar.disabled = true;
     botaoBaixar.textContent = "Gerando...";
     try {
-      if (formato === "excel") await Relatorio.gerarExcel(dados, nome, cornell, shulman);
-      else Relatorio.gerarPdf(dados, nome, cornell, shulman);
+      if (formato === "excel") await Relatorio.gerarExcel(dados, nome, etapas);
+      else Relatorio.gerarPdf(dados, nome, etapas);
       /* Pequena pausa para o navegador não bloquear o segundo download. */
       await new Promise(function (resolve) { setTimeout(resolve, 400); });
       Relatorio.gerarBackup(coletarCampos(), nome);
@@ -363,6 +448,7 @@
     Cornell.atualizar();
     Cornell.limparPendentes();
     Shulman.limpar();
+    Secoes.atualizar();
     atualizarEtapas();
     mostrarSecao("dados");
     mostrarAviso("Campos limpos.");
@@ -443,8 +529,6 @@
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden") gravarRascunho();
     });
-
-    document.querySelector(".status").lastChild.textContent = " Rascunho salvo neste navegador (modo de teste)";
   }
 
   /* ---------- Fim do rascunho automático ---------- */

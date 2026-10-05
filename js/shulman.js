@@ -222,6 +222,19 @@ const Shulman = (function () {
     };
   }
 
+  /* Conteúdo para o relatório (opcional: só entra se algo foi preenchido). */
+  function relatorio() {
+    const r = resultado();
+    if (!r.preenchido) return null;
+    return {
+      titulo: "Relógio de Shulman",
+      blocos: [
+        { tipo: "shulman", resultado: r },
+        { tipo: "nota", texto: "Referência: " + r.referencia }
+      ]
+    };
+  }
+
   /* ---------- Tela ---------- */
 
   function montarPontuacoes(container) {
@@ -288,6 +301,7 @@ const Shulman = (function () {
     iniciar: iniciar,
     atualizar: atualizar,
     resultado: resultado,
+    relatorio: relatorio,
     pontuado: function () { return !!pontuacaoEscolhida(); },
     temDesenho: temDesenho,
     desenho: desenho,

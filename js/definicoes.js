@@ -99,8 +99,7 @@ const DEFINICOES = [
   {
     id: "funcoes",
     titulo: "Funções avaliadas",
-    descricao: "Desmarque as funções que não foram avaliadas. A lista marcada entra no relatório, em uma folha única.",
-    paginaPropria: true,
+    descricao: "Desmarque as funções que não foram avaliadas. A lista marcada entra no relatório.",
     blocos: [
       {
         tipo: "checklist",
@@ -130,9 +129,8 @@ const DEFINICOES = [
   {
     id: "protocolos",
     titulo: "Protocolos aplicados",
-    descricao: "Texto fixo: não há nada para preencher. Ele aparece somente na impressão do relatório completo, em uma folha única.",
+    descricao: "Texto fixo: não há nada para preencher. Ele aparece somente na impressão do relatório completo.",
     sempreImprimir: true,
-    paginaPropria: true,
     blocos: [
       {
         tipo: "lista",

@@ -7,8 +7,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
 1. **Dados do paciente**
 2. **Resumo** – fatores de risco (Sim / Não / Não disponível).
-3. **Funções avaliadas** – lista já marcada; sai em uma folha única no relatório.
-4. **Protocolos aplicados** – texto fixo, sai só na impressão, em uma folha única.
+3. **Funções avaliadas** – lista já marcada.
+4. **Protocolos aplicados** – texto fixo, sai só na impressão.
 5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta.
 6. **Pfeffer** – Questionário de Atividades Funcionais, pontuação total de 0 a 30.
 7. **Escala Cornell** – escore e interpretação automáticos.
@@ -29,6 +29,7 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 21. **Conclusão** – texto e assinaturas dos profissionais.
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
+Cada aba ocupa uma folha: se o conteúdo for grande, a letra diminui até caber.
 Ao gerar, escolha entre **dados do paciente + escalas** ou **somente os dados do paciente**.
 Nenhum dado é salvo: tudo acontece no navegador.
 

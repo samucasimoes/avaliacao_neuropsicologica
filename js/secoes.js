@@ -970,9 +970,7 @@ const Secoes = (function () {
       });
     });
 
-    return blocos.length
-      ? { titulo: secao.def.titulo, blocos: blocos, paginaPropria: !!secao.def.paginaPropria }
-      : null;
+    return blocos.length ? { titulo: secao.def.titulo, blocos: blocos } : null;
   }
 
   function iniciar(formulario, opcoes) {

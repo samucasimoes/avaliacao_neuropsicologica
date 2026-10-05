@@ -829,7 +829,7 @@ const DEFINICOES = [
   {
     id: "wechsler",
     titulo: "Digit Span / Bateria Wechsler",
-    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8, Dígitos, é o Digit Span: ordem direta e ordem inversa).",
+    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8, Dígitos, é o Digit Span).",
     blocos: [
       {
         tipo: "tabela",
@@ -848,8 +848,7 @@ const DEFINICOES = [
           { rotulo: "5 - Cubos" },
           { rotulo: "6 - Códigos" },
           { rotulo: "7 - Procurar Símbolos" },
-          { rotulo: "8 - Dígitos: ordem direta (memória imediata)", opcoesClasse: CLASSE_2 },
-          { rotulo: "8 - Dígitos: ordem inversa (memória operacional)", opcoesClasse: CLASSE_2 }
+          { rotulo: "8 - Dígitos (memória imediata e memória operacional)" }
         ]
       },
       {

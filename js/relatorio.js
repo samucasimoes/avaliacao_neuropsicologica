@@ -252,46 +252,8 @@ const Relatorio = (function () {
       }
       const x = margem + (util - bloco.largura) / 2;
       doc.addImage(bloco.imagem, "PNG", x, y, bloco.largura, bloco.altura);
+      if (bloco.borda) borda(x, y, bloco.largura, bloco.altura);
       y += bloco.altura + 6;
-    }
-
-    function shulman(r) {
-      const lado = 78;
-      garantirEspaco(lado + 8);
-      const xTexto = r.imagem ? margem + lado + 8 : margem;
-      const larguraTexto = util - (xTexto - margem);
-      const topo = y;
-
-      if (r.imagem) {
-        borda(margem, topo, lado, lado);
-        doc.addImage(r.imagem, "PNG", margem + 2, topo + 2, lado - 4, lado - 4);
-      }
-
-      borda(xTexto, topo, larguraTexto, 15);
-      fonte(7, "normal", COR.suave);
-      doc.text("PONTUAÇÃO", xTexto + 4, topo + 5.5, { charSpace: 0.3 });
-      fonte(12, "bold");
-      doc.text(r.pontuacao === null ? "Não pontuado"
-        : r.pontuacao + " / " + r.pontuacaoMaxima, xTexto + 4, topo + 11.5);
-
-      let yTexto = topo + 22;
-      if (r.descricao) {
-        fonte(9.5, "bold", COR.escuro);
-        doc.text("Classificação", xTexto, yTexto);
-        fonte(10, "normal");
-        const linhasDescricao = doc.splitTextToSize(textoPdf(r.descricao), larguraTexto);
-        doc.text(linhasDescricao, xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
-        yTexto += 8 + linhasDescricao.length * alturaTexto;
-      }
-      fonte(9.5, "bold", COR.escuro);
-      doc.text("Observações", xTexto, yTexto);
-      fonte(10, r.observacoes ? "normal" : "italic", r.observacoes ? COR.tinta : COR.suave);
-      const linhasObs = doc.splitTextToSize(textoPdf(r.observacoes || "Não informado"), larguraTexto);
-      const espacoObs = Math.max(1, Math.floor((limite - yTexto - 5) / alturaTexto));
-      doc.text(linhasObs.slice(0, espacoObs), xTexto, yTexto + 5, { lineHeightFactor: 1.35 });
-      yTexto += 5 + Math.min(linhasObs.length, espacoObs) * alturaTexto;
-
-      y = Math.max(r.imagem ? topo + lado : 0, yTexto) + 6;
     }
 
     function assinaturas(pessoas) {
@@ -322,7 +284,6 @@ const Relatorio = (function () {
         case "texto": caixaTexto(bloco.rotulo, bloco.texto); break;
         case "lista": lista(bloco.itens); break;
         case "imagem": imagem(bloco); break;
-        case "shulman": shulman(bloco.resultado); break;
         case "assinaturas": assinaturas(bloco.pessoas); break;
         case "subtitulo":
           y += bloco.menor ? 1 : 3;
@@ -408,11 +369,14 @@ const Relatorio = (function () {
       caixaTexto(rotulo, dados[rotulo]);
     });
 
-    /* Etapas da avaliação, na ordem do menu */
+    /* Etapas da avaliação, na ordem do menu. As de folha única ocupam uma página só delas. */
+    let aposFolhaUnica = false;
     (secoes || []).forEach(function (secao) {
-      y += 4;
+      if (secao.paginaPropria || aposFolhaUnica) novaPagina();
+      else y += 4;
       tituloSecao(secao.titulo);
       secao.blocos.forEach(desenharBloco);
+      aposFolhaUnica = !!secao.paginaPropria;
     });
 
     /* Rodapé: só a numeração das páginas */
@@ -527,14 +491,6 @@ const Relatorio = (function () {
             if (linha.grupo) linhaMesclada([linha.grupo], 1, true);
             else ajustar(celulasDe(linha), !!linha.destaque);
           });
-          break;
-        }
-        case "shulman": {
-          const r = bloco.resultado;
-          campo("Pontuação", r.pontuacao === null ? "Não pontuado" : r.pontuacao + " / " + r.pontuacaoMaxima, true);
-          campo("Classificação", r.descricao || "—");
-          campo("Observações", r.observacoes || "Não informado");
-          if (r.imagem) adicionarImagem(r.imagem, 305, 305);
           break;
         }
         case "imagem":

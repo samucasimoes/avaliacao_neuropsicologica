@@ -1,4 +1,4 @@
-/* Comportamento do formulário: cálculos, máscaras, validação e geração do relatório. */
+/* Comportamento do formulário: cálculos, máscaras, navegação e geração do relatório. */
 
 (function () {
   const form = document.getElementById("form-avaliacao");
@@ -74,34 +74,18 @@
     select.classList.toggle("empty", !select.value);
   }
 
-  /* ---------- Validação dos dados do paciente ---------- */
+  /* ---------- Campos vazios dos dados do paciente ---------- */
 
-  const camposObrigatorios = Array.from(form.querySelectorAll("#secao-dados [required]"));
+  const camposDados = Array.from(form.querySelectorAll("#secao-dados [name]")).filter(function (el) {
+    return !el.readOnly;
+  });
 
-  function vazio(el) {
-    return el.value.trim() === "";
+  function rotuloDe(el) {
+    return el.labels && el.labels[0] ? el.labels[0].textContent.trim() : el.name;
   }
 
-  function marcarErro(el, comErro) {
-    el.classList.toggle("invalid", comErro);
-    const erro = el.closest(".field").querySelector(".field-error");
-    if (erro) erro.hidden = !comErro;
-  }
-
-  function limparErros() {
-    camposObrigatorios.forEach(function (el) { marcarErro(el, false); });
-  }
-
-  function dadosCompletos() {
-    return camposObrigatorios.every(function (el) { return !vazio(el); });
-  }
-
-  /* Mostra os erros e foca o primeiro campo obrigatório vazio. */
-  function validar() {
-    const vazios = camposObrigatorios.filter(vazio);
-    camposObrigatorios.forEach(function (el) { marcarErro(el, vazios.indexOf(el) !== -1); });
-    if (vazios.length) vazios[0].focus();
-    return vazios.length === 0;
+  function dadosVazios() {
+    return camposDados.filter(function (el) { return el.value.trim() === ""; });
   }
 
   /* ---------- Etapas ---------- */
@@ -113,8 +97,8 @@
   const botaoProxima = document.getElementById("btn-proxima");
   const botaoGerar = document.getElementById("btn-gerar");
   const botaoGerarSecundario = document.getElementById("btn-gerar-secundario");
-  const ICONE_CADEADO = '<svg class="step-lock" viewBox="0 0 24 24" aria-hidden="true">' +
-    '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+  const ICONE_COMPLETA = '<svg class="step-ok" viewBox="0 0 24 24" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>';
   let secaoAtual = "dados";
 
   /* Nome da etapa como aparece no menu, sem o número. */
@@ -124,24 +108,28 @@
     return link.textContent.trim().slice(numero.length).trim();
   }
 
-  function etapaConcluida(id) {
-    if (id === "dados") return dadosCompletos();
+  /* Aba 100%: todos os campos da etapa preenchidos. */
+  function etapaCompleta(id) {
+    if (id === "dados") return dadosVazios().length === 0;
     if (id === "cornell") return Cornell.completa();
-    if (id === "shulman") return Shulman.pontuado();
+    if (id === "shulman") return Shulman.temDesenho();
+    return Secoes.completa(id);
+  }
+
+  function etapaIniciada(id) {
+    if (id === "dados") return dadosVazios().length < camposDados.length;
+    if (id === "cornell") return Cornell.resultado().respondidos > 0;
+    if (id === "shulman") return Shulman.temDesenho();
     return Secoes.preenchida(id);
   }
 
-  /* Libera as etapas só depois dos dados obrigatórios do paciente. */
+  /* Marca em verde, com o ícone de correto, as abas com todos os campos preenchidos. */
   function atualizarEtapas() {
-    const liberada = dadosCompletos();
     linksSecao.forEach(function (link) {
       const id = link.dataset.secao;
-      if (id !== "dados") {
-        link.classList.toggle("bloqueada", !liberada);
-        link.setAttribute("aria-disabled", String(!liberada));
-        link.title = liberada ? "" : "Preencha os dados do paciente para liberar";
-      }
-      link.classList.toggle("concluida", liberada && etapaConcluida(id));
+      const completa = etapaCompleta(id);
+      link.classList.toggle("completa", completa);
+      link.title = "Ir para: " + nomeEtapa(id) + (completa ? " (100% preenchida)" : "");
     });
   }
 
@@ -164,12 +152,6 @@
   }
 
   function mostrarSecao(nome) {
-    if (nome !== "dados" && !dadosCompletos()) {
-      mostrarSecao("dados");
-      validar();
-      mostrarAviso("Preencha os dados obrigatórios do paciente para liberar as outras etapas.");
-      return;
-    }
     secaoAtual = nome;
     secoes.forEach(function (secao) {
       secao.hidden = secao.id !== "secao-" + nome;
@@ -270,9 +252,7 @@
     Cornell.atualizar();
     Cornell.limparPendentes();
     Shulman.carregar(campos.shulmanDesenho);
-    Shulman.atualizar();
     Secoes.atualizar();
-    limparErros();
     atualizarEtapas();
   }
 
@@ -286,11 +266,34 @@
     }) || Shulman.temDesenho();
   }
 
+  /* ---------- Acessibilidade ---------- */
+
+  /* Toda área clicável ou campo mostra uma dica (title) ao passar o mouse. */
+  function aplicarTitulos() {
+    document.querySelectorAll("input, select, textarea, button, label").forEach(function (el) {
+      if (el.title || el.type === "radio" || el.type === "file") return;
+      let dica = "";
+      if (el.tagName === "LABEL") {
+        if (!el.querySelector("input")) return;
+        dica = el.textContent.trim();
+      } else if (el.tagName === "BUTTON") {
+        dica = el.textContent.trim() || el.getAttribute("aria-label") || "";
+      } else {
+        dica = (el.labels && el.labels[0] ? el.labels[0].textContent.trim() : "") ||
+          el.getAttribute("aria-label") || el.placeholder || "";
+        if (dica && el.tagName === "SELECT") dica = "Escolha: " + dica;
+        else if (dica && el.type !== "checkbox") dica = "Preencha: " + dica;
+      }
+      if (dica) el.title = dica.replace(/\s+/g, " ");
+    });
+  }
+
   /* ---------- Eventos ---------- */
 
   Cornell.iniciar(form);
-  Shulman.iniciar(form);
+  Shulman.iniciar();
   Secoes.iniciar(form, {
+    aviso: mostrarAviso,
     paciente: function () {
       return { nome: valor("nome"), sexo: campoSexo.value };
     },
@@ -300,7 +303,7 @@
         if (!r.respondidos) return null;
         const parcial = r.respondidos < r.totalItens;
         return {
-          valor: r.total + " / " + r.pontuacaoMaxima,
+          valor: String(r.total),
           texto: r.interpretacao + (parcial ? " (parcial)" : ""),
           nivel: r.total >= 12 ? "alto" : r.total >= 9 ? "medio" : "baixo"
         };
@@ -308,7 +311,7 @@
     }
   });
   linksSecao.forEach(function (link) {
-    if (link.dataset.secao !== "dados") link.insertAdjacentHTML("beforeend", ICONE_CADEADO);
+    link.insertAdjacentHTML("beforeend", ICONE_COMPLETA);
   });
   campoNascimento.max = hojeISO();
   campoDataAvaliacao.value = hojeISO();
@@ -319,14 +322,6 @@
   campoTelefone.addEventListener("input", mascararTelefone);
   selects.forEach(function (select) {
     select.addEventListener("change", function () { atualizarSelect(select); });
-  });
-
-  camposObrigatorios.forEach(function (el) {
-    ["input", "change"].forEach(function (tipo) {
-      el.addEventListener(tipo, function () {
-        if (!vazio(el)) marcarErro(el, false);
-      });
-    });
   });
 
   /* "Sexo feminino" do Resumo acompanha o sexo informado nos dados do paciente. */
@@ -345,6 +340,7 @@
   });
   atualizarEtapas();
   atualizarNavegacao();
+  aplicarTitulos();
 
   linksSecao.forEach(function (link) {
     link.addEventListener("click", function (evento) {
@@ -367,36 +363,37 @@
   });
 
   const opcaoCompleto = document.getElementById("conteudo-completo");
-  const infoCornell = document.getElementById("conteudo-cornell-info");
   const infoEtapas = document.getElementById("conteudo-etapas-info");
+  const avisoVazios = document.getElementById("aviso-vazios");
+  const listaVazios = document.getElementById("aviso-vazios-lista");
 
-  /* O modal só abre com a Cornell completa, então a opção com as escalas vem marcada. */
+  /* Nada é obrigatório: só avisa o que está vazio antes de gerar o relatório. */
   function prepararConteudo() {
-    infoCornell.textContent = "Cornell completa (escore " + Cornell.resultado().total + ")";
-    const outras = ordem.filter(function (id) {
-      return id !== "dados" && id !== "cornell" && etapaConcluida(id);
+    const preenchidas = ordem.filter(function (id) {
+      return id !== "dados" && etapaIniciada(id);
     }).length;
-    infoEtapas.textContent = outras === 0 ? "Nenhuma outra etapa preenchida"
-      : outras === 1 ? "Mais 1 etapa preenchida" : "Mais " + outras + " etapas preenchidas";
+    infoEtapas.textContent = preenchidas === 0 ? "Nenhuma etapa preenchida"
+      : preenchidas === 1 ? "1 etapa preenchida" : preenchidas + " etapas preenchidas";
+
+    listaVazios.textContent = "";
+    const vazios = dadosVazios();
+    if (vazios.length) {
+      const item = document.createElement("li");
+      item.textContent = "Dados do paciente: " + vazios.map(rotuloDe).join(", ");
+      listaVazios.appendChild(item);
+    }
+    const incompletas = ordem.filter(function (id) { return id !== "dados" && !etapaCompleta(id); });
+    if (incompletas.length) {
+      const item = document.createElement("li");
+      item.textContent = "Etapas com campos vazios: " + incompletas.map(nomeEtapa).join(", ");
+      listaVazios.appendChild(item);
+    }
+    avisoVazios.hidden = !listaVazios.children.length;
     opcaoCompleto.checked = true;
   }
 
   form.addEventListener("submit", function (evento) {
     evento.preventDefault();
-    if (!dadosCompletos()) {
-      mostrarSecao("dados");
-      validar();
-      mostrarAviso("Preencha os dados obrigatórios do paciente para gerar o relatório.");
-      return;
-    }
-    if (!Cornell.completa()) {
-      const r = Cornell.resultado();
-      mostrarSecao("cornell");
-      Cornell.validar();
-      mostrarAviso("Responda todos os itens da Escala Cornell para gerar o relatório (" +
-        r.respondidos + " de " + r.totalItens + " respondidos).");
-      return;
-    }
     toast.hidden = true;
     prepararConteudo();
     modalRelatorio.showModal();
@@ -443,7 +440,6 @@
     form.reset();
     campoDataAvaliacao.value = hojeISO();
     campoIdade.value = "—";
-    limparErros();
     selects.forEach(atualizarSelect);
     Cornell.atualizar();
     Cornell.limparPendentes();
@@ -514,7 +510,7 @@
       const salvo = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO) || "null");
       if (salvo && salvo.campos) {
         preencherCampos(salvo.campos);
-        if (salvo.secao && salvo.secao !== "dados" && dadosCompletos()) mostrarSecao(salvo.secao);
+        if (salvo.secao && ordem.indexOf(salvo.secao) !== -1) mostrarSecao(salvo.secao);
       }
     } catch (erro) {
       console.warn("Não foi possível carregar o rascunho.", erro);

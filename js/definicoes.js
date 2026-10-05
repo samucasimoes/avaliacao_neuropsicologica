@@ -31,8 +31,15 @@ const KATZ_INTERPRETACAO = [
   "Dependente em todas as seis funções"
 ];
 
-const PFEFFER_CORTE = 5;
 const IQCODE_CORTE = 3.5;
+const IQCODE_DIVISOR = 26;
+
+const PFEFFER_OPCOES = [
+  { valor: "0", rotulo: "Normal, ou nunca o fez mas poderia fazê-lo agora", pontos: 0 },
+  { valor: "1", rotulo: "Faz com dificuldades, ou nunca o fez e agora teria dificuldades", pontos: 1 },
+  { valor: "2", rotulo: "Necessita de ajuda", pontos: 2 },
+  { valor: "3", rotulo: "Não é capaz", pontos: 3 }
+];
 
 function interpretarGai(n) {
   return n >= 10 ? { texto: "Sugere ansiedade em nível significativo", nivel: "alto" }
@@ -81,7 +88,10 @@ const DEFINICOES = [
           "Histórico de acidente vascular encefálico",
           "Histórico de depressão",
           "Diabetes",
-          "Uso de álcool e/ou substâncias benzodiazepínicas"
+          "Uso de álcool e/ou substâncias benzodiazepínicas",
+          "Traumatismo craniano",
+          "Deficiência auditiva",
+          "Deficiência visual"
         ]
       }
     ]
@@ -90,7 +100,8 @@ const DEFINICOES = [
   {
     id: "funcoes",
     titulo: "Funções avaliadas",
-    descricao: "Desmarque as funções que não foram avaliadas. A lista marcada entra no relatório.",
+    descricao: "Desmarque as funções que não foram avaliadas. A lista marcada entra no relatório, em uma folha única.",
+    paginaPropria: true,
     blocos: [
       {
         tipo: "checklist",
@@ -120,8 +131,9 @@ const DEFINICOES = [
   {
     id: "protocolos",
     titulo: "Protocolos aplicados",
-    descricao: "Texto fixo: não há nada para preencher. Ele aparece somente na impressão do relatório completo.",
+    descricao: "Texto fixo: não há nada para preencher. Ele aparece somente na impressão do relatório completo, em uma folha única.",
     sempreImprimir: true,
+    paginaPropria: true,
     blocos: [
       {
         tipo: "lista",
@@ -135,7 +147,9 @@ const DEFINICOES = [
           "Testes de Funções Executivas (bateria de avaliação frontal)",
           "Teste das Trilhas",
           "Labirintos",
+          "Testes de Interpretação",
           "Stroop Test",
+          "Testes de Figuras Geométricas",
           "Mini Exame do Estado Mental",
           "Montreal Cognitive Assessment (MoCA)",
           "Fluência Verbal – Fonética e Semântica",
@@ -235,7 +249,7 @@ const DEFINICOES = [
       if (!r.respondidos) return null;
       const parcial = r.respondidos < r.totalItens;
       return {
-        valor: r.total + " / 6",
+        valor: String(r.total),
         texto: parcial ? "Parcial: " + r.respondidos + " de " + r.totalItens + " áreas avaliadas"
           : KATZ_INTERPRETACAO[r.total],
         nivel: parcial ? "" : r.total === 0 ? "baixo" : r.total <= 2 ? "medio" : "alto"
@@ -254,50 +268,125 @@ const DEFINICOES = [
 
   {
     id: "pfeffer",
-    titulo: "Questionário de Atividades Funcionais de Pfeffer",
+    titulo: "Questionário de Atividades Funcionais (Pfeffer)",
     descricao: "Pergunte ao informante sobre a capacidade do paciente em cada atividade.",
     blocos: [
+      { tipo: "campos", id: "avaliador", itens: ["Avaliador"] },
       {
         tipo: "opcoes",
         id: "itens",
         colunaItem: "Atividade",
         empilhado: true,
         mostrarPontos: true,
-        opcoes: [
-          { valor: "capaz", rotulo: "Sim, é capaz", pontos: 0 },
-          { valor: "nunca-poderia", rotulo: "Nunca o fez, mas poderia fazer agora", pontos: 0 },
-          { valor: "dificuldade", rotulo: "Com alguma dificuldade, mas faz", pontos: 1 },
-          { valor: "nunca-dificuldade", rotulo: "Nunca fez e teria dificuldade agora", pontos: 1 },
-          { valor: "ajuda", rotulo: "Necessita de ajuda", pontos: 2 },
-          { valor: "incapaz", rotulo: "Não é capaz", pontos: 3 }
-        ],
+        opcoes: PFEFFER_OPCOES,
         itens: [
           "Ele(a) manuseia seu próprio dinheiro?",
           "Ele(a) é capaz de comprar roupas, comida, coisas para casa sozinho(a)?",
-          "Ele(a) é capaz de esquentar a água para o café e apagar o fogo?",
+          "Ele(a) é capaz de esquentar água para o café e apagar o fogo?",
           "Ele(a) é capaz de preparar uma comida?",
           "Ele(a) é capaz de manter-se em dia com as atualidades, com os acontecimentos da comunidade ou da vizinhança?",
           "Ele(a) é capaz de prestar atenção, entender e discutir um programa de rádio ou televisão, um jornal ou uma revista?",
           "Ele(a) é capaz de lembrar-se de compromissos, acontecimentos familiares, feriados?",
           "Ele(a) é capaz de manusear seus próprios remédios?",
           "Ele(a) é capaz de passear pela vizinhança e encontrar o caminho de volta para casa?",
-          "Ele(a) pode ser deixado(a) em casa sozinho(a) de forma segura?"
+          {
+            texto: "Ele(a) pode ser deixado(a) em casa sozinho(a) de forma segura?",
+            opcoes: [
+              { valor: "0", rotulo: "Normal ou nunca ficou, mas poderia ficar agora", pontos: 0 },
+              { valor: "1", rotulo: "Sim, mas com precauções ou nunca ficou e agora teria dificuldade", pontos: 1 },
+              { valor: "2", rotulo: "Sim, por períodos curtos", pontos: 2 },
+              { valor: "3", rotulo: "Não poderia", pontos: 3 }
+            ]
+          }
         ]
-      },
-      {
-        tipo: "nota",
-        texto: "Pontuação de 0 a 30: quanto maior, maior a dependência. Escores a partir de " + PFEFFER_CORTE + " sugerem comprometimento funcional."
       }
     ],
     resultado: function (s) {
       const r = s.bloco("itens").pontuacao();
       if (!r.respondidos) return null;
-      const parcial = r.respondidos < r.totalItens;
-      const alterado = r.total >= PFEFFER_CORTE;
       return {
-        valor: r.total + " / 30",
-        texto: (alterado ? "Sugere comprometimento funcional" : "Sem comprometimento funcional") +
-          (parcial ? " (parcial)" : ""),
+        valor: String(r.total),
+        texto: r.respondidos < r.totalItens ? "Parcial: " + r.respondidos + " de " + r.totalItens + " respondidos" : "",
+        nivel: ""
+      };
+    },
+    resumo: function (s) {
+      const r = s.bloco("itens").pontuacao();
+      return [
+        { rotulo: "Pontuação total", valor: r.total, de: "30" },
+        { rotulo: "Respondidos", valor: r.respondidos, de: String(r.totalItens) }
+      ];
+    }
+  },
+
+  {
+    id: "iqcode",
+    titulo: "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
+    descricao: "Peça ao informante que se lembre de como o paciente estava há 10 anos e compare com o estado atual. Se a pessoa nunca fez a tarefa, marque “Não se aplica”; se o familiar não tiver certeza, marque “Não sabe”.",
+    blocos: [
+      {
+        tipo: "campos",
+        id: "entrevistado",
+        itens: ["Nome do entrevistado", "Grau de relacionamento", "Idade", "Tempo de convívio"]
+      },
+      {
+        tipo: "opcoes",
+        id: "itens",
+        colunaItem: "Comparado a 10 anos atrás, como essa pessoa está em",
+        empilhado: true,
+        mostrarPontos: true,
+        opcoes: [
+          { valor: "1", rotulo: "Muito melhor", pontos: 1 },
+          { valor: "2", rotulo: "Melhor", pontos: 2 },
+          { valor: "3", rotulo: "Não muito alterado", pontos: 3 },
+          { valor: "4", rotulo: "Pior", pontos: 4 },
+          { valor: "5", rotulo: "Muito pior", pontos: 5 },
+          { valor: "na", rotulo: "Não se aplica", pontos: 0, semPontos: true },
+          { valor: "ns", rotulo: "Não sabe", pontos: 0, semPontos: true }
+        ],
+        itens: [
+          "Reconhecer familiares e amigos",
+          "Lembrar-se dos nomes dos familiares e amigos",
+          "Lembrar-se de fatos sobre os familiares e amigos (ex.: profissão, aniversários, endereços)",
+          "Lembrar-se de fatos que aconteceram há pouco tempo",
+          "Lembrar-se de conversas dos últimos dias",
+          "Esquecer o que queria dizer no meio da conversa",
+          "Lembrar-se do seu próprio endereço e telefone",
+          "Lembrar-se em que dia e mês estamos",
+          "Lembrar-se onde as coisas são guardadas atualmente (roupas, talheres etc.)",
+          "Lembrar onde encontrar coisas que foram guardadas em lugares diferentes daqueles em que costumava guardar",
+          "Adaptar-se a qualquer mudança no dia a dia",
+          "Saber utilizar aparelhos domésticos",
+          "Aprender a usar um aparelho doméstico novo",
+          "Aprender coisas novas em geral",
+          "Lembrar-se de coisas que aconteceram na sua juventude",
+          "Lembrar-se de coisas que aprendeu na sua juventude",
+          "Entender o significado de palavras pouco utilizadas",
+          "Entender artigos de revistas e jornais",
+          "Acompanhar histórias em livros ou televisão (filmes, seriados, novelas)",
+          "Escrever para amigos ou para fins profissionais",
+          "Conhecer fatos históricos importantes",
+          "Tomar decisões no dia a dia",
+          "Lidar com dinheiro para as compras",
+          "Lidar com suas finanças (conta bancária, aposentadoria)",
+          "Lidar com outros cálculos do dia a dia, por exemplo: quantidade de comida a comprar, há quanto tempo não recebe visitas de amigos ou parentes",
+          "Compreender e pensar sobre o que se passa à sua volta"
+        ]
+      },
+      {
+        tipo: "nota",
+        texto: "Cálculo: cada coluna vale o número indicado no topo (Muito melhor 1, Melhor 2, Não muito alterado 3, Pior 4, Muito pior 5). Soma-se o valor da coluna vezes a quantidade de vezes que ela foi marcada e o resultado é dividido por " + IQCODE_DIVISOR + ". “Não se aplica” e “Não sabe” não somam pontos. Escores maiores ou iguais a 3,5 sugerem declínio cognitivo frente ao nível pré-mórbido."
+      }
+    ],
+    resultado: function (s) {
+      const r = s.bloco("itens").pontuacao();
+      if (!r.respondidos) return null;
+      const escore = Math.round((r.total / IQCODE_DIVISOR) * 100) / 100;
+      const alterado = escore >= IQCODE_CORTE;
+      return {
+        valor: formatarNumero(escore),
+        texto: (alterado ? "Sugere declínio cognitivo" : "Sem indicação de declínio cognitivo") +
+          (r.respondidos < r.totalItens ? " (parcial)" : ""),
         nivel: alterado ? "alto" : "baixo"
       };
     },
@@ -305,7 +394,7 @@ const DEFINICOES = [
       const r = s.bloco("itens").pontuacao();
       const resultado = this.resultado(s);
       return [
-        { rotulo: "Escore total", valor: r.total, de: "30" },
+        { rotulo: "Total (soma ÷ " + IQCODE_DIVISOR + ")", valor: resultado ? resultado.valor : "—" },
         { rotulo: "Respondidos", valor: r.respondidos, de: String(r.totalItens) },
         { rotulo: "Interpretação", selo: resultado ? resultado.texto : "Nenhum item respondido", nivel: resultado ? resultado.nivel : "" }
       ];
@@ -332,73 +421,9 @@ const DEFINICOES = [
       },
       {
         tipo: "nota",
-        texto: "Katz: 0 independente em todas as seis funções a 6 dependente em todas. Pfeffer: 0 a 30, escores a partir de " + PFEFFER_CORTE + " sugerem comprometimento funcional. GAI: 10 ou mais sugere ansiedade em nível significativo. GDS (Yesavage): 0 a 4 normal; 5 a 10 pode sugerir sintomas depressivos leves a moderados; acima de 10 sintomas depressivos graves. Cornell: 0 a 8 ausência de depressão; 9 a 11 depressão leve; 12 ou mais depressão moderada a grave. IQCODE: escores maiores ou iguais a 3,5 sugerem declínio cognitivo frente ao nível pré-mórbido. BHS: 0 a 4 desesperança mínima; 5 a 8 leve; 9 a 13 moderada; 14 a 20 grave."
+        texto: "Katz: 0 independente em todas as seis funções a 6 dependente em todas. Pfeffer: pontuação total de 0 a 30. GAI: 10 ou mais sugere ansiedade em nível significativo. GDS (Yesavage): 0 a 4 normal; 5 a 10 pode sugerir sintomas depressivos leves a moderados; acima de 10 sintomas depressivos graves. Cornell: 0 a 8 ausência de depressão; 9 a 11 depressão leve; 12 ou mais depressão moderada a grave. IQCODE: escores maiores ou iguais a 3,5 sugerem declínio cognitivo frente ao nível pré-mórbido. BHS: 0 a 4 desesperança mínima; 5 a 8 leve; 9 a 13 moderada; 14 a 20 grave."
       }
     ]
-  },
-
-  {
-    id: "iqcode",
-    titulo: "IQCODE",
-    descricao: "Informant Questionnaire on Cognitive Decline in the Elderly (versão de 16 itens). Compare a situação atual do paciente com a de 10 anos atrás.",
-    blocos: [
-      {
-        tipo: "opcoes",
-        id: "itens",
-        colunaItem: "Comparado a 10 anos atrás, como está em",
-        mostrarPontos: true,
-        opcoes: [
-          { valor: "1", rotulo: "Muito melhor", pontos: 1 },
-          { valor: "2", rotulo: "Um pouco melhor", pontos: 2 },
-          { valor: "3", rotulo: "Sem mudança", pontos: 3 },
-          { valor: "4", rotulo: "Um pouco pior", pontos: 4 },
-          { valor: "5", rotulo: "Muito pior", pontos: 5 }
-        ],
-        itens: [
-          "Lembrar de coisas sobre a família e amigos (profissões, aniversários, endereços)",
-          "Lembrar de coisas que aconteceram recentemente",
-          "Lembrar de conversas dos últimos dias",
-          "Lembrar seu endereço e número de telefone",
-          "Lembrar em que dia e mês estamos",
-          "Lembrar onde as coisas são usualmente guardadas",
-          "Lembrar onde encontrar coisas guardadas em lugar diferente do usual",
-          "Saber como funcionam as máquinas e aparelhos da casa",
-          "Aprender a usar um aparelho novo da casa",
-          "Aprender coisas novas em geral",
-          "Acompanhar uma história em um livro ou na televisão",
-          "Tomar decisões em questões do dia a dia",
-          "Lidar com dinheiro para fazer compras",
-          "Lidar com questões financeiras (pensão, banco)",
-          "Lidar com outros problemas aritméticos do dia a dia (quanta comida comprar, quanto tempo passou entre visitas)",
-          "Usar sua inteligência para entender o que está acontecendo e raciocinar"
-        ]
-      },
-      {
-        tipo: "nota",
-        texto: "Escore = média das respostas (1 a 5). Escores maiores ou iguais a 3,5 sugerem a presença de declínio cognitivo frente ao nível pré-mórbido."
-      }
-    ],
-    resultado: function (s) {
-      const r = s.bloco("itens").pontuacao();
-      if (!r.respondidos) return null;
-      const media = Math.round((r.total / r.respondidos) * 100) / 100;
-      const alterado = media >= IQCODE_CORTE;
-      return {
-        valor: formatarNumero(media),
-        texto: (alterado ? "Sugere declínio cognitivo" : "Sem indicação de declínio cognitivo") +
-          (r.respondidos < r.totalItens ? " (parcial)" : ""),
-        nivel: alterado ? "alto" : "baixo"
-      };
-    },
-    resumo: function (s) {
-      const r = s.bloco("itens").pontuacao();
-      const resultado = this.resultado(s);
-      return [
-        { rotulo: "Média", valor: resultado ? resultado.valor : "—", de: "5" },
-        { rotulo: "Respondidos", valor: r.respondidos, de: String(r.totalItens) },
-        { rotulo: "Interpretação", selo: resultado ? resultado.texto : "Nenhum item respondido", nivel: resultado ? resultado.nivel : "" }
-      ];
-    }
   },
 
   {
@@ -553,7 +578,7 @@ const DEFINICOES = [
   {
     id: "curva",
     titulo: "Curva de aprendizagem",
-    descricao: "Teste Auditivo Verbal de Rey (RAVLT): total, interferências e esquecimento são calculados automaticamente.",
+    descricao: "Teste Auditivo Verbal de Rey (RAVLT): digite os escores; total, interferências e esquecimento são calculados automaticamente. A classificação (abaixo ou dentro do esperado) é definida pelo profissional, não pelo escore.",
     blocos: [
       {
         tipo: "tabela",

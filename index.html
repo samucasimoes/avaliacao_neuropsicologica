@@ -38,8 +38,8 @@
           <li><a class="step" href="#katz" data-secao="katz"><span class="step-num">5</span>Escala de Katz</a></li>
           <li><a class="step" href="#pfeffer" data-secao="pfeffer"><span class="step-num">6</span>Pfeffer</a></li>
           <li><a class="step" href="#cornell" data-secao="cornell"><span class="step-num">7</span>Escala de Cornell</a></li>
-          <li><a class="step" href="#humor" data-secao="humor"><span class="step-num">8</span>Humor e comportamento</a></li>
-          <li><a class="step" href="#iqcode" data-secao="iqcode"><span class="step-num">9</span>IQCODE</a></li>
+          <li><a class="step" href="#iqcode" data-secao="iqcode"><span class="step-num">8</span>IQCODE</a></li>
+          <li><a class="step" href="#humor" data-secao="humor"><span class="step-num">9</span>Humor e comportamento</a></li>
           <li><a class="step" href="#moca" data-secao="moca"><span class="step-num">10</span>Montreal (MoCa)</a></li>
           <li><a class="step" href="#shulman" data-secao="shulman"><span class="step-num">11</span>Relógio de Shulman</a></li>
           <li><a class="step" href="#cerad" data-secao="cerad"><span class="step-num">12</span>Bateria do CERAD/Funções executivas</a></li>
@@ -59,13 +59,13 @@
     <div class="main">
       <header class="topbar">
         <div class="topbar-title">
-          <button class="icon-btn" id="btn-topo" type="button" aria-label="Voltar ao início do formulário">
+          <button class="icon-btn" id="btn-topo" type="button" aria-label="Voltar ao início do formulário" title="Voltar ao início do formulário">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
           </button>
           <h1 class="page-title">Nova avaliação</h1>
         </div>
         <div class="topbar-acoes">
-          <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button">
+          <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Apagar todos os dados preenchidos e começar uma nova avaliação">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
             Limpar campos
           </button>
@@ -82,19 +82,17 @@
           <section class="secao" id="secao-dados">
             <div class="card-head">
               <h2 class="card-title">Dados do paciente</h2>
-              <p class="card-text">Preencha as informações iniciais do paciente para iniciar a avaliação. Os campos com <span class="obrigatorio">*</span> são obrigatórios para avançar.</p>
+              <p class="card-text">Preencha as informações iniciais do paciente. Nenhum campo é obrigatório: o que ficar em branco sai vazio no relatório.</p>
             </div>
 
             <div class="row row-a">
               <div class="field">
-                <label class="label" for="nome">Nome completo <span class="obrigatorio">*</span></label>
-                <input class="input" type="text" id="nome" name="nome" placeholder="Digite o nome do paciente" required>
-                <span class="field-error" hidden>Informe o nome do paciente.</span>
+                <label class="label" for="nome">Nome completo</label>
+                <input class="input" type="text" id="nome" name="nome" placeholder="Digite o nome do paciente">
               </div>
               <div class="field">
-                <label class="label" for="nascimento">Data de nascimento <span class="obrigatorio">*</span></label>
-                <input class="input" type="date" id="nascimento" name="nascimento" required>
-                <span class="field-error" hidden>Informe a data de nascimento.</span>
+                <label class="label" for="nascimento">Data de nascimento</label>
+                <input class="input" type="date" id="nascimento" name="nascimento">
               </div>
               <div class="field">
                 <label class="label" for="idade">Idade</label>
@@ -104,17 +102,16 @@
 
             <div class="row row-b">
               <div class="field">
-                <label class="label" for="sexo">Sexo <span class="obrigatorio">*</span></label>
-                <select class="input select" id="sexo" name="sexo" required>
+                <label class="label" for="sexo">Sexo</label>
+                <select class="input select" id="sexo" name="sexo">
                   <option value="">Selecione</option>
                   <option>Feminino</option>
                   <option>Masculino</option>
                 </select>
-                <span class="field-error" hidden>Selecione o sexo.</span>
               </div>
               <div class="field">
-                <label class="label" for="escolaridade">Escolaridade <span class="obrigatorio">*</span></label>
-                <select class="input select" id="escolaridade" name="escolaridade" required>
+                <label class="label" for="escolaridade">Escolaridade</label>
+                <select class="input select" id="escolaridade" name="escolaridade">
                   <option value="">Selecione</option>
                   <option>Não alfabetizado</option>
                   <option>Ensino fundamental incompleto</option>
@@ -125,7 +122,6 @@
                   <option>Ensino superior completo</option>
                   <option>Pós-graduação</option>
                 </select>
-                <span class="field-error" hidden>Selecione a escolaridade.</span>
               </div>
               <div class="field">
                 <label class="label" for="profissao">Profissão</label>
@@ -143,9 +139,8 @@
                 <input class="input" type="text" id="encaminhador" name="encaminhador" placeholder="Digite o nome">
               </div>
               <div class="field">
-                <label class="label" for="data-avaliacao">Data da avaliação <span class="obrigatorio">*</span></label>
-                <input class="input" type="date" id="data-avaliacao" name="dataAvaliacao" required>
-                <span class="field-error" hidden>Informe a data da avaliação.</span>
+                <label class="label" for="data-avaliacao">Data da avaliação</label>
+                <input class="input" type="date" id="data-avaliacao" name="dataAvaliacao">
               </div>
             </div>
 
@@ -205,7 +200,7 @@
                 <span class="resumo-rotulo">Interpretação</span>
                 <span class="selo" id="cornell-interpretacao">Nenhum item respondido</span>
               </div>
-              <button class="btn btn-light btn-pequeno" id="btn-cornell-ausente" type="button">Marcar restantes como Ausente</button>
+              <button class="btn btn-light btn-pequeno" id="btn-cornell-ausente" type="button" title="Marca “Ausente” em todos os itens que ainda não foram respondidos">Marcar restantes como Ausente</button>
             </div>
 
             <p class="escala-legenda">
@@ -216,44 +211,33 @@
             <div class="escala" id="cornell-itens"></div>
           </section>
 
-          <section class="secao" id="secao-humor" hidden></section>
           <section class="secao" id="secao-iqcode" hidden></section>
+          <section class="secao" id="secao-humor" hidden></section>
           <section class="secao" id="secao-moca" hidden></section>
 
           <section class="secao" id="secao-shulman" hidden>
             <div class="card-head">
               <h2 class="card-title">Relógio de Shulman</h2>
-              <p class="card-text">Peça ao paciente: “Desenhe um relógio dentro do círculo, com todos os números, e marque 11 horas e 10 minutos.” O desenho pode ser feito com mouse, caneta ou toque. Esta etapa é opcional.</p>
-            </div>
-
-            <div class="escala-resumo">
-              <div class="resumo-dado">
-                <span class="resumo-rotulo">Pontuação</span>
-                <span class="resumo-valor"><strong id="shulman-pontuacao">—</strong> / 5</span>
-              </div>
-              <div class="resumo-dado resumo-largo">
-                <span class="resumo-rotulo">Classificação</span>
-                <span class="selo" id="shulman-classificacao">Sem pontuação</span>
-              </div>
+              <p class="card-text shulman-instrucao">Marque no relógio 11 horas e 10 minutos.</p>
             </div>
 
             <div class="shulman">
               <div class="shulman-desenho">
                 <div class="shulman-ferramentas" role="toolbar" aria-label="Ferramentas de desenho">
-                  <button class="btn btn-light btn-pequeno ferramenta" type="button" data-ferramenta="caneta" aria-pressed="true">
+                  <button class="btn btn-light btn-pequeno ferramenta" type="button" data-ferramenta="caneta" aria-pressed="true" title="Desenhar com a caneta">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                     Caneta
                   </button>
-                  <button class="btn btn-light btn-pequeno ferramenta" type="button" data-ferramenta="borracha" aria-pressed="false">
+                  <button class="btn btn-light btn-pequeno ferramenta" type="button" data-ferramenta="borracha" aria-pressed="false" title="Apagar partes do desenho com a borracha">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 21-4.3-4.3a1 1 0 0 1 0-1.4l10-10a1 1 0 0 1 1.4 0l5.6 5.6a1 1 0 0 1 0 1.4L13 19"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
                     Borracha
                   </button>
                   <span class="ferramentas-espaco"></span>
-                  <button class="btn btn-light btn-pequeno" id="shulman-desfazer" type="button">
+                  <button class="btn btn-light btn-pequeno" id="shulman-desfazer" type="button" title="Desfazer o último traço">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
                     Desfazer
                   </button>
-                  <button class="btn btn-light btn-pequeno" id="shulman-apagar" type="button">
+                  <button class="btn btn-light btn-pequeno" id="shulman-apagar" type="button" title="Apagar todo o desenho">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
                     Apagar desenho
                   </button>
@@ -263,17 +247,7 @@
                   </button>
                 </div>
                 <div class="shulman-folha">
-                  <svg class="shulman-circulo" viewBox="0 0 800 800" aria-hidden="true"><circle cx="400" cy="400" r="360"/></svg>
-                  <canvas class="shulman-canvas" id="shulman-canvas" aria-label="Área para desenhar o relógio"></canvas>
-                </div>
-              </div>
-
-              <div class="shulman-avaliacao">
-                <p class="modal-label">Pontuação (Shulman, 0 a 5)</p>
-                <div class="shulman-opcoes" id="shulman-opcoes" role="radiogroup" aria-label="Pontuação do Relógio de Shulman"></div>
-                <div class="field">
-                  <label class="label" for="shulman-observacoes">Observações</label>
-                  <textarea class="input textarea short" id="shulman-observacoes" name="shulmanObservacoes" placeholder="Ex.: planejamento, ordem dos números, posição dos ponteiros..."></textarea>
+                  <canvas class="shulman-canvas" id="shulman-canvas" aria-label="Tela em branco para desenhar o relógio" title="Desenhe aqui com o mouse, a caneta ou o dedo"></canvas>
                 </div>
               </div>
             </div>
@@ -298,7 +272,7 @@
               </button>
             </div>
             <div class="actions-group">
-              <button class="btn btn-light" id="btn-gerar-secundario" type="submit">
+              <button class="btn btn-light" id="btn-gerar-secundario" type="submit" title="Gerar o relatório em PDF">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
                 Gerar relatório
               </button>
@@ -306,7 +280,7 @@
                 <span class="btn-rotulo"></span>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
               </button>
-              <button class="btn btn-primary" id="btn-gerar" type="submit" hidden>
+              <button class="btn btn-primary" id="btn-gerar" type="submit" hidden title="Gerar o relatório em PDF">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
                 Gerar relatório
               </button>
@@ -322,14 +296,18 @@
       <h3 class="modal-title">Gerar relatório</h3>
       <p class="modal-text">Escolha o que entra no relatório. Um backup (.json) também será baixado para você poder editar a avaliação depois.</p>
 
+      <div class="aviso-vazios" id="aviso-vazios" role="note" hidden>
+        <p class="aviso-titulo">Alguns campos não foram preenchidos e sairão vazios no relatório:</p>
+        <ul class="aviso-lista" id="aviso-vazios-lista"></ul>
+      </div>
+
       <p class="modal-label">Conteúdo</p>
       <div class="conteudos">
         <label class="format">
           <input class="format-radio" type="radio" name="conteudo" value="completo" id="conteudo-completo">
           <span class="format-box">
             <span class="format-name">Dados do paciente + Escalas</span>
-            <span class="format-desc" id="conteudo-cornell-info">Escala não preenchida</span>
-            <span class="format-desc" id="conteudo-etapas-info">Nenhuma outra etapa preenchida</span>
+            <span class="format-desc" id="conteudo-etapas-info">Nenhuma etapa preenchida</span>
           </span>
         </label>
         <label class="format">
@@ -363,8 +341,8 @@
       </div>
 
       <div class="modal-actions">
-        <button class="btn btn-light" type="button" id="btn-cancelar">Cancelar</button>
-        <button class="btn btn-primary" type="submit" id="btn-baixar">Baixar relatório</button>
+        <button class="btn btn-light" type="button" id="btn-cancelar" title="Fechar sem gerar o relatório">Cancelar</button>
+        <button class="btn btn-primary" type="submit" id="btn-baixar" title="Baixar o relatório e o backup (.json)">Baixar relatório</button>
       </div>
     </form>
   </dialog>

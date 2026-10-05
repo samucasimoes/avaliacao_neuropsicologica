@@ -1,38 +1,19 @@
-/* Relógio de Shulman: área de desenho com círculo, pontuação e imagem para o relatório. */
+/* Relógio de Shulman: tela em branco para o desenho e imagem para o relatório. */
 
 const Shulman = (function () {
-  const PONTUACOES = [
-    { valor: 5, texto: "Desenho perfeito, sem erros" },
-    { valor: 4, texto: "Erro visuoespacial leve ou menor desorganização" },
-    { valor: 3, texto: "Erro na representação do horário solicitado (os números estão corretos, mas os ponteiros marcam a hora errada)" },
-    { valor: 2, texto: "Erro visuoespacial moderado (má colocação dos números, espaçamento incorreto ou ponteiros muito inadequados)" },
-    { valor: 1, texto: "Grande desorganização visuoespacial (o desenho mal se parece com um relógio)" },
-    { valor: 0, texto: "Incapaz de representar ou desenhar qualquer relógio (ou recusa)" }
-  ];
+  const INSTRUCAO = "Marque no relógio 11 horas e 10 minutos.";
 
-  const PONTUACAO_MAXIMA = 5;
-  const REFERENCIA = "Pontuação de Shulman de 0 a 5: 5 desenho perfeito, sem erros; pontuações mais baixas indicam pior desempenho.";
-
-  /* O desenho é feito em 800 x 800 e o círculo fica no centro, igual ao SVG da tela. */
+  /* O desenho é feito em 800 x 800. */
   const TAMANHO = 800;
-  const CIRCULO = { x: 400, y: 400, raio: 360, espessura: 4 };
   const CANETA = { cor: "#1f1f1f", espessura: 5 };
   const BORRACHA = { espessura: 34 };
   const LIMITE_DESFAZER = 25;
 
-  let form = null;
   let canvas = null;
   let ctx = null;
   let ferramenta = "caneta";
   let desenhando = false;
   let historico = [];
-
-  function criar(tag, classe, texto) {
-    const el = document.createElement(tag);
-    if (classe) el.className = classe;
-    if (texto) el.textContent = texto;
-    return el;
-  }
 
   /* ---------- Desenho ---------- */
 
@@ -167,7 +148,6 @@ const Shulman = (function () {
     expandir(false);
     escolherFerramenta("caneta");
     atualizarBotoes();
-    atualizar();
   }
 
   function carregar(dataUrl) {
@@ -184,7 +164,7 @@ const Shulman = (function () {
 
   /* ---------- Relatório ---------- */
 
-  /* Desenho completo (fundo branco + círculo + traços) em PNG. */
+  /* Desenho completo (fundo branco + traços) em PNG. */
   function imagem() {
     const saida = document.createElement("canvas");
     saida.width = TAMANHO;
@@ -192,79 +172,23 @@ const Shulman = (function () {
     const c = saida.getContext("2d");
     c.fillStyle = "#ffffff";
     c.fillRect(0, 0, TAMANHO, TAMANHO);
-    c.strokeStyle = "#222222";
-    c.lineWidth = CIRCULO.espessura;
-    c.beginPath();
-    c.arc(CIRCULO.x, CIRCULO.y, CIRCULO.raio, 0, Math.PI * 2);
-    c.stroke();
     c.drawImage(canvas, 0, 0);
     return saida.toDataURL("image/png");
   }
 
-  function pontuacaoEscolhida() {
-    const marcado = form.querySelector('input[name="shulman"]:checked');
-    if (!marcado) return null;
-    return PONTUACOES.find(function (p) { return String(p.valor) === marcado.value; }) || null;
-  }
-
-  function resultado() {
-    const pontuacao = pontuacaoEscolhida();
-    const observacoes = document.getElementById("shulman-observacoes").value.trim();
-    const comDesenho = temDesenho();
-    return {
-      preenchido: !!pontuacao || comDesenho || observacoes !== "",
-      pontuacao: pontuacao ? pontuacao.valor : null,
-      descricao: pontuacao ? pontuacao.texto : "",
-      pontuacaoMaxima: PONTUACAO_MAXIMA,
-      observacoes: observacoes,
-      imagem: comDesenho ? imagem() : null,
-      referencia: REFERENCIA
-    };
-  }
-
-  /* Conteúdo para o relatório (opcional: só entra se algo foi preenchido). */
+  /* Conteúdo para o relatório (só entra se houver desenho). */
   function relatorio() {
-    const r = resultado();
-    if (!r.preenchido) return null;
+    if (!temDesenho()) return null;
     return {
       titulo: "Relógio de Shulman",
       blocos: [
-        { tipo: "shulman", resultado: r },
-        { tipo: "nota", texto: "Referência: " + r.referencia }
+        { tipo: "paragrafo", texto: INSTRUCAO, negrito: true },
+        { tipo: "imagem", imagem: imagem(), largura: 95, altura: 95, borda: true }
       ]
     };
   }
 
-  /* ---------- Tela ---------- */
-
-  function montarPontuacoes(container) {
-    PONTUACOES.forEach(function (p) {
-      const rotulo = criar("label", "shulman-opcao");
-      const radio = criar("input", "opcao-radio");
-      radio.type = "radio";
-      radio.name = "shulman";
-      radio.value = String(p.valor);
-      rotulo.appendChild(radio);
-      const caixa = criar("span", "shulman-opcao-caixa");
-      caixa.appendChild(criar("span", "shulman-opcao-valor", String(p.valor)));
-      caixa.appendChild(criar("span", "shulman-opcao-texto", p.texto));
-      rotulo.appendChild(caixa);
-      container.appendChild(rotulo);
-    });
-  }
-
-  function atualizar() {
-    const pontuacao = pontuacaoEscolhida();
-    document.getElementById("shulman-pontuacao").textContent = pontuacao ? pontuacao.valor : "—";
-    const selo = document.getElementById("shulman-classificacao");
-    selo.textContent = pontuacao ? pontuacao.texto : "Sem pontuação";
-    selo.classList.toggle("nivel-baixo", !!pontuacao && pontuacao.valor >= 4);
-    selo.classList.toggle("nivel-medio", !!pontuacao && pontuacao.valor === 3);
-    selo.classList.toggle("nivel-alto", !!pontuacao && pontuacao.valor <= 2);
-  }
-
-  function iniciar(formulario) {
-    form = formulario;
+  function iniciar() {
     canvas = document.getElementById("shulman-canvas");
     canvas.width = TAMANHO;
     canvas.height = TAMANHO;
@@ -288,21 +212,13 @@ const Shulman = (function () {
       if (evento.key === "Escape" && expandido()) expandir(false);
     });
 
-    const opcoes = document.getElementById("shulman-opcoes");
-    montarPontuacoes(opcoes);
-    opcoes.addEventListener("change", atualizar);
-
     escolherFerramenta("caneta");
     atualizarBotoes();
-    atualizar();
   }
 
   return {
     iniciar: iniciar,
-    atualizar: atualizar,
-    resultado: resultado,
     relatorio: relatorio,
-    pontuado: function () { return !!pontuacaoEscolhida(); },
     temDesenho: temDesenho,
     desenho: desenho,
     carregar: carregar,

@@ -1,27 +1,28 @@
 # Avaliação Neuropsicológica
 
 Formulário web para preencher a avaliação e gerar o relatório em **PDF** ou **Excel**.
-As etapas seguem a planilha da avaliação e aparecem no menu lateral:
+As etapas aparecem no menu lateral e podem ser abertas em qualquer ordem.
+Nenhum campo é obrigatório: ao gerar o relatório, um aviso lista o que ficou vazio.
+As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
-1. **Dados do paciente** – nome, data de nascimento, sexo, escolaridade e data da
-   avaliação são obrigatórios e liberam as outras etapas.
+1. **Dados do paciente**
 2. **Resumo** – fatores de risco (Sim / Não / Não disponível). "Sexo feminino" é
    marcado sozinho a partir do sexo informado.
-3. **Funções avaliadas** – lista já marcada; desmarque o que não foi avaliado.
-4. **Protocolos aplicados** – texto fixo, entra só na impressão.
+3. **Funções avaliadas** – lista já marcada; sai em uma folha única no relatório.
+4. **Protocolos aplicados** – texto fixo, sai só na impressão, em uma folha única.
 5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta.
-6. **Pfeffer** – Questionário de Atividades Funcionais (0 a 30).
-7. **Escala Cornell** – escore e interpretação automáticos; os 19 itens são
-   obrigatórios para gerar o relatório.
-8. **Humor e comportamento** – quadro com Katz, Pfeffer, IQCODE e Cornell (vindos das
+6. **Pfeffer** – Questionário de Atividades Funcionais, pontuação total de 0 a 30.
+7. **Escala Cornell** – escore e interpretação automáticos.
+8. **IQCODE** – 26 itens; cada coluna vale o número do topo (1 a 5), soma-se valor ×
+   quantidade de marcações e divide-se por 26. "Não se aplica" e "Não sabe" não somam.
+9. **Humor e comportamento** – total de Katz, Pfeffer, IQCODE e Cornell (vindos das
    abas) e GAI, GDS e BHS (digitados), com interpretação.
-9. **IQCODE** – 16 itens, média calculada.
-10. **MoCA** – escore por domínio e total.
-11. **Relógio de Shulman** – desenho dentro do círculo, pontuação de 0 a 5 e observações.
+10. **MoCA** – escore por domínio (não passa do máximo) e total.
+11. **Relógio de Shulman** – tela em branco: "Marque no relógio 11 horas e 10 minutos".
 12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
 13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
 14. **Curva de aprendizagem** – RAVLT com total, interferências, esquecimento e
-    gráfico; memória verbal e visual.
+    gráfico; a classificação é escolhida pelo profissional.
 15. **Digit Span**, 16. **Trilhas** (com atenção), 17. **Praxias**,
     18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
 20. **Interpretação dos resultados** – um campo por domínio.
@@ -30,6 +31,8 @@ As etapas seguem a planilha da avaliação e aparecem no menu lateral:
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
 Ao gerar, escolha entre **dados do paciente + escalas** ou **somente os dados do paciente**.
 Nenhum dado é salvo: tudo acontece no navegador.
+
+Todos os botões, campos e opções mostram uma dica ao passar o mouse.
 
 ## Como usar
 

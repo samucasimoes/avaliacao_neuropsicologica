@@ -45,15 +45,21 @@
           <li><a class="step" href="#cerad" data-secao="cerad"><span class="step-num">12</span>Bateria do CERAD/Funções executivas</a></li>
           <li><a class="step" href="#linguagem" data-secao="linguagem"><span class="step-num">13</span>Linguagem</a></li>
           <li><a class="step" href="#curva" data-secao="curva"><span class="step-num">14</span>Curva de aprendizagem</a></li>
-          <li><a class="step" href="#digitspan" data-secao="digitspan"><span class="step-num">15</span>Digit Span</a></li>
-          <li><a class="step" href="#trilhas" data-secao="trilhas"><span class="step-num">16</span>Trilhas</a></li>
-          <li><a class="step" href="#praxias" data-secao="praxias"><span class="step-num">17</span>Praxias</a></li>
-          <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">18</span>Bateria Wechsler</a></li>
-          <li><a class="step" href="#stroop" data-secao="stroop"><span class="step-num">19</span>Stroop Test</a></li>
-          <li><a class="step" href="#interpretacao" data-secao="interpretacao"><span class="step-num">20</span>Interpretação dos resultados</a></li>
-          <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
+          <li><a class="step" href="#trilhas" data-secao="trilhas"><span class="step-num">15</span>Trilhas</a></li>
+          <li><a class="step" href="#praxias" data-secao="praxias"><span class="step-num">16</span>Praxias</a></li>
+          <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">17</span>Digit Span/Bateria Wechsler</a></li>
+          <li><a class="step" href="#stroop" data-secao="stroop"><span class="step-num">18</span>Stroop Test</a></li>
+          <li><a class="step" href="#interpretacao" data-secao="interpretacao"><span class="step-num">19</span>Interpretação dos resultados</a></li>
+          <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">20</span>Conclusão</a></li>
         </ol>
       </nav>
+
+      <div class="sidebar-rodape">
+        <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um documento (.json) salvo junto com um relatório para continuar ou corrigir a avaliação">
+          Carregar documento
+        </button>
+        <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
+      </div>
     </aside>
 
     <div class="main">
@@ -69,11 +75,6 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
             Limpar campos
           </button>
-          <button class="btn btn-light btn-pequeno" id="btn-backup" type="button" title="Carregar um arquivo .json gerado junto com o relatório">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
-            Carregar backup
-          </button>
-          <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
         </div>
       </header>
 
@@ -225,7 +226,6 @@
           <section class="secao" id="secao-cerad" hidden></section>
           <section class="secao" id="secao-linguagem" hidden></section>
           <section class="secao" id="secao-curva" hidden></section>
-          <section class="secao" id="secao-digitspan" hidden></section>
           <section class="secao" id="secao-trilhas" hidden></section>
           <section class="secao" id="secao-praxias" hidden></section>
           <section class="secao" id="secao-wechsler" hidden></section>

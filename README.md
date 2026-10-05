@@ -25,10 +25,10 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
     gráfico; a classificação é escolhida pelo profissional. A coluna Referência mostra
     o valor esperado em todas as linhas do RAVLT conforme a idade
     (60 a 89 anos) e o sexo do paciente. A idade aparece ao lado do título, só na tela.
-15. **Digit Span**, 16. **Trilhas** (com atenção), 17. **Praxias**,
-    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
-20. **Interpretação dos resultados** – um campo por domínio.
-21. **Conclusão** – texto e assinaturas dos profissionais.
+15. **Trilhas** (com atenção), 16. **Praxias**,
+    17. **Digit Span / Bateria Wechsler**, 18. **Stroop Test** (com testes complementares).
+19. **Interpretação dos resultados** – um campo por domínio.
+20. **Conclusão** – texto e assinaturas dos profissionais.
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
 Cada aba ocupa uma folha: se o conteúdo for grande, a letra diminui até caber.
@@ -45,7 +45,7 @@ só a fonte Figtree depende de conexão).
 ## Backup para editar depois
 
 Ao gerar o relatório, um arquivo `.json` é baixado junto. Para continuar ou
-corrigir uma avaliação, clique em **Carregar backup** (no topo da página),
+corrigir uma avaliação, clique em **Carregar documento** (no fim do menu lateral),
 escolha esse arquivo e os campos serão preenchidos novamente.
 
 ## Estrutura

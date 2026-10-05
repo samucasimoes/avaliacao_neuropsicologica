@@ -689,31 +689,6 @@ const DEFINICOES = [
   },
 
   {
-    id: "digitspan",
-    titulo: "Digit Span",
-    descricao: "Memória imediata e memória operacional.",
-    blocos: [
-      {
-        tipo: "tabela",
-        id: "ordens",
-        colunaRotulo: "Digit Span",
-        colunas: [
-          { rotulo: "Escore", tipo: "numero" },
-          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
-        ],
-        linhas: [
-          { rotulo: "Ordem direta (memória imediata)" },
-          { rotulo: "Ordem inversa (memória operacional)" }
-        ]
-      },
-      {
-        tipo: "paragrafo",
-        texto: "Teste que consiste em repetição seriada de números. Espera-se que o paciente seja capaz de repetir até 7 dígitos na ordem direta (7 ± 2) e 4 dígitos na ordem inversa."
-      }
-    ]
-  },
-
-  {
     id: "trilhas",
     titulo: "Trilhas",
     descricao: "Teste das Trilhas (formas A e B) e testes de atenção.",
@@ -802,9 +777,24 @@ const DEFINICOES = [
 
   {
     id: "wechsler",
-    titulo: "Bateria Wechsler",
-    descricao: "Subtestes da escala Wechsler.",
+    titulo: "Digit Span / Bateria Wechsler",
+    descricao: "Digit Span (memória imediata e memória operacional) e subtestes da escala Wechsler.",
     blocos: [
+      {
+        tipo: "tabela",
+        id: "ordens",
+        titulo: "Digit Span",
+        colunaRotulo: "Ordem",
+        colunas: [
+          { rotulo: "Escore", tipo: "numero" },
+          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
+        ],
+        linhas: [
+          { rotulo: "Ordem direta (memória imediata)" },
+          { rotulo: "Ordem inversa (memória operacional)" }
+        ]
+      },
+      { tipo: "subtitulo", texto: "Bateria Wechsler" },
       {
         tipo: "tabela",
         id: "subtestes",

@@ -454,7 +454,7 @@
       try {
         preencherCampos(Relatorio.lerBackup(leitor.result));
         mostrarSecao("dados");
-        mostrarAviso("Backup carregado. Você já pode editar os campos.");
+        mostrarAviso("Documento carregado. Você já pode editar os campos.");
         campoNome.focus();
       } catch (erro) {
         mostrarAviso(erro.message);

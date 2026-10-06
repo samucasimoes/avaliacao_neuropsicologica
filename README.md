@@ -64,4 +64,5 @@ escolha esse arquivo e os campos serão preenchidos novamente.
 - `js/cornell.js` – itens, pontuação e interpretação da Escala Cornell
 - `js/shulman.js` – folha do Relógio de Shulman no relatório
 - `js/relatorio.js` – geração do PDF, do Excel e do backup `.json`
+- `assets/favicon/` – ícones da aba do navegador (Twemoji, licença CC-BY 4.0, ver `about.txt`)
 - `libs/` – jsPDF, jsPDF-AutoTable e ExcelJS (cópias locais)

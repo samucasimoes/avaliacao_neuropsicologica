@@ -89,6 +89,8 @@ const DEFINICOES = [
   {
     id: "resumo",
     titulo: "Resumo",
+    /* Na impressão sai na mesma folha dos dados do paciente. */
+    impressao: { juntarCom: "dados" },
     descricao: "Fatores de risco do paciente. Marque Sim, Não ou Não disponível para cada item.",
     blocos: [
       {
@@ -745,6 +747,8 @@ const DEFINICOES = [
     id: "trilhas",
     titulo: "Trilhas",
     descricao: "Teste das Trilhas (formas A e B) e testes de atenção.",
+    /* Na impressão sai na folha de Memória verbal e visual: primeiro Atenção, depois Trilhas. */
+    impressao: { juntarCom: "memoria", ordemGrupos: [1, 0], tituloGrupos: { 0: "Trilhas" } },
     blocos: [
       {
         tipo: "paragrafo",

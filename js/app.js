@@ -211,9 +211,11 @@
       .filter(function (etapa) { return etapa.id !== "dados"; })
       .sort(function (a, b) { return a.numero - b.numero; })
       .map(function (etapa) {
-        if (etapa.id === "cornell") return Cornell.relatorio();
-        if (etapa.id === "shulman") return Shulman.relatorio();
-        return Secoes.relatorio(etapa.id);
+        const conteudo = etapa.id === "cornell" ? Cornell.relatorio()
+          : etapa.id === "shulman" ? Shulman.relatorio()
+            : Secoes.relatorio(etapa.id);
+        if (conteudo) conteudo.id = etapa.id;
+        return conteudo;
       })
       .filter(Boolean);
   }

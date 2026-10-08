@@ -296,6 +296,8 @@ const DEFINICOES = [
   {
     id: "pfeffer",
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
+    /* Na impressão sai na mesma folha da Escala de Katz. */
+    impressao: { juntarCom: "katz" },
     descricao: "Pergunte ao informante sobre a capacidade do paciente em cada atividade.",
     blocos: [
       {
@@ -834,6 +836,8 @@ const DEFINICOES = [
   {
     id: "wechsler",
     titulo: "Digit Span / Bateria Wechsler",
+    /* Na impressão sai na mesma folha de Praxias, abaixo do texto dela. */
+    impressao: { juntarCom: "praxias" },
     descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8, Dígitos, é o Digit Span).",
     blocos: [
       {

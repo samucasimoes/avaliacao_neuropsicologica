@@ -36,6 +36,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 21. **Conclusão** – texto e assinaturas dos profissionais.
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
+Na impressão, o Resumo sai na mesma folha dos dados do paciente, e Trilhas (com Atenção)
+sai na folha de Memória verbal e visual.
 Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela) e,
 se o conteúdo for grande, a letra diminui até caber.
 Ao gerar, escolha entre **dados do paciente + escalas** ou **somente os dados do paciente**.

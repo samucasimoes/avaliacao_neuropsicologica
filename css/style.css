@@ -304,6 +304,37 @@ a.step:not(.active):hover {
   color: var(--green-dark);
 }
 
+/* Aviso na tabela quando faltam idade ou sexo para a referência */
+.aviso-referencia {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid #ecd3a4;
+  border-radius: 10px;
+  background: #fbf3e2;
+  color: #6f4a0e;
+  font-size: 13.5px;
+}
+
+.aviso-referencia[hidden],
+.aviso-referencia-link[hidden] {
+  display: none;
+}
+
+.aviso-referencia-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .card-text {
   margin: 0;
   font-size: 14px;

@@ -373,6 +373,33 @@ const Secoes = (function () {
         .toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     }
 
+    /* Aviso na tela quando a referência não pode ser mostrada (falta idade ou sexo,
+       ou idade fora das faixas da tabela). Devolve "" quando está tudo certo. */
+    const comReferencia = linhas.find(function (linha) { return linha.referencia; });
+
+    function motivoSemReferencia() {
+      if (!comReferencia) return "";
+      const p = contexto.paciente();
+      const semIdade = p.idade === null || p.idade === undefined;
+      const faltando = [];
+      if (semIdade) faltando.push("a data de nascimento (ou a idade)");
+      if (!p.sexo) faltando.push("o sexo");
+      if (faltando.length) {
+        return "Para mostrar os valores de referência, preencha " + faltando.join(" e ") +
+          " em Dados do paciente.";
+      }
+      const faixas = comReferencia.referencia;
+      const de = faixas[0].de;
+      const ate = faixas[faixas.length - 1].ate;
+      if (p.idade < de || p.idade > ate) {
+        return "Valores de referência disponíveis só para pacientes de " + de + " a " + ate +
+          " anos (paciente com " + p.idade + (p.idade === 1 ? " ano" : " anos") + ").";
+      }
+      return "";
+    }
+
+    let avisoReferencia = null;
+
     /* Colunas que não são digitadas nem contam como preenchimento. */
     function informativa(coluna) {
       return coluna.tipo === "fixo" || coluna.tipo === "referencia";
@@ -415,6 +442,20 @@ const Secoes = (function () {
     return {
       montar: function (container) {
         if (b.titulo) container.appendChild(criar("h3", "escala-grupo", b.titulo));
+        if (comReferencia) {
+          avisoReferencia = criar("div", "aviso-referencia");
+          avisoReferencia.setAttribute("role", "status");
+          avisoReferencia.appendChild(criar("span", "aviso-referencia-texto"));
+          const ir = criar("button", "aviso-referencia-link", "Ir para Dados do paciente");
+          ir.type = "button";
+          ir.title = "Abrir a etapa Dados do paciente";
+          ir.addEventListener("click", function () {
+            const link = document.querySelector('[data-secao="dados"]');
+            if (link) link.click();
+          });
+          avisoReferencia.appendChild(ir);
+          container.appendChild(avisoReferencia);
+        }
         const rolagem = criar("div", "tabela-rolagem");
         const tabela = criar("table", "tabela-teste");
         const thead = criar("thead");
@@ -499,6 +540,13 @@ const Secoes = (function () {
           r.el.title = valor ? "Referência para a idade e o sexo do paciente"
             : "Informe a data de nascimento e o sexo (60 a 89 anos) nos dados do paciente";
         });
+        if (avisoReferencia) {
+          const motivo = motivoSemReferencia();
+          avisoReferencia.hidden = !motivo;
+          avisoReferencia.firstChild.textContent = motivo;
+          /* O botão só ajuda quando falta preencher algo nos dados do paciente. */
+          avisoReferencia.lastChild.hidden = motivo.indexOf("preencha") === -1;
+        }
       },
       valor: function (chave, coluna) {
         return acesso.num(chave, coluna);

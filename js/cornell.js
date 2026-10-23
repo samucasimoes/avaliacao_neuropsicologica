@@ -2,7 +2,7 @@
 
 const Cornell = (function () {
   const OPCOES = [
-    { valor: "impossibilitado", rotulo: "Não avaliável", nome: "Impossibilitado de avaliar", pontos: 0 },
+    { valor: "impossibilitado", rotulo: "Impossibilitado de avaliar", nome: "Impossibilitado de avaliar", pontos: 0 },
     { valor: "ausente", rotulo: "Ausente", nome: "Ausente", pontos: 0 },
     { valor: "leve", rotulo: "Leve", nome: "Leve", pontos: 1 },
     { valor: "intenso", rotulo: "Intenso", nome: "Intenso", pontos: 2 }

@@ -187,7 +187,7 @@ const DEFINICOES = [
           "Praxias Construtivas",
           "Testes de Gnosias",
           "Teste dos Cinco pontos",
-          "Teste do Relógio",
+          "Teste do Relógio de Shulman",
           "Escala de Depressão Geriátrica (GDS)",
           "Escala de Atividades Instrumentais de Vida Diária (Lawton)",
           "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
@@ -202,25 +202,26 @@ const DEFINICOES = [
   {
     id: "katz",
     titulo: "Escala de Katz",
-    descricao: "Para cada área de funcionamento, assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
+    descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que melhor se aplica. A palavra “assistência” significa supervisão, orientação ou auxílio pessoal.",
     blocos: [
       {
         tipo: "escolhas",
         id: "itens",
         colunaItem: "Área de funcionamento",
         rotulosPontos: ["Independente", "Dependente"],
+        /* Texto idêntico à versão brasileira (Lino et al., Cad. Saúde Pública). */
         itens: [
           {
             titulo: "Tomar banho (leito, banheira ou chuveiro)",
             pontos: [0, 0, 1],
             opcoes: [
-              "Não recebe ajuda (entra e sai da banheira ou chuveiro sozinho(a))",
-              "Recebe ajuda para lavar apenas uma parte do corpo (costas, perna)",
-              "Recebe ajuda para lavar mais de uma parte do corpo, ou não toma banho sozinho(a)"
+              "Não recebe ajuda (entra e sai da banheira sozinho, se este for o modo habitual de tomar banho)",
+              "Recebe ajuda para lavar apenas uma parte do corpo (como, por exemplo, as costas ou uma perna)",
+              "Recebe ajuda para lavar mais de uma parte do corpo, ou não toma banho sozinho"
             ]
           },
           {
-            titulo: "Vestir-se (pega roupas, inclusive peças íntimas nos armários e gavetas)",
+            titulo: "Vestir-se (pega roupas, inclusive peças íntimas, nos armários e gavetas, e manuseia fechos, inclusive os de órteses e próteses, quando forem utilizadas)",
             pontos: [0, 0, 1],
             opcoes: [
               "Pega as roupas e veste-se completamente, sem ajuda",
@@ -229,19 +230,19 @@ const DEFINICOES = [
             ]
           },
           {
-            titulo: "Uso do vaso sanitário (ida ao banheiro, higiene íntima e arrumação das roupas)",
+            titulo: "Uso do vaso sanitário (ida ao banheiro ou local equivalente para evacuar e urinar; higiene íntima e arrumação das roupas)",
             pontos: [0, 1, 1],
             opcoes: [
-              "Vai ao banheiro, limpa-se e ajeita as roupas sem ajuda (pode usar bengala, andador ou cadeira de rodas e pode usar comadre ou urinol à noite)",
-              "Recebe ajuda para ir ao banheiro ou para limpar-se ou para ajeitar as roupas após evacuação ou micção, ou para usar comadre ou urinol à noite",
-              "Não vai ao banheiro para eliminações fisiológicas"
+              "Vai ao banheiro ou local equivalente, limpa-se e ajeita as roupas sem ajuda (pode usar objetos para apoio como bengala, andador ou cadeira de rodas e pode usar comadre ou urinol à noite, esvaziando-o de manhã)",
+              "Recebe ajuda para ir ao banheiro ou local equivalente, ou para limpar-se, ou para ajeitar as roupas após evacuação ou micção, ou para usar a comadre ou urinol à noite",
+              "Não vai ao banheiro ou equivalente para eliminações fisiológicas"
             ]
           },
           {
             titulo: "Transferência",
             pontos: [0, 1, 1],
             opcoes: [
-              "Deita-se e sai da cama, senta-se e levanta-se da cadeira sem ajuda (pode estar usando objeto para apoio como bengala ou andador)",
+              "Deita-se e sai da cama, senta-se e levanta-se da cadeira sem ajuda (pode estar usando objeto para apoio, como bengala ou andador)",
               "Deita-se e sai da cama e/ou senta-se e levanta-se da cadeira com ajuda",
               "Não sai da cama"
             ]
@@ -250,8 +251,8 @@ const DEFINICOES = [
             titulo: "Continência",
             pontos: [0, 1, 1],
             opcoes: [
-              "Controla inteiramente a micção e evacuação",
-              "Tem acidentes ocasionais",
+              "Controla inteiramente a micção e a evacuação",
+              "Tem “acidentes” ocasionais",
               "Necessita de ajuda para manter o controle da micção e evacuação; usa cateter ou é incontinente"
             ]
           },
@@ -260,8 +261,8 @@ const DEFINICOES = [
             pontos: [0, 0, 1],
             opcoes: [
               "Alimenta-se sem ajuda",
-              "Alimenta-se sozinho(a), mas recebe ajuda para cortar carne ou passar manteiga no pão",
-              "Recebe ajuda para alimentar-se, ou é alimentado(a) parcialmente ou completamente pelo uso de cateteres ou fluidos intravenosos"
+              "Alimenta-se sozinho, mas recebe ajuda para cortar carne ou passar manteiga no pão",
+              "Recebe ajuda para alimentar-se, ou é alimentado parcialmente ou completamente pelo uso de cateteres ou fluidos intravenosos"
             ]
           }
         ]
@@ -430,7 +431,7 @@ const DEFINICOES = [
   {
     id: "humor",
     titulo: "Humor e comportamento",
-    descricao: "Escalas, inventários e questionários. Katz, Pfeffer, IQCODE e Cornell vêm das próprias abas; GAI, GDS e BHS são digitados aqui.",
+    descricao: "Escalas, inventários e questionários. Katz, Pfeffer e Cornell vêm das próprias abas; GAI, GDS e BHS são digitados aqui.",
     blocos: [
       {
         tipo: "resultados",
@@ -438,7 +439,8 @@ const DEFINICOES = [
         itens: [
           { rotulo: "Escala de independência para as atividades de vida diária (Katz)", origem: "katz" },
           { rotulo: "Questionário de atividades funcionais (Pfeffer)", origem: "pfeffer" },
-          { rotulo: "IQCODE (investigação de declínio cognitivo)", origem: "iqcode" },
+          /* IQCODE fora de uso por enquanto: linha escondida e fora da impressão. */
+          { rotulo: "IQCODE (investigação de declínio cognitivo)", origem: "iqcode", oculto: true },
           { rotulo: "GAI (inventário de ansiedade) autorrelato", maximo: 20, interpretar: interpretarGai },
           { rotulo: "GDS (Yesavage escala de depressão) autorrelato", maximo: 15, interpretar: interpretarGds },
           { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" },
@@ -474,9 +476,10 @@ const DEFINICOES = [
           "9-11 depressão leve;",
           "12 ou + depressão moderada a grave.",
           "",
+          /* IQCODE fora de uso por enquanto:
           "IQCODE:",
           "escores maiores ou iguais a 3,5 sugerem a presença de declínio cognitivo frente ao nível pré-mórbido.",
-          "",
+          "", */
           "BHS:",
           "0-4 desesperança mínima;",
           "5-8 desesperança leve;",

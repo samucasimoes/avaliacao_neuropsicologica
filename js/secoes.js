@@ -841,6 +841,7 @@ const Secoes = (function () {
         const tbody = criar("tbody");
         b.itens.forEach(function (item, i) {
           const linha = criar("tr");
+          if (item.oculto) linha.style.display = "none";
           const th = criar("th", "", item.rotulo);
           th.scope = "row";
           linha.appendChild(th);
@@ -882,7 +883,7 @@ const Secoes = (function () {
         });
       },
       preenchido: function () {
-        return b.itens.some(function (item, i) { return resultadoDe(item, i); });
+        return b.itens.some(function (item, i) { return !item.oculto && resultadoDe(item, i); });
       },
       completo: function () {
         return b.itens.every(function (item, i) { return item.origem || resultadoDe(item, i); });
@@ -890,6 +891,7 @@ const Secoes = (function () {
       relatorio: function () {
         const corpo = [];
         b.itens.forEach(function (item, i) {
+          if (item.oculto) return;
           const r = resultadoDe(item, i);
           if (r) corpo.push([item.rotulo, r.valor]);
         });

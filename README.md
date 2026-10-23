@@ -11,29 +11,34 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 2. **Resumo** – fatores de risco (Sim / Não / Não disponível).
 3. **Funções avaliadas** – lista já marcada.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão.
-5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta.
+5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta. Enunciado e opções
+   idênticos à versão brasileira (Lino et al., Cad. Saúde Pública).
 6. **Pfeffer** – Questionário de Atividades Funcionais, pontuação total de 0 a 30.
-7. **Escala Cornell** – escore e interpretação automáticos.
-8. **IQCODE** – 26 itens; cada coluna vale o número do topo (1 a 5), soma-se valor ×
-   quantidade de marcações e divide-se por 26. "Não se aplica" e "Não sabe" não somam.
-9. **Humor e comportamento** – total de Katz, Pfeffer, IQCODE e Cornell (vindos das
+7. **Escala Cornell** – escore e interpretação automáticos. Opções: Impossibilitado de
+   avaliar, Ausente, Leve e Intenso.
+8. **Humor e comportamento** – total de Katz, Pfeffer e Cornell (vindos das
    abas) e GAI, GDS e BHS (digitados), com interpretação na tela. Na impressão saem só os
    resultados e a legenda das escalas.
-10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
+9. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
     e não entra no total até ser corrigido. O comentário sai na mesma folha da tabela.
-11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
-    no relatório sai uma folha em branco para o desenho no papel.
-12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
-13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
-14. **Curva de aprendizagem** – RAVLT com total, interferências, esquecimento e
+10. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
+    fica só na tela, não sai no relatório.
+11. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
+12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
+13. **Curva de aprendizagem** – RAVLT com total, interferências, esquecimento e
     gráfico; a classificação é escolhida pelo profissional. A coluna Referência mostra
     o valor esperado em todas as linhas do RAVLT conforme a idade
     (60 a 89 anos) e o sexo do paciente. A idade aparece ao lado do título, só na tela.
-15. **Memória verbal e visual** – memória lógica e visual, com classificação.
-16. **Trilhas** (com atenção), 17. **Praxias**,
-    18. **Digit Span / Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
-20. **Interpretação dos resultados** – um campo por domínio.
-21. **Conclusão** – texto e assinaturas dos profissionais.
+14. **Memória verbal e visual** – memória lógica e visual, com classificação.
+15. **Trilhas** (com atenção), 16. **Praxias**,
+    17. **Digit Span / Bateria Wechsler**, 18. **Stroop Test** (com testes complementares).
+19. **Interpretação dos resultados** – um campo por domínio.
+20. **Conclusão** – texto e assinaturas dos profissionais.
+
+A escala **IQCODE** está fora de uso por enquanto: o código continua no projeto, mas a
+aba fica escondida (`display: none`), não aparece em Humor e comportamento e não sai
+no relatório. Para voltar, remova a classe `etapa-oculta` e o `style` da aba no
+`index.html` e o `oculto: true` da linha do IQCODE em `js/definicoes.js`.
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,

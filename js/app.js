@@ -127,7 +127,14 @@
   /* ---------- Etapas ---------- */
 
   const secoes = document.querySelectorAll(".secao");
-  const linksSecao = Array.from(document.querySelectorAll("[data-secao]"));
+  /* Etapas escondidas (.etapa-oculta, ex.: IQCODE) ficam fora da navegação, dos avisos
+     e do relatório. O menu é renumerado para não pular números. */
+  const linksSecao = Array.from(document.querySelectorAll("[data-secao]")).filter(function (link) {
+    return !link.closest(".etapa-oculta");
+  });
+  linksSecao.forEach(function (link, i) {
+    link.querySelector(".step-num").textContent = String(i + 1);
+  });
   const ordem = linksSecao.map(function (link) { return link.dataset.secao; });
   const botaoAnterior = document.getElementById("btn-anterior");
   const botaoProxima = document.getElementById("btn-proxima");
@@ -208,12 +215,12 @@
       .map(function (link) {
         return { id: link.dataset.secao, numero: Number(link.querySelector(".step-num").textContent) };
       })
-      .filter(function (etapa) { return etapa.id !== "dados"; })
+      /* O Relógio de Shulman fica só na tela: não sai na impressão. */
+      .filter(function (etapa) { return etapa.id !== "dados" && etapa.id !== "shulman"; })
       .sort(function (a, b) { return a.numero - b.numero; })
       .map(function (etapa) {
         const conteudo = etapa.id === "cornell" ? Cornell.relatorio()
-          : etapa.id === "shulman" ? Shulman.relatorio()
-            : Secoes.relatorio(etapa.id);
+          : Secoes.relatorio(etapa.id);
         if (conteudo) conteudo.id = etapa.id;
         return conteudo;
       })

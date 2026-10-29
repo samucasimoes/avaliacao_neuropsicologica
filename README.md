@@ -31,8 +31,7 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 13. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
-    e ficam só na tela. Os valores de DP ainda precisam ser cadastrados em `RAVLT_DP`
-    (`js/definicoes.js`). Na impressão o título é "Teste de Aprendizagem Auditivo-Verbal
+    e ficam só na tela (tabelas `RAVLT_REFERENCIA` e `RAVLT_DP` em `js/definicoes.js`). Na impressão o título é "Teste de Aprendizagem Auditivo-Verbal
     de Rey - (RAVLT)". A idade aparece ao lado do título, só na tela.
 14. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
     operacional (Digit Span), com classificação.

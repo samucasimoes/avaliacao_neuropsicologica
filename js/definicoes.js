@@ -42,7 +42,7 @@ function referenciaRavlt(valores) {
 
 const RAVLT_REFERENCIA = {
   a1: referenciaRavlt([[5.6, 6.0], [5.3, 6.0], [5.0, 6.1], [4.9, 4.8], [3.5, 4.9], [4.1, 4.5]]),
-  a2: referenciaRavlt([[7.6, 7.9], [7.8, 8.7], [7.4, 7.6], [6.3, 5.9], [5.5, 8.1], [6.1, 8.0]]),
+  a2: referenciaRavlt([[7.6, 7.9], [7.8, 8.7], [7.4, 7.6], [6.3, 5.9], [5.5, 6.1], [6.1, 6.0]]),
   a3: referenciaRavlt([[9.0, 10.0], [9.0, 9.9], [7.8, 9.4], [7.0, 6.9], [6.5, 6.9], [6.6, 6.5]]),
   a4: referenciaRavlt([[10.2, 11.3], [9.9, 10.8], [10.0, 10.7], [8.0, 8.0], [8.5, 7.9], [7.8, 7.4]]),
   a5: referenciaRavlt([[11.8, 12.2], [11.1, 12.0], [10.1, 11.3], [10.7, 10.5], [9.4, 10.1], [9.5, 10.1]]),
@@ -52,14 +52,28 @@ const RAVLT_REFERENCIA = {
   itp: referenciaRavlt([[0.9, 0.8], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.8, 0.6], [0.9, 0.9]]),
   itr: referenciaRavlt([[0.9, 0.9], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.9, 0.9], [0.8, 0.7]]),
   ve: referenciaRavlt([[0.9, 1.0], [1.0, 1.0], [0.9, 1.0], [0.9, 0.9], [0.9, 0.8], [0.8, 0.9]]),
-  total: referenciaRavlt([[44.2, 47.3], [43.1, 47.5], [40.3, 45.0], [36.8, 36.1], [33.3, 35.8], [34.0, 34.8]]),
+  total: referenciaRavlt([[44.2, 47.3], [43.1, 47.5], [40.3, 45.0], [36.8, 36.1], [33.3, 35.9], [34.0, 34.8]]),
   rec: referenciaRavlt([[10.8, 11.9], [9.6, 11.6], [7.2, 9.0], [7.5, 6.2], [5.5, 6.1], [2.3, 6.2]])
 };
 
-/* RAVLT: desvio padrão (DP) por faixa de idade, no mesmo formato da referência.
-   Ainda sem valores: a coluna DP mostra "—" até eles serem cadastrados aqui, ex.:
-   a1: referenciaRavlt([[1.6, 1.7], [1.5, 1.6], ...]) */
-const RAVLT_DP = {};
+/* RAVLT: desvio padrão (DP) por faixa de idade, [homem, mulher], da mesma tabela da
+   referência (valores entre parênteses). Os DPs de B1 em 75-79 (mulher) e 85-89 estão
+   assim na tabela original, embora pareçam altos perto do DP total da faixa. */
+const RAVLT_DP = {
+  a1: referenciaRavlt([[1.2, 1.1], [1.4, 1.6], [1.1, 1.7], [0.4, 0.7], [0.5, 1.5], [1.1, 1.6]]),
+  a2: referenciaRavlt([[1.2, 1.7], [1.8, 1.7], [1.0, 1.7], [0.7, 0.7], [0.7, 1.4], [1.6, 1.8]]),
+  a3: referenciaRavlt([[1.4, 1.8], [1.6, 1.7], [1.1, 1.3], [0.8, 0.8], [2.0, 1.5], [1.5, 1.5]]),
+  a4: referenciaRavlt([[1.6, 1.4], [1.9, 1.4], [1.1, 2.3], [0.7, 0.7], [1.4, 1.8], [1.8, 1.4]]),
+  a5: referenciaRavlt([[1.6, 1.2], [2.0, 1.9], [1.5, 1.6], [1.0, 1.1], [1.7, 1.5], [1.5, 2.4]]),
+  b1: referenciaRavlt([[0.7, 0.7], [1.4, 1.4], [1.2, 2.2], [0.6, 3.8], [1.6, 1.9], [2.6, 3.9]]),
+  a6: referenciaRavlt([[1.7, 1.6], [2.4, 2.0], [1.9, 1.9], [0.5, 0.6], [1.4, 2.5], [1.9, 2.4]]),
+  a7: referenciaRavlt([[1.7, 2.4], [2.4, 2.5], [1.6, 2.0], [0.5, 0.5], [1.8, 2.6], [2.2, 2.0]]),
+  itp: referenciaRavlt([[0.2, 0.2], [0.2, 0.2], [0.4, 0.4], [0.1, 0.3], [0.5, 0.3], [0.5, 0.2]]),
+  itr: referenciaRavlt([[0.1, 0.1], [0.1, 0.1], [0.2, 0.2], [0.1, 0.1], [0.1, 0.2], [0.2, 0.2]]),
+  ve: referenciaRavlt([[0.1, 0.2], [0.2, 0.1], [0.1, 0.2], [0.1, 0.1], [0.1, 0.1], [0.2, 0.2]]),
+  total: referenciaRavlt([[5.5, 5.5], [7.4, 6.0], [3.2, 6.9], [1.8, 2.3], [4.7, 6.1], [6.4, 6.8]]),
+  rec: referenciaRavlt([[2.6, 3.1], [3.1, 2.5], [4.7, 2.8], [2.8, 0.7], [4.4, 4.3], [5.3, 3.9]])
+};
 
 const IQCODE_CORTE = 3.5;
 const PFEFFER_CORTE = 5;

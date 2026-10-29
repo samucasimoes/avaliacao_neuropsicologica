@@ -175,8 +175,11 @@ const Secoes = (function () {
     };
   }
 
-  /* Cada item com suas próprias descrições (Escala de Katz). */
+  /* Cada item com suas próprias descrições (Escala de Katz).
+     As classes levam o nome da aba (ex.: "katz-opcao", "katz-opcao-caixa"). */
   function blocoEscolhas(secao, b) {
+    const classe = secao.id;
+
     function nome(n) {
       return secao.id + "-" + b.id + "-" + n;
     }
@@ -191,7 +194,7 @@ const Secoes = (function () {
     return {
       montar: function (container) {
         b.itens.forEach(function (item, i) {
-          const grupo = criar("div", "escolha-item");
+          const grupo = criar("div", classe + "-item");
           grupo.setAttribute("role", "radiogroup");
           grupo.setAttribute("aria-labelledby", nome(i + 1) + "-texto");
           const titulo = criar("p", "escala-texto");
@@ -200,18 +203,19 @@ const Secoes = (function () {
           titulo.appendChild(document.createTextNode(item.titulo));
           grupo.appendChild(titulo);
 
-          const opcoes = criar("div", "escolha-opcoes");
+          const opcoes = criar("div", classe + "-opcoes");
           item.opcoes.forEach(function (texto, j) {
-            const label = criar("label", "shulman-opcao");
+            const label = criar("label", classe + "-opcao");
             label.title = item.titulo + ": " + texto + " (" + b.rotulosPontos[item.pontos[j]] + ")";
             const radio = criar("input", "opcao-radio");
             radio.type = "radio";
             radio.name = nome(i + 1);
             radio.value = String(j + 1);
             label.appendChild(radio);
-            const caixa = criar("span", "shulman-opcao-caixa");
-            caixa.appendChild(criar("span", "shulman-opcao-texto", texto));
-            caixa.appendChild(criar("span", "escolha-tag", b.rotulosPontos[item.pontos[j]]));
+            const caixa = criar("span", classe + "-opcao-caixa");
+            caixa.appendChild(criar("span", classe + "-opcao-texto", texto));
+            /* Independente / Dependente: só na tela. */
+            caixa.appendChild(criar("span", classe + "-classificacao", b.rotulosPontos[item.pontos[j]]));
             label.appendChild(caixa);
             opcoes.appendChild(label);
           });
@@ -236,18 +240,21 @@ const Secoes = (function () {
       completo: function () {
         return b.itens.every(function (item, i) { return resposta(i); });
       },
+      /* Na impressão sai como a folha de papel: todas as descrições de cada área,
+         com a assinalada marcada. */
       relatorio: function () {
-        const linhas = [];
-        b.itens.forEach(function (item, i) {
-          const r = resposta(i);
-          if (r) linhas.push([i + 1, item.titulo, r.texto, b.rotulosPontos[r.pontos]]);
-        });
-        if (!linhas.length) return [];
+        if (!this.preenchido()) return [];
         return [{
-          tipo: "tabela",
-          cabecalho: ["Nº", b.colunaItem || "Item", "Descrição assinalada", "Classificação"],
-          linhas: linhas,
-          estilos: { 0: { cellWidth: 10, halign: "center" }, 1: { cellWidth: 52 }, 3: { cellWidth: 28 } }
+          tipo: "escolhas",
+          introducao: b.introducao || "",
+          itens: b.itens.map(function (item, i) {
+            return {
+              numero: i + 1,
+              titulo: item.titulo,
+              opcoes: item.opcoes,
+              marcada: Number(valorDe(nome(i + 1))) - 1
+            };
+          })
         }];
       }
     };
@@ -362,12 +369,14 @@ const Secoes = (function () {
       }
     };
 
-    /* Valor de referência da linha conforme a idade e o sexo do paciente. */
-    function referencia(linha) {
-      if (!linha.referencia) return "";
+    /* Valor de referência da linha conforme a idade e o sexo do paciente.
+       "dado" escolhe a tabela da linha: "referencia" (média) ou "dp" (desvio padrão). */
+    function referencia(linha, dado) {
+      const faixas = linha[dado || "referencia"];
+      if (!faixas) return "";
       const p = contexto.paciente();
       if (p.idade === null || p.idade === undefined || !p.sexo) return "";
-      const faixa = linha.referencia.find(function (f) { return p.idade >= f.de && p.idade <= f.ate; });
+      const faixa = faixas.find(function (f) { return p.idade >= f.de && p.idade <= f.ate; });
       if (!faixa) return "";
       return (p.sexo === "Masculino" ? faixa.homem : faixa.mulher)
         .toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -408,7 +417,7 @@ const Secoes = (function () {
     /* Valor de uma célula como texto (vazio se não preenchida). */
     function celula(linha, coluna) {
       const tipo = b.colunas[coluna].tipo;
-      if (tipo === "referencia") return referencia(linha);
+      if (tipo === "referencia") return referencia(linha, b.colunas[coluna].dado);
       if (calculado(linha, coluna)) {
         const v = linha.calculos[coluna](acesso);
         return v === null ? "" : formatarNumero(v);
@@ -486,7 +495,7 @@ const Secoes = (function () {
               td.appendChild(criar("span", "fixo", linha.fixos ? linha.fixos[c] : ""));
             } else if (coluna.tipo === "referencia") {
               const ref = criar("span", "fixo referencia", "");
-              if (linha.referencia) referencias.push({ el: ref, linha: linha });
+              if (linha.referencia) referencias.push({ el: ref, linha: linha, dado: coluna.dado });
               td.appendChild(ref);
             } else if (coluna.tipo === "calculo") {
               td.appendChild(criar("span", "fixo", ""));
@@ -535,9 +544,10 @@ const Secoes = (function () {
           s.el.value = textoNumero(s.linha.calculos[s.coluna](acesso));
         });
         referencias.forEach(function (r) {
-          const valor = referencia(r.linha);
+          const valor = referencia(r.linha, r.dado);
           r.el.textContent = valor || "—";
-          r.el.title = valor ? "Referência para a idade e o sexo do paciente"
+          if (r.dado && !r.linha[r.dado]) r.el.title = "Valor ainda não cadastrado";
+          else r.el.title = valor ? (r.dado === "dp" ? "Desvio padrão" : "Referência") + " para a idade e o sexo do paciente"
             : "Informe a data de nascimento e o sexo (60 a 89 anos) nos dados do paciente";
         });
         if (avisoReferencia) {
@@ -557,9 +567,12 @@ const Secoes = (function () {
       completo: function () {
         return linhas.every(linhaCompleta);
       },
+      /* Colunas com soTela (ex.: Referência e DP do RAVLT) não saem na impressão. */
       relatorio: function () {
+        const impressas = [];
+        b.colunas.forEach(function (coluna, c) { if (!coluna.soTela) impressas.push(c); });
         const corpo = linhas.filter(linhaPreenchida).map(function (linha) {
-          const celulas = [linha.rotulo].concat(b.colunas.map(function (coluna, c) {
+          const celulas = [linha.rotulo].concat(impressas.map(function (c) {
             return celula(linha, c) || "—";
           }));
           return linha.destaque ? { celulas: celulas, destaque: true } : celulas;
@@ -569,7 +582,7 @@ const Secoes = (function () {
         if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.titulo, menor: true });
         blocos.push({
           tipo: "tabela",
-          cabecalho: [b.colunaRotulo || ""].concat(b.colunas.map(function (c) { return c.rotulo; })),
+          cabecalho: [b.colunaRotulo || ""].concat(impressas.map(function (c) { return b.colunas[c].rotulo; })),
           linhas: corpo
         });
         return blocos;
@@ -617,7 +630,7 @@ const Secoes = (function () {
       const lista = [];
       b.itens.forEach(function (rotulo, i) {
         const valor = valorDe(nome(i + 1));
-        if (valor) lista.push(rotulo + ": " + valor);
+        if (valor) lista.push([rotulo, valor]);
       });
       return lista;
     }
@@ -648,9 +661,16 @@ const Secoes = (function () {
       completo: function () {
         return preenchidos().length === b.itens.length;
       },
+      /* Na impressão: tabela com o domínio à esquerda e o resultado à direita. */
       relatorio: function () {
         const lista = preenchidos();
-        return lista.length ? [{ tipo: "lista", itens: lista }] : [];
+        if (!lista.length) return [];
+        return [{
+          tipo: "tabela",
+          cabecalho: [b.colunaRotulo || "Domínio", b.colunaValor || "Resultado"],
+          linhas: lista,
+          estilos: { 0: { cellWidth: 64, fontStyle: "bold" } }
+        }];
       }
     };
   }
@@ -665,7 +685,7 @@ const Secoes = (function () {
         preenchido: function () { return false; },
       completo: function () { return true; },
         relatorio: function (grupoPreenchido) {
-          if (!grupoPreenchido) return [];
+          if (!grupoPreenchido || b.soTela) return [];
           return [{ tipo: b.legenda ? "legenda" : tipoRelatorio, texto: b.texto }];
         }
       };
@@ -1079,13 +1099,14 @@ const Secoes = (function () {
     const blocos = [];
     const r = resultado(id);
     if (r) {
+      /* Caixas com soTela (ex.: Dependências da Katz) ficam só na tela. */
       const caixas = secao.def.resumo(secao.api).filter(function (caixa) {
-        return caixa.selo !== "";
+        return caixa.selo !== "" && !caixa.soTela;
       }).map(function (caixa) {
         return [caixa.rotulo, caixa.selo !== undefined ? caixa.selo
           : String(caixa.valor) + (caixa.de ? " / " + caixa.de : "")];
       });
-      blocos.push({ tipo: "caixas", caixas: caixas });
+      if (caixas.length) blocos.push({ tipo: "caixas", caixas: caixas });
     }
 
     const impressao = secao.def.impressao || {};
@@ -1108,7 +1129,11 @@ const Secoes = (function () {
     });
 
     if (!blocos.length) return null;
-    return { titulo: secao.def.titulo, blocos: blocos, juntarCom: impressao.juntarCom || null };
+    return {
+      titulo: secao.def.tituloImpressao || secao.def.titulo,
+      blocos: blocos,
+      juntarCom: impressao.juntarCom || null
+    };
   }
 
   function iniciar(formulario, opcoes) {

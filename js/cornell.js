@@ -58,6 +58,8 @@ const Cornell = (function () {
   const TOTAL_ITENS = 19;
   const PONTUACAO_MAXIMA = 38;
   const REFERENCIA = "0 a 8: ausência de depressão; 9 a 11: depressão leve; 12 ou mais: depressão moderada a grave.";
+  /* Orientação ao avaliador: aparece na tela e abaixo do título na impressão. */
+  const INSTRUCAO = "Com base no comportamento, marque a intensidade dos sinais e sintomas que ocorreram na semana anterior a essa avaliação neuropsicológica.";
 
   let form = null;
 
@@ -183,18 +185,16 @@ const Cornell = (function () {
           : [item.numero, item.texto, item.resposta, item.pontos]);
       });
     });
-    linhas.push({ celulas: ["", "Escore total", "", r.total], destaque: true });
+    linhas.push({ celulas: ["", "Escore do paciente", "", r.total], destaque: true });
 
     return {
       titulo: "Escala Cornell para Depressão",
       blocos: [
+        { tipo: "paragrafo", texto: INSTRUCAO, negrito: true },
         {
           tipo: "caixas",
-          caixas: [
-            ["Escore total", r.total + " / " + r.pontuacaoMaxima],
-            /* A interpretação da Cornell aparece só na tela, nunca na impressão. */
-            ["Itens respondidos", r.respondidos + " de " + r.totalItens]
-          ]
+          /* A interpretação e os itens respondidos aparecem só na tela, nunca na impressão. */
+          caixas: [["Escore do paciente", r.total + " / " + r.pontuacaoMaxima]]
         },
         {
           tipo: "tabela",

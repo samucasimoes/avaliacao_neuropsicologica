@@ -770,8 +770,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 160px;
 }
 
-/* Escala de Katz: uma descrição por área */
-.escolha-item {
+/* Escala de Katz: uma descrição por área (classes com o nome da aba, montadas em secoes.js) */
+.katz-item {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -779,18 +779,56 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-bottom: 1px solid var(--line);
 }
 
-.escolha-item .escala-texto {
+.katz-item .escala-texto {
   font-weight: 600;
 }
 
-.escolha-opcoes {
+.katz-opcoes {
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding-left: 24px;
 }
 
-.escolha-tag {
+.katz-opcao {
+  position: relative;
+  cursor: pointer;
+}
+
+.katz-opcao-caixa {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.katz-opcao-texto {
+  font-size: 13.5px;
+}
+
+.katz-opcao:hover .katz-opcao-caixa {
+  border-color: #bfc9c5;
+  color: var(--ink);
+}
+
+.opcao-radio:checked + .katz-opcao-caixa {
+  border-color: var(--green);
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.opcao-radio:focus-visible + .katz-opcao-caixa {
+  box-shadow: 0 0 0 3px rgba(43, 94, 78, 0.18);
+}
+
+/* Independente / Dependente: só na tela */
+.katz-classificacao {
   flex: none;
   margin-left: auto;
   padding: 2px 9px;
@@ -801,7 +839,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: var(--ink-soft);
 }
 
-.opcao-radio:checked + .shulman-opcao-caixa .escolha-tag {
+.opcao-radio:checked + .katz-opcao-caixa .katz-classificacao {
   background: var(--green);
   color: #fff;
 }
@@ -949,61 +987,6 @@ td.estreita .input-tabela {
   font-size: 17px;
   font-weight: 600;
   color: var(--ink);
-}
-
-.shulman-opcao {
-  position: relative;
-  cursor: pointer;
-}
-
-.shulman-opcao-caixa {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  border: 1px solid var(--input-line);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--ink-soft);
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.shulman-opcao-valor {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--gray-soft);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.shulman-opcao-texto {
-  font-size: 13.5px;
-}
-
-.shulman-opcao:hover .shulman-opcao-caixa {
-  border-color: #bfc9c5;
-  color: var(--ink);
-}
-
-.opcao-radio:checked + .shulman-opcao-caixa {
-  border-color: var(--green);
-  background: var(--green-soft);
-  color: var(--green-dark);
-  font-weight: 600;
-}
-
-.opcao-radio:checked + .shulman-opcao-caixa .shulman-opcao-valor {
-  background: var(--green);
-  color: #fff;
-}
-
-.opcao-radio:focus-visible + .shulman-opcao-caixa {
-  box-shadow: 0 0 0 3px rgba(43, 94, 78, 0.18);
 }
 
 /* ---------- Botões ---------- */
@@ -1401,5 +1384,26 @@ td.estreita .input-tabela {
 
   #btn-cornell-ausente {
     width: 100%;
+  }
+}
+
+/* ---------- Impressão pelo navegador ----------
+   Ctrl+P imprime o relatório em PDF (app.js). Se a impressão for aberta pelo menu do
+   navegador, a página do formulário não sai: aparece só um aviso. */
+
+.aviso-impressao {
+  display: none;
+}
+
+@media print {
+  body > * {
+    display: none !important;
+  }
+
+  body > .aviso-impressao {
+    display: block !important;
+    padding: 40px;
+    font-size: 16px;
+    color: #000;
   }
 }

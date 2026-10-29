@@ -42,7 +42,7 @@ function referenciaRavlt(valores) {
 
 const RAVLT_REFERENCIA = {
   a1: referenciaRavlt([[5.6, 6.0], [5.3, 6.0], [5.0, 6.1], [4.9, 4.8], [3.5, 4.9], [4.1, 4.5]]),
-  a2: referenciaRavlt([[7.6, 7.9], [7.8, 8.7], [7.4, 7.6], [6.3, 5.9], [5.5, 8.1], [6.1, 8.0]]),
+  a2: referenciaRavlt([[7.6, 7.9], [7.8, 8.7], [7.4, 7.6], [6.3, 5.9], [5.5, 6.1], [6.1, 6.0]]),
   a3: referenciaRavlt([[9.0, 10.0], [9.0, 9.9], [7.8, 9.4], [7.0, 6.9], [6.5, 6.9], [6.6, 6.5]]),
   a4: referenciaRavlt([[10.2, 11.3], [9.9, 10.8], [10.0, 10.7], [8.0, 8.0], [8.5, 7.9], [7.8, 7.4]]),
   a5: referenciaRavlt([[11.8, 12.2], [11.1, 12.0], [10.1, 11.3], [10.7, 10.5], [9.4, 10.1], [9.5, 10.1]]),
@@ -52,8 +52,27 @@ const RAVLT_REFERENCIA = {
   itp: referenciaRavlt([[0.9, 0.8], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.8, 0.6], [0.9, 0.9]]),
   itr: referenciaRavlt([[0.9, 0.9], [0.8, 0.9], [0.9, 0.8], [0.8, 0.8], [0.9, 0.9], [0.8, 0.7]]),
   ve: referenciaRavlt([[0.9, 1.0], [1.0, 1.0], [0.9, 1.0], [0.9, 0.9], [0.9, 0.8], [0.8, 0.9]]),
-  total: referenciaRavlt([[44.2, 47.3], [43.1, 47.5], [40.3, 45.0], [36.8, 36.1], [33.3, 35.8], [34.0, 34.8]]),
+  total: referenciaRavlt([[44.2, 47.3], [43.1, 47.5], [40.3, 45.0], [36.8, 36.1], [33.3, 35.9], [34.0, 34.8]]),
   rec: referenciaRavlt([[10.8, 11.9], [9.6, 11.6], [7.2, 9.0], [7.5, 6.2], [5.5, 6.1], [2.3, 6.2]])
+};
+
+/* RAVLT: desvio padrão (DP) por faixa de idade, [homem, mulher], da mesma tabela da
+   referência (valores entre parênteses). Os DPs de B1 em 75-79 (mulher) e 85-89 estão
+   assim na tabela original, embora pareçam altos perto do DP total da faixa. */
+const RAVLT_DP = {
+  a1: referenciaRavlt([[1.2, 1.1], [1.4, 1.6], [1.1, 1.7], [0.4, 0.7], [0.5, 1.5], [1.1, 1.6]]),
+  a2: referenciaRavlt([[1.2, 1.7], [1.8, 1.7], [1.0, 1.7], [0.7, 0.7], [0.7, 1.4], [1.6, 1.8]]),
+  a3: referenciaRavlt([[1.4, 1.8], [1.6, 1.7], [1.1, 1.3], [0.8, 0.8], [2.0, 1.5], [1.5, 1.5]]),
+  a4: referenciaRavlt([[1.6, 1.4], [1.9, 1.4], [1.1, 2.3], [0.7, 0.7], [1.4, 1.8], [1.8, 1.4]]),
+  a5: referenciaRavlt([[1.6, 1.2], [2.0, 1.9], [1.5, 1.6], [1.0, 1.1], [1.7, 1.5], [1.5, 2.4]]),
+  b1: referenciaRavlt([[0.7, 0.7], [1.4, 1.4], [1.2, 2.2], [0.6, 3.8], [1.6, 1.9], [2.6, 3.9]]),
+  a6: referenciaRavlt([[1.7, 1.6], [2.4, 2.0], [1.9, 1.9], [0.5, 0.6], [1.4, 2.5], [1.9, 2.4]]),
+  a7: referenciaRavlt([[1.7, 2.4], [2.4, 2.5], [1.6, 2.0], [0.5, 0.5], [1.8, 2.6], [2.2, 2.0]]),
+  itp: referenciaRavlt([[0.2, 0.2], [0.2, 0.2], [0.4, 0.4], [0.1, 0.3], [0.5, 0.3], [0.5, 0.2]]),
+  itr: referenciaRavlt([[0.1, 0.1], [0.1, 0.1], [0.2, 0.2], [0.1, 0.1], [0.1, 0.2], [0.2, 0.2]]),
+  ve: referenciaRavlt([[0.1, 0.2], [0.2, 0.1], [0.1, 0.2], [0.1, 0.1], [0.1, 0.1], [0.2, 0.2]]),
+  total: referenciaRavlt([[5.5, 5.5], [7.4, 6.0], [3.2, 6.9], [1.8, 2.3], [4.7, 6.1], [6.4, 6.8]]),
+  rec: referenciaRavlt([[2.6, 3.1], [3.1, 2.5], [4.7, 2.8], [2.8, 0.7], [4.4, 4.3], [5.3, 3.9]])
 };
 
 const IQCODE_CORTE = 3.5;
@@ -116,7 +135,6 @@ const DEFINICOES = [
           "Histórico de depressão",
           "Diabetes",
           "Uso de álcool e/ou substâncias benzodiazepínicas",
-          "Traumatismo craniano",
           "Deficiência auditiva",
           "Deficiência visual"
         ]
@@ -135,20 +153,25 @@ const DEFINICOES = [
         preencherFolha: true,
         outros: "Outras funções avaliadas",
         itens: [
-          "Atenção",
-          "Orientação",
+          "Orientação Temporal",
+          "Orientação Espacial",
+          "Atenção (Seletiva, Sustentada e Alternada)",
           "Memória Verbal, Não Verbal, Visual e Lógica",
           "Capacidade de Aprendizado",
-          "Conhecimentos Gerais",
-          "Linguagem Expressiva e Receptiva",
-          "Percepção",
-          "Praxias",
-          "Cálculo",
-          "Destreza visuo-motora",
-          "Raciocínio lógico",
-          "Habilidade Construtiva",
-          "Capacidade de Planejamento",
+          "Linguagem: Fluência, Semântica e Fonêmica",
+          "Compreensão",
+          "Leitura",
+          "Escrita",
           "Capacidade de Abstração",
+          "Capacidade de Planejamento",
+          "Formulação de Conceitos e Julgamento",
+          "Destreza Visuo-motora",
+          "Habilidade Construtiva",
+          "Percepção",
+          "Raciocínio Lógico",
+          "Cálculo",
+          "Praxias",
+          "Conhecimentos Gerais",
           "Humor"
         ]
       }
@@ -174,26 +197,26 @@ const DEFINICOES = [
           "Testes de Funções Executivas (bateria de avaliação frontal)",
           "Teste das Trilhas",
           "Labirintos",
-          "Testes de Interpretação",
+          "Testes de leitura e compreensão",
           "Stroop Test",
           "Testes de Figuras Geométricas",
-          "Mini Exame do Estado Mental",
-          "Montreal Cognitive Assessment (MoCa)",
+          "Montreal Cognitive Assessment (MoCA)",
           "Fluência Verbal – Fonética e Semântica",
+          "Teste Auditivo Verbal de Rey (RAVLT)",
           "Curva de Aprendizagem Verbal – RAVLT",
           "Teste de Dígitos",
           "Testes de Controle Atencional",
-          "TMR (teste de memória de reconhecimento)",
           "Praxias Construtivas",
           "Testes de Gnosias",
           "Teste dos Cinco pontos",
           "Teste do Relógio de Shulman",
+          "Subtestes: Completar Figuras, Códigos, Semelhanças, Dígitos, Cubos, Sequência de Números e Letras, Raciocínio Matricial, Procurar Símbolos",
           "Escala de Depressão Geriátrica (GDS)",
-          "Escala de Atividades Instrumentais de Vida Diária (Lawton)",
+          "Escala de Atividades de Vida Diária (Katz)",
+          "Questionário de Atividades Funcionais (PFEFFER)",
           "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
           "Escalas de Beck",
-          "Escala Cornell para depressão",
-          "Subtestes: Completar Figuras, Códigos, Semelhanças, Dígitos, Cubos, Sequência de Números e Letras, Raciocínio Matricial"
+          "Escala Cornell para depressão"
         ]
       }
     ]
@@ -202,26 +225,29 @@ const DEFINICOES = [
   {
     id: "katz",
     titulo: "Escala de Katz",
-    descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que melhor se aplica. A palavra “assistência” significa supervisão, orientação ou auxílio pessoal.",
+    descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
     blocos: [
       {
         tipo: "escolhas",
         id: "itens",
         colunaItem: "Área de funcionamento",
         rotulosPontos: ["Independente", "Dependente"],
-        /* Texto idêntico à versão brasileira (Lino et al., Cad. Saúde Pública). */
+        /* Na impressão sai como a folha de papel: cada área com as três descrições e a
+           assinalada marcada (sem Independente / Dependente). */
+        introducao: "Para cada área de funcionamento listada abaixo assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
+        /* Texto igual ao da folha de papel (Lino et al., Cad. Saúde Pública). */
         itens: [
           {
             titulo: "Tomar banho (leito, banheira ou chuveiro)",
             pontos: [0, 0, 1],
             opcoes: [
-              "Não recebe ajuda (entra e sai da banheira sozinho, se este for o modo habitual de tomar banho)",
-              "Recebe ajuda para lavar apenas uma parte do corpo (como, por exemplo, as costas ou uma perna)",
-              "Recebe ajuda para lavar mais de uma parte do corpo, ou não toma banho sozinho"
+              "Não recebe ajuda (entra e sai da banheira ou chuveiro sozinho(a))",
+              "Recebe ajuda para lavar apenas uma parte do corpo (costas, perna)",
+              "Recebe ajuda para lavar mais de uma parte do corpo, ou não toma banho sozinho(a)"
             ]
           },
           {
-            titulo: "Vestir-se (pega roupas, inclusive peças íntimas, nos armários e gavetas, e manuseia fechos, inclusive os de órteses e próteses, quando forem utilizadas)",
+            titulo: "Vestir-se (pega roupas, inclusive peças íntimas nos armários e gavetas)",
             pontos: [0, 0, 1],
             opcoes: [
               "Pega as roupas e veste-se completamente, sem ajuda",
@@ -230,19 +256,19 @@ const DEFINICOES = [
             ]
           },
           {
-            titulo: "Uso do vaso sanitário (ida ao banheiro ou local equivalente para evacuar e urinar; higiene íntima e arrumação das roupas)",
+            titulo: "Uso do vaso sanitário (ida ao banheiro, higiene íntima e arrumação das roupas)",
             pontos: [0, 1, 1],
             opcoes: [
-              "Vai ao banheiro ou local equivalente, limpa-se e ajeita as roupas sem ajuda (pode usar objetos para apoio como bengala, andador ou cadeira de rodas e pode usar comadre ou urinol à noite, esvaziando-o de manhã)",
-              "Recebe ajuda para ir ao banheiro ou local equivalente, ou para limpar-se, ou para ajeitar as roupas após evacuação ou micção, ou para usar a comadre ou urinol à noite",
-              "Não vai ao banheiro ou equivalente para eliminações fisiológicas"
+              "Vai ao banheiro, limpa-se e ajeita as roupas sem ajuda (pode usar bengala, andador ou cadeira de rodas e pode usar comadre ou urinol à noite)",
+              "Recebe ajuda para ir ao banheiro ou para limpar-se ou para ajeitar as roupas após evacuação ou micção, ou para usar comadre ou urinol à noite",
+              "Não vai ao banheiro para eliminações fisiológicas"
             ]
           },
           {
             titulo: "Transferência",
             pontos: [0, 1, 1],
             opcoes: [
-              "Deita-se e sai da cama, senta-se e levanta-se da cadeira sem ajuda (pode estar usando objeto para apoio, como bengala ou andador)",
+              "Deita-se e sai da cama, senta-se e levanta-se da cadeira sem ajuda (pode estar usando objeto para apoio como bengala ou andador)",
               "Deita-se e sai da cama e/ou senta-se e levanta-se da cadeira com ajuda",
               "Não sai da cama"
             ]
@@ -251,8 +277,8 @@ const DEFINICOES = [
             titulo: "Continência",
             pontos: [0, 1, 1],
             opcoes: [
-              "Controla inteiramente a micção e a evacuação",
-              "Tem “acidentes” ocasionais",
+              "Controla inteiramente a micção e evacuação",
+              "Tem acidentes ocasionais",
               "Necessita de ajuda para manter o controle da micção e evacuação; usa cateter ou é incontinente"
             ]
           },
@@ -269,7 +295,12 @@ const DEFINICOES = [
       },
       {
         tipo: "nota",
-        texto: "Pontuação: 0 independente em todas as seis funções; 1 independente em cinco e dependente em uma; 2 independente em quatro e dependente em duas; 3 independente em três e dependente em três; 4 independente em duas e dependente em quatro; 5 independente em uma e dependente em cinco; 6 dependente em todas as seis funções. Ref.: Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 2007 – Lino, Pereira, Camacho, Telles e Buksman."
+        soTela: true,
+        texto: "Pontuação: 0 independente em todas as seis funções; 1 independente em cinco e dependente em uma; 2 independente em quatro e dependente em duas; 3 independente em três e dependente em três; 4 independente em duas e dependente em quatro; 5 independente em uma e dependente em cinco; 6 dependente em todas as seis funções."
+      },
+      {
+        tipo: "nota",
+        texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 2007 – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
       }
     ],
     resultado: function (s) {
@@ -283,13 +314,14 @@ const DEFINICOES = [
         nivel: parcial ? "" : r.total === 0 ? "baixo" : r.total <= 2 ? "medio" : "alto"
       };
     },
+    /* soTela: a caixa aparece só na tela, não na impressão. */
     resumo: function (s) {
       const r = s.bloco("itens").pontuacao();
       const resultado = this.resultado(s);
       return [
-        { rotulo: "Dependências", valor: r.total, de: "6" },
-        { rotulo: "Áreas avaliadas", valor: r.respondidos, de: String(r.totalItens) },
-        { rotulo: "Interpretação", selo: resultado ? resultado.texto : "Nenhuma área avaliada", nivel: resultado ? resultado.nivel : "" }
+        { rotulo: "Dependências", valor: r.total, de: "6", soTela: true },
+        { rotulo: "Áreas avaliadas", valor: r.respondidos, de: String(r.totalItens), soTela: true },
+        { rotulo: "Interpretação", selo: resultado ? resultado.texto : "Nenhuma área avaliada", nivel: resultado ? resultado.nivel : "", soTela: true }
       ];
     }
   },
@@ -345,8 +377,8 @@ const DEFINICOES = [
     resumo: function (s) {
       const r = s.bloco("itens").pontuacao();
       return [
-        { rotulo: "Pontuação total", valor: r.total, de: "30" },
-        { rotulo: "Respondidos", valor: r.respondidos, de: String(r.totalItens) }
+        { rotulo: "Escore do paciente", valor: r.total, de: "30" },
+        { rotulo: "Respondidos", valor: r.respondidos, de: String(r.totalItens), soTela: true }
       ];
     }
   },
@@ -492,7 +524,7 @@ const DEFINICOES = [
 
   {
     id: "moca",
-    titulo: "Montreal Cognitive Assessment (MoCa)",
+    titulo: "Montreal Cognitive Assessment (MoCA)",
     descricao: "Digite o escore do paciente em cada domínio. O total é calculado automaticamente.",
     blocos: [
       {
@@ -531,7 +563,7 @@ const DEFINICOES = [
       {
         tipo: "texto",
         id: "comentario",
-        rotulo: "Comentário",
+        rotulo: "Comentários Sobre o Relógio de Shulman",
         alto: true
       }
     ],
@@ -559,7 +591,7 @@ const DEFINICOES = [
           { rotulo: "Fluência verbal: Animais" },
           { rotulo: "Fluência verbal: Frutas" },
           { rotulo: "Nomeação de Boston" },
-          { rotulo: "MoCa (Montreal Cognitive Assessment)" },
+          { rotulo: "MoCA (Montreal Cognitive Assessment)" },
           { rotulo: "Memória verbal (fixação)" },
           { rotulo: "Praxia construtiva" },
           { rotulo: "Memória verbal (evocação)" },
@@ -646,30 +678,34 @@ const DEFINICOES = [
   },
 
   {
-    id: "curva",
-    titulo: "Curva de aprendizagem",
+    id: "ravlt",
+    titulo: "RAVLT",
+    tituloImpressao: "Teste de Aprendizagem Auditivo-Verbal de Rey - (RAVLT)",
     mostrarIdade: true,
     descricao: "Teste Auditivo Verbal de Rey (RAVLT): digite os escores; total, interferências e esquecimento são calculados automaticamente. A classificação (abaixo ou dentro do esperado) é definida pelo profissional, não pelo escore.",
     blocos: [
       {
         tipo: "tabela",
-        id: "ravlt",
-        titulo: "Memória verbal: lista de palavras",
+        id: "tabela",
+        titulo: "Memória verbal",
         colunaRotulo: "Tentativa",
+        /* Referência e DP (desvio padrão) ficam só na tela (soTela). */
         colunas: [
           { rotulo: "Escore", tipo: "numero" },
-          { rotulo: "Referência", tipo: "referencia" },
+          { rotulo: "Referência", tipo: "referencia", soTela: true },
+          { rotulo: "DP", tipo: "referencia", dado: "dp", soTela: true, estreita: true },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
         ],
         linhas: [
-          { rotulo: "A1", chave: "a1", referencia: RAVLT_REFERENCIA.a1 },
-          { rotulo: "A2", chave: "a2", referencia: RAVLT_REFERENCIA.a2 },
-          { rotulo: "A3", chave: "a3", referencia: RAVLT_REFERENCIA.a3 },
-          { rotulo: "A4", chave: "a4", referencia: RAVLT_REFERENCIA.a4 },
-          { rotulo: "A5", chave: "a5", referencia: RAVLT_REFERENCIA.a5 },
+          { rotulo: "A1", chave: "a1", referencia: RAVLT_REFERENCIA.a1, dp: RAVLT_DP.a1 },
+          { rotulo: "A2", chave: "a2", referencia: RAVLT_REFERENCIA.a2, dp: RAVLT_DP.a2 },
+          { rotulo: "A3", chave: "a3", referencia: RAVLT_REFERENCIA.a3, dp: RAVLT_DP.a3 },
+          { rotulo: "A4", chave: "a4", referencia: RAVLT_REFERENCIA.a4, dp: RAVLT_DP.a4 },
+          { rotulo: "A5", chave: "a5", referencia: RAVLT_REFERENCIA.a5, dp: RAVLT_DP.a5 },
           {
             rotulo: "Total A1 – A5",
             referencia: RAVLT_REFERENCIA.total,
+            dp: RAVLT_DP.total,
             chave: "total",
             destaque: true,
             calculos: {
@@ -678,25 +714,28 @@ const DEFINICOES = [
               }
             }
           },
-          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1 },
-          { rotulo: "A6", chave: "a6", referencia: RAVLT_REFERENCIA.a6 },
-          { rotulo: "A7", chave: "a7", referencia: RAVLT_REFERENCIA.a7 },
+          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1, dp: RAVLT_DP.b1 },
+          { rotulo: "A6", chave: "a6", referencia: RAVLT_REFERENCIA.a6, dp: RAVLT_DP.a6 },
+          { rotulo: "A7", chave: "a7", referencia: RAVLT_REFERENCIA.a7, dp: RAVLT_DP.a7 },
           {
             rotulo: "Interferência proativa (B1/A1)",
             referencia: RAVLT_REFERENCIA.itp,
+            dp: RAVLT_DP.itp,
             calculos: { 0: function (t) { return razao(t.num("b1", 0), t.num("a1", 0)); } }
           },
           {
             rotulo: "Interferência retroativa (A6/A5)",
             referencia: RAVLT_REFERENCIA.itr,
+            dp: RAVLT_DP.itr,
             calculos: { 0: function (t) { return razao(t.num("a6", 0), t.num("a5", 0)); } }
           },
           {
             rotulo: "Esquecimento (A7/A6)",
             referencia: RAVLT_REFERENCIA.ve,
+            dp: RAVLT_DP.ve,
             calculos: { 0: function (t) { return razao(t.num("a7", 0), t.num("a6", 0)); } }
           },
-          { rotulo: "Reconhecimento", chave: "reconhecimento", referencia: RAVLT_REFERENCIA.rec }
+          { rotulo: "Reconhecimento", chave: "reconhecimento", referencia: RAVLT_REFERENCIA.rec, dp: RAVLT_DP.rec }
         ]
       },
       {
@@ -706,15 +745,15 @@ const DEFINICOES = [
       {
         tipo: "grafico",
         id: "grafico",
-        titulo: "Teste Auditivo Verbal de Rey – RAVLT",
-        tabela: "ravlt",
+        titulo: "Curva de Aprendizagem",
+        tabela: "tabela",
         maximo: 15,
         pontos: ["a1", "a2", "a3", "a4", "a5", "a6", "a7"]
       },
       {
         tipo: "texto",
-        id: "analise",
-        rotulo: "Curva de aprendizagem",
+        id: "comentarios",
+        rotulo: "Comentários",
         alto: true,
         placeholder: "Descreva o desempenho: memória de curto e longo prazo, interferências, reconhecimento, velocidade de esquecimento..."
       }
@@ -724,7 +763,7 @@ const DEFINICOES = [
   {
     id: "memoria",
     titulo: "Memória verbal e visual",
-    descricao: "Memória lógica e memória visual. A classificação é definida pelo profissional.",
+    descricao: "Memória lógica, memória visual, memória imediata e memória operacional. A classificação é definida pelo profissional.",
     blocos: [
       {
         tipo: "tabela",
@@ -737,13 +776,36 @@ const DEFINICOES = [
           { rotulo: "Memória lógica imediata" },
           { rotulo: "Memória lógica tardia" },
           { rotulo: "Memória visual imediata: figuras geométricas" },
-          { rotulo: "Memória visual evocação: figuras geométricas" },
-          { rotulo: "Memória visual: memória de reconhecimento (TMR)" }
+          { rotulo: "Memória visual evocação: figuras geométricas" }
         ]
       },
       {
         tipo: "paragrafo",
-        texto: "Memória lógica: recuperação de 2 histórias lógicas imediatamente após sua leitura (resgate imediato: memória lógica I) e após 30 min (resgate tardio: memória lógica II). Teste que avalia armazenamento e recuperação de informações. Memória visual: apresentação de figuras geométricas que devem ser reproduzidas de imediato (memória visual de curto prazo) e após aproximadamente 25 min (memória visual tardia)."
+        texto: "Memória lógica: recuperação de 2 histórias lógicas imediatamente após sua leitura (resgate imediato: memória lógica I) e após 30 min (resgate tardio: memória lógica II). Teste que avalia armazenamento e recuperação de informações."
+      },
+      {
+        tipo: "paragrafo",
+        texto: "Memória visual: apresentação de figuras geométricas que devem ser reproduzidas de imediato (memória visual de curto prazo) e após aproximadamente 25 min (memória visual tardia)."
+      },
+      /* Na impressão sai acima de Atenção (Trilhas vem logo depois, na mesma folha). */
+      { tipo: "subtitulo", texto: "Memória Imediata e Memória Operacional" },
+      {
+        tipo: "tabela",
+        id: "digit-span",
+        colunaRotulo: "Teste",
+        colunas: [
+          { rotulo: "Escore obtido", tipo: "numero" },
+          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
+        ],
+        linhas: [
+          { rotulo: "Teste Digit Span" },
+          { rotulo: "Ordem Direta (Memória imediata)" },
+          { rotulo: "Ordem Inversa (Memória Operacional)" }
+        ]
+      },
+      {
+        tipo: "paragrafo",
+        texto: "Teste que consiste na repetição seriada de números. Espera-se que o(a) paciente seja capaz de repetir até 7 dígitos (7 ± 2) na ordem direta e 4 dígitos na ordem inversa."
       }
     ]
   },
@@ -783,15 +845,15 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "sustentada",
         titulo: "Atenção sustentada",
-        colunaRotulo: "Teste",
+        colunaRotulo: "Testes",
         colunas: [
           { rotulo: "Escore", tipo: "numero" },
-          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
+          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
         ],
         linhas: [
           { rotulo: "Controle mental", maximo: 10 },
           { rotulo: "Meses do ano (modo inverso)", maximo: 12 },
-          { rotulo: "Trilha A", maximo: 10 }
+          { rotulo: "Contagem", maximo: 10 }
         ]
       },
       {
@@ -805,6 +867,20 @@ const DEFINICOES = [
         ],
         linhas: [
           { rotulo: "Sinos" }
+        ]
+      },
+      {
+        tipo: "tabela",
+        id: "alternada",
+        titulo: "Atenção alternada",
+        colunaRotulo: "Teste",
+        colunas: [
+          { rotulo: "Escore", tipo: "texto" },
+          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
+        ],
+        linhas: [
+          { rotulo: "Trilha B" },
+          { rotulo: "Teste Stroop" }
         ]
       }
     ]
@@ -838,15 +914,14 @@ const DEFINICOES = [
 
   {
     id: "wechsler",
-    titulo: "Digit Span / Bateria Wechsler",
+    titulo: "Bateria Wechsler",
     /* Na impressão sai na mesma folha de Praxias, abaixo do texto dela. */
     impressao: { juntarCom: "praxias" },
-    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8, Dígitos, é o Digit Span).",
+    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8 e o 8.1, Dígitos, são o Digit Span).",
     blocos: [
       {
         tipo: "tabela",
         id: "subtestes",
-        titulo: "Bateria Wechsler",
         colunaRotulo: "Subteste",
         colunas: [
           { rotulo: "Escore", tipo: "texto" },
@@ -860,7 +935,8 @@ const DEFINICOES = [
           { rotulo: "5 - Cubos" },
           { rotulo: "6 - Códigos" },
           { rotulo: "7 - Procurar Símbolos" },
-          { rotulo: "8 - Dígitos (Ordem direta e ordem inversa)" }
+          { rotulo: "8 - Dígitos (Ordem direta)" },
+          { rotulo: "8.1 - Dígitos (Ordem inversa)" }
         ]
       },
       {

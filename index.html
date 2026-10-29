@@ -46,15 +46,15 @@
           <!-- IQCODE fora de uso por enquanto: escondido na tela e fora da impressão. -->
           <li class="etapa-oculta" style="display: none"><a class="step" href="#iqcode" data-secao="iqcode"><span class="step-num">8</span>IQCODE</a></li>
           <li><a class="step" href="#humor" data-secao="humor"><span class="step-num">9</span>Humor e comportamento</a></li>
-          <li><a class="step" href="#moca" data-secao="moca"><span class="step-num">10</span>Montreal (MoCa)</a></li>
+          <li><a class="step" href="#moca" data-secao="moca"><span class="step-num">10</span>Montreal (MoCA)</a></li>
           <li><a class="step" href="#shulman" data-secao="shulman"><span class="step-num">11</span>Relógio de Shulman</a></li>
           <li><a class="step" href="#cerad" data-secao="cerad"><span class="step-num">12</span>Bateria do CERAD/Funções executivas</a></li>
           <li><a class="step" href="#linguagem" data-secao="linguagem"><span class="step-num">13</span>Linguagem</a></li>
-          <li><a class="step" href="#curva" data-secao="curva"><span class="step-num">14</span>Curva de aprendizagem</a></li>
+          <li><a class="step" href="#ravlt" data-secao="ravlt"><span class="step-num">14</span>RAVLT</a></li>
           <li><a class="step" href="#memoria" data-secao="memoria"><span class="step-num">15</span>Memória verbal e visual</a></li>
           <li><a class="step" href="#trilhas" data-secao="trilhas"><span class="step-num">16</span>Trilhas</a></li>
           <li><a class="step" href="#praxias" data-secao="praxias"><span class="step-num">17</span>Praxias</a></li>
-          <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">18</span>Digit Span/Bateria Wechsler</a></li>
+          <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">18</span>Bateria Wechsler</a></li>
           <li><a class="step" href="#stroop" data-secao="stroop"><span class="step-num">19</span>Stroop Test</a></li>
           <li><a class="step" href="#interpretacao" data-secao="interpretacao"><span class="step-num">20</span>Interpretação dos resultados</a></li>
           <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
@@ -143,12 +143,19 @@
                 <input class="input" type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" inputmode="numeric" maxlength="15">
               </div>
               <div class="field">
-                <label class="label" for="encaminhador">Encaminhador</label>
-                <input class="input" type="text" id="encaminhador" maxlength="80" name="encaminhador" placeholder="Digite o nome">
+                <label class="label" for="medico-solicitante">Médico solicitante</label>
+                <input class="input" type="text" id="medico-solicitante" maxlength="80" name="medicoSolicitante" placeholder="Digite o nome do médico">
               </div>
               <div class="field">
                 <label class="label" for="data-avaliacao">Data da avaliação</label>
                 <input class="input" type="date" id="data-avaliacao" name="dataAvaliacao">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label class="label" for="endereco">Endereço</label>
+                <input class="input" type="text" id="endereco" maxlength="150" name="endereco" placeholder="Rua, número, complemento, bairro, cidade">
               </div>
             </div>
 
@@ -192,12 +199,12 @@
           <section class="secao" id="secao-cornell" hidden>
             <div class="card-head">
               <h2 class="card-title">Escala Cornell para Depressão</h2>
-              <p class="card-text">Avalie cada sinal com base na observação do paciente e no relato do informante, considerando a semana anterior.</p>
+              <p class="card-text cornell-instrucao">Com base no comportamento, marque a intensidade dos sinais e sintomas que ocorreram na semana anterior a essa avaliação neuropsicológica.</p>
             </div>
 
             <div class="escala-resumo">
               <div class="resumo-dado">
-                <span class="resumo-rotulo">Escore total</span>
+                <span class="resumo-rotulo">Escore do paciente</span>
                 <span class="resumo-valor"><strong id="cornell-total">0</strong> / 38</span>
               </div>
               <div class="resumo-dado">
@@ -232,7 +239,7 @@
 
           <section class="secao" id="secao-cerad" hidden></section>
           <section class="secao" id="secao-linguagem" hidden></section>
-          <section class="secao" id="secao-curva" hidden></section>
+          <section class="secao" id="secao-ravlt" hidden></section>
           <section class="secao" id="secao-memoria" hidden></section>
           <section class="secao" id="secao-trilhas" hidden></section>
           <section class="secao" id="secao-praxias" hidden></section>
@@ -336,6 +343,12 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" hidden></div>
+
+  <!-- Só aparece se a impressão for aberta pelo menu do navegador (veja @media print no CSS). -->
+  <div class="aviso-impressao">
+    Para imprimir o relatório, feche esta janela e use <strong>Ctrl+P</strong> (Cmd+P no Mac)
+    ou o botão <strong>Gerar relatório</strong>.
+  </div>
 
   <script src="libs/jspdf.umd.min.js"></script>
   <script src="libs/jspdf.plugin.autotable.min.js"></script>

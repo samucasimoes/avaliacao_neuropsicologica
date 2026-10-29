@@ -242,7 +242,8 @@
       ["Escolaridade", valor("escolaridade")],
       ["Profissão", valor("profissao")],
       ["Telefone", valor("telefone")],
-      ["Encaminhador", valor("encaminhador")],
+      ["Médico solicitante", valor("medico-solicitante")],
+      ["Endereço", valor("endereco")],
       ["História Patológica", valor("historia-patologica")],
       ["História Familiar", valor("historia-familiar")],
       ["Medicamentos em Uso", valor("medicamentos")],
@@ -252,9 +253,42 @@
     ];
   }
 
+  /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
+     campos, suba a versão e converta os nomes antigos em migrarCampos. */
+  const VERSAO_CAMPOS = 3;
+
+  /* Converte campos salvos antes da versão 3:
+     - Encaminhador virou Médico solicitante;
+     - a aba Curva de aprendizagem virou RAVLT (com a coluna DP antes da Classificação);
+     - saíram "Traumatismo craniano" (Resumo, item 14) e o TMR (Memória, linha 5);
+     - a lista de Funções avaliadas mudou: volta ao padrão (tudo marcado). */
+  function migrarCampos(campos) {
+    if ((Number(campos.versaoCampos) || 2) >= VERSAO_CAMPOS) return campos;
+    const novos = {};
+    Object.keys(campos).forEach(function (nome) {
+      let novo = nome;
+      let m;
+      if (nome === "encaminhador") {
+        novo = "medicoSolicitante";
+      } else if (nome === "curva-analise") {
+        novo = "ravlt-comentarios";
+      } else if ((m = /^curva-ravlt-(\d+)-(\d+)$/.exec(nome))) {
+        novo = "ravlt-tabela-" + m[1] + "-" + (m[2] === "3" ? "4" : m[2]);
+      } else if ((m = /^resumo-fatores-(\d+)$/.exec(nome))) {
+        const n = Number(m[1]);
+        if (n === 14) return;
+        if (n > 14) novo = "resumo-fatores-" + (n - 1);
+      } else if (/^funcoes-lista-\d+$/.test(nome) || /^memoria-testes-5-/.test(nome)) {
+        return;
+      }
+      novos[novo] = campos[nome];
+    });
+    return novos;
+  }
+
   /* Campos editáveis (pelo atributo name), usados no backup .json. */
   function coletarCampos() {
-    const campos = {};
+    const campos = { versaoCampos: VERSAO_CAMPOS };
     Array.from(form.elements).forEach(function (el) {
       if (!el.name || el.readOnly) return;
       if (el.type === "radio") {
@@ -270,6 +304,7 @@
   }
 
   function preencherCampos(campos) {
+    campos = migrarCampos(campos);
     form.reset();
     Array.from(form.elements).forEach(function (el) {
       if (!el.name || el.readOnly || !(el.name in campos)) return;
@@ -500,6 +535,31 @@
     }
   });
 
+  /* Ctrl+P (Cmd+P no Mac) imprime o relatório completo, e não a página do formulário.
+     O PDF abre numa nova aba já com a janela de impressão. Se a impressão for aberta
+     pelo menu do navegador, o CSS (@media print) mostra só um aviso. */
+  function imprimirRelatorio() {
+    let endereco;
+    try {
+      endereco = Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio(), { imprimir: true });
+    } catch (erro) {
+      console.error(erro);
+      mostrarAviso("Não foi possível abrir a impressão. Tente novamente.");
+      return;
+    }
+    if (!window.open(endereco, "_blank")) {
+      mostrarAviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir com Ctrl+P ou use Gerar relatório.");
+    }
+  }
+
+  document.addEventListener("keydown", function (evento) {
+    if ((evento.ctrlKey || evento.metaKey) && !evento.altKey && !evento.shiftKey &&
+        evento.key.toLowerCase() === "p") {
+      evento.preventDefault();
+      imprimirRelatorio();
+    }
+  });
+
   document.getElementById("btn-limpar").addEventListener("click", function () {
     modalLimpar.returnValue = "";
     modalLimpar.showModal();
@@ -579,7 +639,8 @@
       const salvo = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO) || "null");
       if (salvo && salvo.campos) {
         preencherCampos(salvo.campos);
-        if (salvo.secao && ordem.indexOf(salvo.secao) !== -1) mostrarSecao(salvo.secao);
+        const secaoSalva = salvo.secao === "curva" ? "ravlt" : salvo.secao;
+        if (secaoSalva && ordem.indexOf(secaoSalva) !== -1) mostrarSecao(secaoSalva);
       }
     } catch (erro) {
       console.warn("Não foi possível carregar o rascunho.", erro);

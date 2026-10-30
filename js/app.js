@@ -8,10 +8,7 @@
   const campoTelefone = document.getElementById("telefone");
   const campoDataAvaliacao = document.getElementById("data-avaliacao");
   const selects = form.querySelectorAll("select");
-  const modalRelatorio = document.getElementById("modal-relatorio");
-  const formRelatorio = document.getElementById("form-relatorio");
   const modalLimpar = document.getElementById("modal-limpar");
-  const botaoBaixar = document.getElementById("btn-baixar");
   const toast = document.getElementById("toast");
   let timerToast = null;
 
@@ -116,10 +113,6 @@
     return !el.readOnly;
   });
 
-  function rotuloDe(el) {
-    return el.labels && el.labels[0] ? el.labels[0].textContent.trim() : el.name;
-  }
-
   function dadosVazios() {
     return camposDados.filter(function (el) { return el.value.trim() === ""; });
   }
@@ -157,13 +150,6 @@
     if (id === "cornell") return Cornell.completa();
     if (id === "shulman") return true;
     return Secoes.completa(id);
-  }
-
-  function etapaIniciada(id) {
-    if (id === "dados") return dadosVazios().length < camposDados.length;
-    if (id === "cornell") return Cornell.resultado().respondidos > 0;
-    if (id === "shulman") return false;
-    return Secoes.preenchida(id);
   }
 
   /* Marca em verde, com o ícone de correto, as abas com todos os campos preenchidos. */
@@ -467,68 +453,21 @@
     campoNome.focus({ preventScroll: true });
   });
 
-  const opcaoCompleto = document.getElementById("conteudo-completo");
-  const infoEtapas = document.getElementById("conteudo-etapas-info");
-  const avisoVazios = document.getElementById("aviso-vazios");
-  const listaVazios = document.getElementById("aviso-vazios-lista");
+  const botoesImprimir = [botaoGerar, botaoGerarSecundario];
 
-  /* Nada é obrigatório: só avisa o que está vazio antes de gerar o relatório. */
-  function prepararConteudo() {
-    const preenchidas = ordem.filter(function (id) {
-      return id !== "dados" && etapaIniciada(id);
-    }).length;
-    infoEtapas.textContent = preenchidas === 0 ? "Nenhuma etapa preenchida"
-      : preenchidas === 1 ? "1 etapa preenchida" : preenchidas + " etapas preenchidas";
-
-    listaVazios.textContent = "";
-    const vazios = dadosVazios();
-    if (vazios.length) {
-      const item = document.createElement("li");
-      item.textContent = "Dados do paciente: " + vazios.map(rotuloDe).join(", ");
-      listaVazios.appendChild(item);
-    }
-    const incompletas = ordem.filter(function (id) { return id !== "dados" && !etapaCompleta(id); });
-    if (incompletas.length) {
-      const item = document.createElement("li");
-      item.textContent = "Etapas com campos vazios: " + incompletas.map(nomeEtapa).join(", ");
-      listaVazios.appendChild(item);
-    }
-    avisoVazios.hidden = !listaVazios.children.length;
-    opcaoCompleto.checked = true;
-  }
-
+  /* Imprimir Avaliação: baixa o PDF completo direto, sem perguntas. */
   form.addEventListener("submit", function (evento) {
     evento.preventDefault();
     toast.hidden = true;
-    prepararConteudo();
-    modalRelatorio.showModal();
-  });
-
-  document.getElementById("btn-cancelar").addEventListener("click", function () {
-    modalRelatorio.close();
-  });
-
-  formRelatorio.addEventListener("submit", async function (evento) {
-    evento.preventDefault();
-    const formato = formRelatorio.elements.formato.value;
-    const dados = coletarDados();
-    const comEscalas = formRelatorio.elements.conteudo.value === "completo";
-    const etapas = comEscalas ? secoesDoRelatorio() : [];
-    const nome = valor("nome");
-
-    botaoBaixar.disabled = true;
-    botaoBaixar.textContent = "Gerando...";
+    botoesImprimir.forEach(function (botao) { botao.disabled = true; });
     try {
-      if (formato === "excel") await Relatorio.gerarExcel(dados, nome, etapas);
-      else Relatorio.gerarPdf(dados, nome, etapas);
-      modalRelatorio.close();
-      mostrarAviso("Relatório " + (formato === "excel" ? "Excel" : "PDF") + " baixado.");
+      Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio());
+      mostrarAviso("Avaliação em PDF baixada.");
     } catch (erro) {
       console.error(erro);
-      mostrarAviso("Não foi possível gerar o relatório. Tente novamente.");
+      mostrarAviso("Não foi possível gerar o PDF. Tente novamente.");
     } finally {
-      botaoBaixar.disabled = false;
-      botaoBaixar.textContent = "Baixar relatório";
+      botoesImprimir.forEach(function (botao) { botao.disabled = false; });
     }
   });
 

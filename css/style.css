@@ -1005,27 +1005,6 @@ td.estreita .input-tabela {
   min-width: 0;
 }
 
-/* Aviso de campos vazios na janela do relatório */
-.aviso-vazios {
-  margin: 0 0 16px;
-  padding: 10px 14px;
-  border: 1px solid #ecd3a4;
-  border-radius: 10px;
-  background: #fbf3e2;
-  color: #6f4a0e;
-  font-size: 13.5px;
-}
-
-.aviso-titulo {
-  margin: 0 0 4px;
-  font-weight: 600;
-}
-
-.aviso-lista {
-  margin: 0;
-  padding-left: 18px;
-}
-
 .btn-rotulo {
   overflow: hidden;
   max-width: 280px;
@@ -1119,94 +1098,6 @@ td.estreita .input-tabela {
 
 .modal-text {
   margin: 0 0 16px;
-  color: var(--ink-soft);
-}
-
-.formats {
-  /* display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px; */
-  margin-bottom: 18px;
-}
-
-.format {
-  cursor: pointer;
-}
-
-.modal-label {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.conteudos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.format.indisponivel {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.excel{
-  display: none;
-}
-
-.format-radio {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.format-box {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  height: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid var(--input-line);
-  border-radius: 12px;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.format:hover .format-box {
-  border-color: #bfc9c5;
-}
-
-.format-radio:checked + .format-box {
-  border-color: var(--green);
-  background: var(--green-soft);
-}
-
-.format-radio:focus-visible + .format-box {
-  box-shadow: 0 0 0 3px rgba(43, 94, 78, 0.18);
-}
-
-.format-icon {
-  width: 24px;
-  height: 24px;
-  margin-bottom: 4px;
-  fill: none;
-  stroke: var(--green);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.format-name {
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.format-desc {
-  font-size: 13px;
   color: var(--ink-soft);
 }
 
@@ -1335,10 +1226,6 @@ td.estreita .input-tabela {
 }
 
 @media (max-width: 560px) {
-  .conteudos {
-    grid-template-columns: 1fr;
-  }
-
   .row-a,
   .row-b,
   .row-c,
@@ -1367,10 +1254,6 @@ td.estreita .input-tabela {
 
   .actions-group {
     flex-direction: column;
-  }
-
-  .formats {
-    grid-template-columns: 1fr;
   }
 
   .escala-opcoes {

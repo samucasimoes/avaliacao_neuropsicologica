@@ -1,8 +1,8 @@
 # Avaliação Neuropsicológica
 
-Formulário web para preencher a avaliação e gerar o relatório em **PDF** ou **Excel**.
+Formulário web para preencher a avaliação e gerar o relatório em **PDF**.
 As etapas aparecem no menu lateral e podem ser abertas em qualquer ordem.
-Nenhum campo é obrigatório: ao gerar o relatório, um aviso lista o que ficou vazio.
+Nenhum campo é obrigatório.
 As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
 1. **Dados do paciente** – o nome fica com as iniciais em maiúscula; a idade é calculada
@@ -48,11 +48,11 @@ no relatório. Para voltar, remova a classe `etapa-oculta` e o `style` da aba no
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,
-Escala de Katz + Pfeffer, Memória verbal e visual + Trilhas (com Atenção) e
+Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela) e,
-se o conteúdo for grande, a letra diminui até caber.
-Ao gerar, escolha entre **dados do paciente + escalas** ou **somente os dados do paciente**.
+se o conteúdo for grande, a letra diminui até caber (os títulos mantêm o mesmo tamanho).
+O botão **Imprimir Avaliação** baixa o PDF completo direto, sem perguntas.
 Nenhum dado é salvo: tudo acontece no navegador.
 
 **Ctrl+P** (Cmd+P no Mac) não imprime a página do formulário: abre o relatório completo em
@@ -68,7 +68,7 @@ só a fonte Figtree depende de conexão).
 
 ## Backup para editar depois
 
-O botão **Imprimir Avaliação** baixa o relatório (PDF ou Excel) e o botão
+O botão **Imprimir Avaliação** baixa o relatório em PDF e o botão
 **Gerar Arquivo** baixa a avaliação em `.json`. Os arquivos saem com o nome do
 paciente e a data em que foram gerados (ex.: `Maria da Silva - 30-10-2026.pdf`). Para continuar ou
 corrigir uma avaliação, clique em **Carregar documento** (no fim do menu lateral),

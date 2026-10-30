@@ -83,6 +83,8 @@ const Relatorio = (function () {
     linhas.forEach(function (linha) { dados[linha[0]] = linha[1]; });
     let y = 0;
     let k = 1;
+    /* Espaçamento extra das tabelas da etapa atual (ex.: MoCA). */
+    let espacamento = 1;
 
     /* Medida proporcional à escala da folha atual. */
     function e(medida) {
@@ -126,14 +128,18 @@ const Relatorio = (function () {
       doc.roundedRect(x, topo, w, h, 2, 2, "S");
     }
 
+    /* O título tem sempre o mesmo tamanho (o da Escala Cornell), mesmo quando
+       a folha é refeita com letra menor para caber. */
     function tituloSecao(texto) {
-      garantirEspaco(e(24));
-      fonte(10, "bold", COR.escuro);
+      garantirEspaco(24);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      cor(COR.escuro);
       doc.text(textoPdf(texto).toUpperCase().replace(/\bMOCA\b/g, "MoCA"), margem, y, { charSpace: 0.4 });
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
-      doc.line(margem, y + e(2.5), margem + util, y + e(2.5));
-      y += e(9);
+      doc.line(margem, y + 2.5, margem + util, y + 2.5);
+      y += 9;
     }
 
     function paragrafo(texto, tamanho, estilo, rgb) {
@@ -245,16 +251,16 @@ const Relatorio = (function () {
         rowPageBreak: "avoid",
         styles: {
           font: "helvetica",
-          fontSize: e(9),
+          fontSize: e(espacamento > 1 ? 10 : 9),
           textColor: COR.tinta,
-          cellPadding: { top: e(1.8), bottom: e(1.8), left: 2.5, right: 2.5 },
+          cellPadding: { top: e(1.8 * espacamento), bottom: e(1.8 * espacamento), left: 2.5, right: 2.5 },
           lineColor: COR.linha,
           lineWidth: { bottom: 0.2 },
           valign: "middle"
         },
         headStyles: {
           fontStyle: "bold",
-          fontSize: e(8),
+          fontSize: e(espacamento > 1 ? 8.5 : 8),
           textColor: COR.suave,
           lineWidth: { bottom: 0.4 },
           lineColor: COR.escuro
@@ -516,12 +522,14 @@ const Relatorio = (function () {
           }
           /* Junto de outra etapa, a Trilhas sai sem o título próprio (os subtítulos bastam). */
           const comSubtitulos = parte.secao.blocos.some(function (b) { return b.soJunto; });
+          espacamento = parte.secao.espacamento || 1;
           if (parte.junto) y += e(4);
           if (!parte.junto || !comSubtitulos) tituloSecao(parte.secao.titulo);
           parte.secao.blocos.forEach(function (bloco) {
             if (bloco.soJunto && !parte.junto) return;
             desenharBloco(bloco);
           });
+          espacamento = 1;
         });
       });
     });

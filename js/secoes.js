@@ -1132,7 +1132,8 @@ const Secoes = (function () {
     return {
       titulo: secao.def.tituloImpressao || secao.def.titulo,
       blocos: blocos,
-      juntarCom: impressao.juntarCom || null
+      juntarCom: impressao.juntarCom || null,
+      espacamento: impressao.espacamento || 1
     };
   }
 

@@ -158,7 +158,7 @@ const DEFINICOES = [
           "Atenção (Seletiva, Sustentada e Alternada)",
           "Memória Verbal, Não Verbal, Visual e Lógica",
           "Capacidade de Aprendizado",
-          "Linguagem: Fluência, Semântica e Fonêmica",
+          "Linguagem: Fluência Semântica e Fonêmica",
           "Compreensão",
           "Leitura",
           "Escrita",
@@ -329,8 +329,6 @@ const DEFINICOES = [
   {
     id: "pfeffer",
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
-    /* Na impressão sai na mesma folha da Escala de Katz. */
-    impressao: { juntarCom: "katz" },
     descricao: "Pergunte ao informante sobre a capacidade do paciente em cada atividade.",
     blocos: [
       {
@@ -525,6 +523,9 @@ const DEFINICOES = [
   {
     id: "moca",
     titulo: "Montreal Cognitive Assessment (MoCA)",
+    /* Na impressão a tabela sai mais espaçada para ocupar melhor a folha
+       (sem exagero: ainda cabe o comentário sobre o Relógio de Shulman). */
+    impressao: { espacamento: 2 },
     descricao: "Digite o escore do paciente em cada domínio. O total é calculado automaticamente.",
     blocos: [
       {

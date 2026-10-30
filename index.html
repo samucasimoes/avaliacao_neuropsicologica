@@ -279,62 +279,6 @@
     </div>
   </div>
 
-  <dialog class="modal" id="modal-relatorio">
-    <form class="modal-body" method="dialog" id="form-relatorio">
-      <h3 class="modal-title">Imprimir avaliação</h3>
-      <p class="modal-text">Escolha o que entra no relatório. Para salvar a avaliação e editar depois, use o botão <strong>Gerar Arquivo</strong>.</p>
-
-      <div class="aviso-vazios" id="aviso-vazios" role="note" hidden>
-        <p class="aviso-titulo">Alguns campos não foram preenchidos e sairão vazios no relatório:</p>
-        <ul class="aviso-lista" id="aviso-vazios-lista"></ul>
-      </div>
-
-      <p class="modal-label">Conteúdo</p>
-      <div class="conteudos">
-        <label class="format">
-          <input class="format-radio" type="radio" name="conteudo" value="completo" id="conteudo-completo">
-          <span class="format-box">
-            <span class="format-name">Dados do paciente + Escalas</span>
-            <span class="format-desc" id="conteudo-etapas-info">Nenhuma etapa preenchida</span>
-          </span>
-        </label>
-        <label class="format">
-          <input class="format-radio" type="radio" name="conteudo" value="dados" id="conteudo-dados">
-          <span class="format-box">
-            <span class="format-name">Somente dados do paciente</span>
-            <span class="format-desc">Identificação e informações clínicas</span>
-          </span>
-        </label>
-      </div>
-
-      <p class="modal-label">Formato</p>
-
-      <div class="formats">
-        <label class="format">
-          <input class="format-radio" type="radio" name="formato" value="pdf" checked>
-          <span class="format-box">
-            <svg class="format-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-            <span class="format-name">PDF</span>
-            <span class="format-desc">Pronto para imprimir</span>
-          </span>
-        </label>
-        <label class="format excel">
-          <input class="format-radio" type="radio" name="formato" value="excel">
-          <span class="format-box">
-            <svg class="format-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3v18"/></svg>
-            <span class="format-name">Excel</span>
-            <span class="format-desc">Planilha editável</span>
-          </span>
-        </label>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn btn-light" type="button" id="btn-cancelar" title="Fechar sem gerar o relatório">Cancelar</button>
-        <button class="btn btn-primary" type="submit" id="btn-baixar" title="Baixar o relatório">Baixar relatório</button>
-      </div>
-    </form>
-  </dialog>
-
   <dialog class="modal" id="modal-limpar">
     <form class="modal-body" method="dialog">
       <h3 class="modal-title">Limpar campos?</h3>

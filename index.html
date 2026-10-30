@@ -62,7 +62,7 @@
       </nav>
 
       <div class="sidebar-rodape">
-        <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um documento (.json) salvo junto com um relatório para continuar ou corrigir a avaliação">
+        <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um arquivo (.json) salvo pelo botão Gerar Arquivo para continuar ou corrigir a avaliação">
           Carregar Documento
         </button>
         <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
@@ -256,17 +256,21 @@
               </button>
             </div>
             <div class="actions-group">
-              <button class="btn btn-light" id="btn-gerar-secundario" type="submit" title="Gerar o relatório em PDF">
+              <button class="btn btn-light" id="btn-gerar-arquivo" type="button" title="Baixar o arquivo da avaliação (.json) para continuar ou corrigir depois em Carregar Documento">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+                Gerar Arquivo
+              </button>
+              <button class="btn btn-light" id="btn-gerar-secundario" type="submit" title="Imprimir a avaliação em PDF">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-                Gerar relatório
+                Imprimir Avaliação
               </button>
               <button class="btn btn-primary" id="btn-proxima" type="button">
                 <span class="btn-rotulo"></span>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
               </button>
-              <button class="btn btn-primary" id="btn-gerar" type="submit" hidden title="Gerar o relatório em PDF">
+              <button class="btn btn-primary" id="btn-gerar" type="submit" hidden title="Imprimir a avaliação em PDF">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-                Gerar relatório
+                Imprimir Avaliação
               </button>
             </div>
           </div>
@@ -277,8 +281,8 @@
 
   <dialog class="modal" id="modal-relatorio">
     <form class="modal-body" method="dialog" id="form-relatorio">
-      <h3 class="modal-title">Gerar relatório</h3>
-      <p class="modal-text">Escolha o que entra no relatório. Um backup (.json) também será baixado para você poder editar a avaliação depois.</p>
+      <h3 class="modal-title">Imprimir avaliação</h3>
+      <p class="modal-text">Escolha o que entra no relatório. Para salvar a avaliação e editar depois, use o botão <strong>Gerar Arquivo</strong>.</p>
 
       <div class="aviso-vazios" id="aviso-vazios" role="note" hidden>
         <p class="aviso-titulo">Alguns campos não foram preenchidos e sairão vazios no relatório:</p>
@@ -326,7 +330,7 @@
 
       <div class="modal-actions">
         <button class="btn btn-light" type="button" id="btn-cancelar" title="Fechar sem gerar o relatório">Cancelar</button>
-        <button class="btn btn-primary" type="submit" id="btn-baixar" title="Baixar o relatório e o backup (.json)">Baixar relatório</button>
+        <button class="btn btn-primary" type="submit" id="btn-baixar" title="Baixar o relatório">Baixar relatório</button>
       </div>
     </form>
   </dialog>
@@ -347,7 +351,7 @@
   <!-- Só aparece se a impressão for aberta pelo menu do navegador (veja @media print no CSS). -->
   <div class="aviso-impressao">
     Para imprimir o relatório, feche esta janela e use <strong>Ctrl+P</strong> (Cmd+P no Mac)
-    ou o botão <strong>Gerar relatório</strong>.
+    ou o botão <strong>Imprimir Avaliação</strong>.
   </div>
 
   <script src="libs/jspdf.umd.min.js"></script>

@@ -521,17 +521,26 @@
     try {
       if (formato === "excel") await Relatorio.gerarExcel(dados, nome, etapas);
       else Relatorio.gerarPdf(dados, nome, etapas);
-      /* Pequena pausa para o navegador não bloquear o segundo download. */
-      await new Promise(function (resolve) { setTimeout(resolve, 400); });
-      Relatorio.gerarBackup(coletarCampos(), nome);
       modalRelatorio.close();
-      mostrarAviso("Relatório " + (formato === "excel" ? "Excel" : "PDF") + " e backup (.json) baixados.");
+      mostrarAviso("Relatório " + (formato === "excel" ? "Excel" : "PDF") + " baixado.");
     } catch (erro) {
       console.error(erro);
       mostrarAviso("Não foi possível gerar o relatório. Tente novamente.");
     } finally {
       botaoBaixar.disabled = false;
       botaoBaixar.textContent = "Baixar relatório";
+    }
+  });
+
+  /* Gerar Arquivo: baixa só o .json, que depois volta pelo botão Carregar Documento. */
+  document.getElementById("btn-gerar-arquivo").addEventListener("click", function () {
+    toast.hidden = true;
+    try {
+      Relatorio.gerarBackup(coletarCampos(), valor("nome"));
+      mostrarAviso("Arquivo da avaliação (.json) baixado.");
+    } catch (erro) {
+      console.error(erro);
+      mostrarAviso("Não foi possível gerar o arquivo. Tente novamente.");
     }
   });
 
@@ -548,7 +557,7 @@
       return;
     }
     if (!window.open(endereco, "_blank")) {
-      mostrarAviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir com Ctrl+P ou use Gerar relatório.");
+      mostrarAviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir com Ctrl+P ou use Imprimir Avaliação.");
     }
   }
 

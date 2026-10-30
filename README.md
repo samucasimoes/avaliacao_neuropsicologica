@@ -68,7 +68,9 @@ só a fonte Figtree depende de conexão).
 
 ## Backup para editar depois
 
-Ao gerar o relatório, um arquivo `.json` é baixado junto. Para continuar ou
+O botão **Imprimir Avaliação** baixa o relatório (PDF ou Excel) e o botão
+**Gerar Arquivo** baixa a avaliação em `.json`. Os arquivos saem com o nome do
+paciente e a data em que foram gerados (ex.: `Maria da Silva - 30-10-2026.pdf`). Para continuar ou
 corrigir uma avaliação, clique em **Carregar documento** (no fim do menu lateral),
 escolha esse arquivo e os campos serão preenchidos novamente. Backups e rascunhos
 antigos são convertidos para os nomes de campos atuais (`migrarCampos` em `js/app.js`).

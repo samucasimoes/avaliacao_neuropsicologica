@@ -4,14 +4,19 @@
 const Relatorio = (function () {
   const TITULO = "Avaliação Neuropsicológica";
 
+  /* Ex.: "Maria da Silva - 30-10-2026.pdf" (nome do paciente + data em que o arquivo foi gerado). */
   function nomeArquivo(nome, extensao) {
-    const base = (nome || "paciente")
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    return "avaliacao-neuropsicologica-" + (base || "paciente") + "." + extensao;
+    const base = String(nome || "")
+      .replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/^\.+|\.+$/g, "");
+    const hoje = new Date();
+    const data = [hoje.getDate(), hoje.getMonth() + 1]
+      .map(function (n) { return String(n).padStart(2, "0"); })
+      .concat(hoje.getFullYear())
+      .join("-");
+    return (base || "Paciente") + " - " + data + "." + extensao;
   }
 
   function baixar(blob, nome) {

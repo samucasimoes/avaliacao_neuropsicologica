@@ -471,7 +471,7 @@
     }
   });
 
-  /* Gerar Arquivo: baixa só o .json, que depois volta pelo botão Carregar Documento. */
+  /* Gerar Arquivo: baixa só o .json, que depois volta pelo botão Carregar arquivo. */
   document.getElementById("btn-gerar-arquivo").addEventListener("click", function () {
     toast.hidden = true;
     try {

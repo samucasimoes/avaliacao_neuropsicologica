@@ -176,6 +176,11 @@ const Banco = (function () {
     });
   }
 
+  /* Exclusão pelo histórico: as regras do Firestore só deixam quem iniciou a avaliação. */
+  function excluirAvaliacao(id) {
+    return colecao("avaliacoes").doc(id).delete();
+  }
+
   function marcarStatus(id, status) {
     return colecao("avaliacoes").doc(id).update({ status: status, atualizadoEm: agora() });
   }
@@ -196,6 +201,7 @@ const Banco = (function () {
     expiraEm: expiraEm,
     DIAS_GUARDADA: DIAS_GUARDADA,
     abrirAvaliacao: abrirAvaliacao,
-    marcarStatus: marcarStatus
+    marcarStatus: marcarStatus,
+    excluirAvaliacao: excluirAvaliacao
   };
 })();

@@ -256,6 +256,7 @@
   const historicoTotal = document.getElementById("historico-total");
   const ICONE_ALERTA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5"/><path d="M12 16h.01"/></svg>';
   const ICONE_BAIXAR = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+  const ICONE_LIXEIRA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
   const ICONE_ABRIR = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="m10 13 2 2 3-3"/></svg>';
 
   /* "Será apagada em 12 dias", "amanhã", "hoje"… e o nível do alerta (cor). */
@@ -290,6 +291,17 @@
         '<button class="btn btn-light btn-pequeno" type="button" data-acao="abrir">' + ICONE_ABRIR + "Abrir</button>" +
         '<button class="btn btn-primary btn-pequeno" type="button" data-acao="baixar">' + ICONE_BAIXAR + "Salvar PDF e arquivo</button>" +
       "</div>";
+    /* Só quem iniciou a avaliação pode excluir (as regras do Firestore também conferem). */
+    const usuario = Banco.usuario();
+    if (usuario && av.responsavelUid === usuario.uid) {
+      const botaoExcluir = document.createElement("button");
+      botaoExcluir.className = "btn btn-excluir btn-pequeno";
+      botaoExcluir.type = "button";
+      botaoExcluir.innerHTML = ICONE_LIXEIRA + "Excluir";
+      botaoExcluir.title = "Excluir de vez a avaliação de " + nome;
+      botaoExcluir.addEventListener("click", function () { confirmarExclusao(av, li, botaoExcluir); });
+      li.querySelector(".historico-acoes").appendChild(botaoExcluir);
+    }
     li.querySelector(".historico-nome span").textContent = nome;
     li.querySelector(".historico-detalhes").textContent =
       "Atualizada em " + dataHora(av.atualizadoEm) + " · Responsável: " + (av.responsavelNome || "—");
@@ -312,6 +324,49 @@
     });
     return li;
   }
+
+  /* ---------- Excluir (com confirmação) ---------- */
+
+  const modalExcluir = document.getElementById("modal-excluir");
+  let pendenteExclusao = null;
+
+  function confirmarExclusao(av, li, botao) {
+    pendenteExclusao = { av: av, li: li, botao: botao };
+    document.getElementById("excluir-nome").textContent = av.paciente || "paciente sem nome";
+    modalExcluir.returnValue = "";
+    modalExcluir.showModal();
+  }
+
+  modalExcluir.addEventListener("close", function () {
+    const pedido = pendenteExclusao;
+    pendenteExclusao = null;
+    if (!pedido || modalExcluir.returnValue !== "confirmar") {
+      if (pedido) pedido.botao.focus();
+      return;
+    }
+    const nome = pedido.av.paciente || "paciente sem nome";
+    pedido.botao.disabled = true;
+    Banco.excluirAvaliacao(pedido.av.id)
+      .then(function () {
+        window.Formulario.esquecer(pedido.av.id);
+        pedido.li.classList.add("saindo");
+        setTimeout(function () {
+          pedido.li.remove();
+          const restantes = listaHistorico.children.length;
+          historicoTotal.textContent = restantes === 1 ? "1 avaliação" : restantes + " avaliações";
+          historicoVazio.textContent = "Nenhuma avaliação nos últimos " + Banco.DIAS_GUARDADA + " dias.";
+          historicoVazio.hidden = restantes > 0;
+        }, 320);
+        aviso("Avaliação de " + nome + " excluída.");
+      })
+      .catch(function (erro) {
+        console.error(erro);
+        pedido.botao.disabled = false;
+        aviso(erro && erro.code === "permission-denied"
+          ? "Só quem iniciou a avaliação pode excluí-la."
+          : "Não foi possível excluir: " + Banco.mensagemErro(erro));
+      });
+  });
 
   let pedidoHistorico = 0;
 

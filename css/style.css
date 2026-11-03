@@ -728,9 +728,36 @@ body.aguardando-login .toast {
   gap: 6px;
 }
 
+.btn.btn-excluir {
+  border-color: #efc9c5;
+  background: var(--surface);
+  color: var(--danger);
+}
+
+.btn.btn-excluir:hover:not(:disabled) {
+  background: #fbeceb;
+}
+
+/* Item excluído sai com um leve recolhimento. */
+.historico-item.saindo {
+  animation: none;
+  opacity: 0;
+  transform: translateX(16px) scale(0.98);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.modal-dica {
+  font-size: 13.5px;
+  color: var(--muted) !important;
+}
+
 @media (max-width: 1180px) {
   .historico-item {
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .historico-acoes {
+    flex-wrap: wrap;
   }
 
   .historico-acoes {

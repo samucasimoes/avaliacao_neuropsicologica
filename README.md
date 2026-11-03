@@ -14,7 +14,9 @@ avaliações salvas no banco de dados (Firebase).
   explicação da etapa aberta (o `card-head` da etapa é levado para lá). As etapas podem ser
   abertas em qualquer ordem.
 - **Histórico de Avaliações** – as avaliações dos últimos 30 dias, cada uma com o aviso de quanto
-  tempo falta para ser apagada, **Abrir** e **Salvar PDF e arquivo** (baixa o PDF e o .json). Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
+  tempo falta para ser apagada, **Abrir** e **Salvar PDF e arquivo** (baixa o PDF e o .json).
+  **Excluir** (com confirmação) aparece só para quem iniciou a avaliação; as regras do
+  Firestore também barram a exclusão por outra pessoa e a troca do dono da avaliação. Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
   *Concluir avaliação* tira a avaliação da lista de andamento. *Limpar campos* começa uma
   nova avaliação (a anterior continua salva).
 - **Ajuda** – resumo de como usar.

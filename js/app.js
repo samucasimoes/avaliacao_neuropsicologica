@@ -852,6 +852,14 @@
           gravarRascunho();
         });
     },
+    /* Avaliação excluída pelo histórico: se estiver aberta no formulário, esvazia
+       (senão o salvamento automático a gravaria de novo). */
+    esquecer: function (id) {
+      if (id !== avaliacaoId) return;
+      clearTimeout(timerBanco);
+      esvaziarFormulario();
+      gravarRascunho();
+    },
     /* Mostra (ou devolve) o cabeçalho da etapa na barra do topo. */
     exibirCabecalho: function (visivel) {
       cabecalhoVisivel = !!visivel;

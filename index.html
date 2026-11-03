@@ -426,7 +426,7 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Por quanto tempo fica guardada</h2>
-            <p>Cada avaliação fica no banco por 30 dias depois da última alteração e depois é apagada de vez. No <strong>Histórico de Avaliações</strong> aparece quanto tempo falta para cada uma e o botão <strong>Salvar PDF e arquivo</strong>.</p>
+            <p>Cada avaliação fica no banco por 30 dias depois da última alteração e depois é apagada de vez. No <strong>Histórico de Avaliações</strong> aparece quanto tempo falta para cada uma e o botão <strong>Salvar PDF e arquivo</strong>. Quem iniciou a avaliação também vê o botão <strong>Excluir</strong>, para apagá-la antes do prazo.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
@@ -444,6 +444,18 @@
       <div class="modal-actions">
         <button class="btn btn-light" value="cancelar">Cancelar</button>
         <button class="btn btn-danger" value="confirmar">Limpar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="modal-excluir">
+    <form class="modal-body" method="dialog">
+      <h3 class="modal-title">Excluir avaliação?</h3>
+      <p class="modal-text">A avaliação de <strong id="excluir-nome"></strong> será apagada de vez do banco de dados. Essa ação não pode ser desfeita.</p>
+      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e use <strong>Salvar PDF e arquivo</strong> antes.</p>
+      <div class="modal-actions">
+        <button class="btn btn-light" value="cancelar" autofocus>Cancelar</button>
+        <button class="btn btn-danger" value="confirmar">Excluir</button>
       </div>
     </form>
   </dialog>

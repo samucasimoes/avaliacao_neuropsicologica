@@ -1862,7 +1862,6 @@ td.estreita .input-tabela {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
   padding: 0 20px;
   border: 1px solid transparent;
   border-radius: var(--radius);

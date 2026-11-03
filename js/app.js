@@ -223,6 +223,9 @@
     const secao = document.getElementById("secao-" + secaoAtual);
     const cabecalho = secao && secao.querySelector(":scope > .card-head");
     if (!cabecalho) return;
+    /* No notebook o subtítulo fica numa linha só: o texto completo vai na dica do mouse. */
+    const subtitulo = cabecalho.querySelector(".card-text");
+    if (subtitulo && !subtitulo.title) subtitulo.title = subtitulo.textContent.trim();
     slotEtapa.appendChild(cabecalho);
     cabecalhoMovido = { el: cabecalho, secao: secao };
   }

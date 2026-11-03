@@ -226,6 +226,38 @@ body.aguardando-login .toast {
   animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Notebook: cabeçalho mais baixo, título menor e o subtítulo numa linha só
+   (o texto completo aparece ao passar o mouse). */
+@media (max-width: 1440px) {
+  .appbar {
+    min-height: 64px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .appbar-view-titulo,
+  .appbar-etapa .card-title {
+    font-size: 18px;
+  }
+
+  .appbar-etapa .card-title {
+    margin-bottom: 1px;
+  }
+
+  .appbar-view-texto,
+  .appbar-etapa .card-text {
+    overflow: hidden;
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .appbar-etapa .idade-paciente {
+    padding: 2px 10px;
+    font-size: 13px;
+  }
+}
+
 .usuario {
   position: relative;
 }
@@ -2112,6 +2144,7 @@ td.estreita .input-tabela {
   .appbar-view-texto,
   .appbar-etapa .card-text {
     font-size: 13px;
+    white-space: normal;
   }
 
   .usuario-nome {

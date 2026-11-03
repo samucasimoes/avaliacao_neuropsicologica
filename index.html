@@ -22,20 +22,58 @@
         <svg class="sidebar-marca-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
       </a>
 
-      <nav class="menu" aria-label="Menu principal">
-        <a class="menu-item" href="#inicio" data-view="inicio">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg>
-          Início
-        </a>
-        <a class="menu-item" href="#avaliacoes" data-view="avaliacoes">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-          Avaliações
-        </a>
-        <a class="menu-item" href="#ajuda" data-view="ajuda">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9"/><path d="M12 17.2h.01"/></svg>
-          Ajuda
-        </a>
-      </nav>
+      <!-- O menu principal e o das etapas ocupam o mesmo lugar: ao abrir Avaliações,
+           as etapas entram no lugar do menu (painel.js liga a classe modo-avaliacao). -->
+      <div class="sidebar-paineis">
+        <nav class="menu" aria-label="Menu principal">
+          <a class="menu-item" href="#inicio" data-view="inicio">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg>
+            Início
+          </a>
+          <a class="menu-item" href="#avaliacoes" data-view="avaliacoes">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
+            Avaliações
+          </a>
+          <a class="menu-item" href="#ajuda" data-view="ajuda">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9"/><path d="M12 17.2h.01"/></svg>
+            Ajuda
+          </a>
+        </nav>
+
+        <div class="menu-etapas">
+          <a class="menu-item menu-voltar" href="#inicio" data-view="inicio" title="Voltar para a tela inicial">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            Início
+          </a>
+          <p class="menu-etapas-titulo">Etapas da avaliação</p>
+          <nav class="steps" aria-label="Etapas da avaliação">
+            <ol class="steps-list">
+              <li><a class="step active" href="#dados" data-secao="dados" aria-current="step"><span class="step-num">1</span>Dados do paciente</a></li>
+              <li><a class="step" href="#resumo" data-secao="resumo"><span class="step-num">2</span>Resumo</a></li>
+              <li><a class="step" href="#funcoes" data-secao="funcoes"><span class="step-num">3</span>Funções avaliadas</a></li>
+              <li><a class="step" href="#protocolos" data-secao="protocolos"><span class="step-num">4</span>Foram aplicados protocolos fixos (somente impressão)</a></li>
+              <li><a class="step" href="#katz" data-secao="katz"><span class="step-num">5</span>Escala de Katz</a></li>
+              <li><a class="step" href="#pfeffer" data-secao="pfeffer"><span class="step-num">6</span>Pfeffer</a></li>
+              <li><a class="step" href="#cornell" data-secao="cornell"><span class="step-num">7</span>Escala de Cornell</a></li>
+              <!-- IQCODE fora de uso por enquanto: escondido na tela e fora da impressão. -->
+              <li class="etapa-oculta" style="display: none"><a class="step" href="#iqcode" data-secao="iqcode"><span class="step-num">8</span>IQCODE</a></li>
+              <li><a class="step" href="#humor" data-secao="humor"><span class="step-num">9</span>Humor e comportamento</a></li>
+              <li><a class="step" href="#moca" data-secao="moca"><span class="step-num">10</span>Montreal (MoCA)</a></li>
+              <li class="etapa-oculta" style="display: none"><a class="step" href="#shulman" data-secao="shulman"><span class="step-num">11</span>Relógio de Shulman</a></li>
+              <li><a class="step" href="#cerad" data-secao="cerad"><span class="step-num">12</span>Bateria do CERAD/Funções executivas</a></li>
+              <li><a class="step" href="#linguagem" data-secao="linguagem"><span class="step-num">13</span>Linguagem</a></li>
+              <li><a class="step" href="#ravlt" data-secao="ravlt"><span class="step-num">14</span>RAVLT</a></li>
+              <li><a class="step" href="#memoria" data-secao="memoria"><span class="step-num">15</span>Memória verbal e visual</a></li>
+              <li><a class="step" href="#trilhas" data-secao="trilhas"><span class="step-num">16</span>Trilhas</a></li>
+              <li><a class="step" href="#praxias" data-secao="praxias"><span class="step-num">17</span>Praxias</a></li>
+              <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">18</span>Bateria Wechsler</a></li>
+              <li><a class="step" href="#stroop" data-secao="stroop"><span class="step-num">19</span>Stroop Test</a></li>
+              <li><a class="step" href="#interpretacao" data-secao="interpretacao"><span class="step-num">20</span>Interpretação dos resultados</a></li>
+              <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
+            </ol>
+          </nav>
+        </div>
+      </div>
 
       <svg class="sidebar-cerebro" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/><path d="M12 18v4"/></svg>
     </aside>
@@ -148,33 +186,6 @@
           </button>
         </div>
       </header>
-
-      <nav class="steps" aria-label="Etapas da avaliação">
-        <ol class="steps-list">
-          <li><a class="step active" href="#dados" data-secao="dados" aria-current="step"><span class="step-num">1</span>Dados do paciente</a></li>
-          <li><a class="step" href="#resumo" data-secao="resumo"><span class="step-num">2</span>Resumo</a></li>
-          <li><a class="step" href="#funcoes" data-secao="funcoes"><span class="step-num">3</span>Funções avaliadas</a></li>
-          <li><a class="step" href="#protocolos" data-secao="protocolos"><span class="step-num">4</span>Foram aplicados protocolos fixos (somente impressão)</a></li>
-          <li><a class="step" href="#katz" data-secao="katz"><span class="step-num">5</span>Escala de Katz</a></li>
-          <li><a class="step" href="#pfeffer" data-secao="pfeffer"><span class="step-num">6</span>Pfeffer</a></li>
-          <li><a class="step" href="#cornell" data-secao="cornell"><span class="step-num">7</span>Escala de Cornell</a></li>
-          <!-- IQCODE fora de uso por enquanto: escondido na tela e fora da impressão. -->
-          <li class="etapa-oculta" style="display: none"><a class="step" href="#iqcode" data-secao="iqcode"><span class="step-num">8</span>IQCODE</a></li>
-          <li><a class="step" href="#humor" data-secao="humor"><span class="step-num">9</span>Humor e comportamento</a></li>
-          <li><a class="step" href="#moca" data-secao="moca"><span class="step-num">10</span>Montreal (MoCA)</a></li>
-          <li class="etapa-oculta" style="display: none"><a class="step" href="#shulman" data-secao="shulman"><span class="step-num">11</span>Relógio de Shulman</a></li>
-          <li><a class="step" href="#cerad" data-secao="cerad"><span class="step-num">12</span>Bateria do CERAD/Funções executivas</a></li>
-          <li><a class="step" href="#linguagem" data-secao="linguagem"><span class="step-num">13</span>Linguagem</a></li>
-          <li><a class="step" href="#ravlt" data-secao="ravlt"><span class="step-num">14</span>RAVLT</a></li>
-          <li><a class="step" href="#memoria" data-secao="memoria"><span class="step-num">15</span>Memória verbal e visual</a></li>
-          <li><a class="step" href="#trilhas" data-secao="trilhas"><span class="step-num">16</span>Trilhas</a></li>
-          <li><a class="step" href="#praxias" data-secao="praxias"><span class="step-num">17</span>Praxias</a></li>
-          <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">18</span>Bateria Wechsler</a></li>
-          <li><a class="step" href="#stroop" data-secao="stroop"><span class="step-num">19</span>Stroop Test</a></li>
-          <li><a class="step" href="#interpretacao" data-secao="interpretacao"><span class="step-num">20</span>Interpretação dos resultados</a></li>
-          <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
-        </ol>
-      </nav>
 
       <main class="card">
         <form class="form" id="form-avaliacao" novalidate autocomplete="off">
@@ -376,7 +387,7 @@
         <div class="ajuda">
           <section class="painel">
             <h2 class="painel-titulo">Começar uma avaliação</h2>
-            <p>No Início, clique em <strong>Iniciar nova avaliação</strong>. O formulário abre na aba Avaliações, com as etapas na barra do topo. Nenhum campo é obrigatório e as etapas podem ser abertas em qualquer ordem.</p>
+            <p>No Início, clique em <strong>Iniciar nova avaliação</strong>. O formulário abre na aba Avaliações, com as etapas no menu lateral (use <strong>Início</strong>, no topo do menu, para voltar). Nenhum campo é obrigatório e as etapas podem ser abertas em qualquer ordem.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Salvamento</h2>

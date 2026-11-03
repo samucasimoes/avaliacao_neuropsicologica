@@ -55,7 +55,21 @@
     return VIEWS.indexOf(nome) !== -1 ? nome : "inicio";
   }
 
+  /* Posição de cada item para a entrada em cascata no menu lateral (o CSS usa --i). */
+  function numerarCascata(itens) {
+    Array.from(itens).forEach(function (item, i) { item.style.setProperty("--i", String(i)); });
+  }
+  numerarCascata(document.querySelectorAll(".menu .menu-item"));
+  numerarCascata(document.querySelectorAll(".menu-voltar, .menu-etapas-titulo, .menu-etapas .steps-list li:not(.etapa-oculta)"));
+  const menuPrincipal = document.querySelector(".menu");
+  const menuEtapas = document.querySelector(".menu-etapas");
+
   function irPara(nome) {
+    /* Na aba Avaliações o menu lateral mostra as etapas no lugar do menu principal. */
+    const avaliando = nome === "avaliacoes";
+    document.body.classList.toggle("modo-avaliacao", avaliando);
+    menuPrincipal.inert = avaliando;
+    menuEtapas.inert = !avaliando;
     VIEWS.forEach(function (v) { views[v].hidden = v !== nome; });
     itensMenu.forEach(function (item) {
       const ativo = item.dataset.view === nome;

@@ -9,8 +9,9 @@ avaliações salvas no banco de dados (Firebase).
   (envia um link por e-mail). Sem login, o sistema volta para esta tela.
 - **Início** – saudação, atalhos *Iniciar nova avaliação* e *Ver avaliações em andamento*, e a
   lista das avaliações (clique numa linha para abrir). *Ver todas* mostra também as concluídas.
-- **Avaliações** – o formulário. As etapas ficam numa barra no topo do formulário e podem ser
-  abertas em qualquer ordem. Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
+- **Avaliações** – o formulário. Ao entrar nesta aba, o menu lateral troca (com animação) para
+  as etapas da avaliação, com **Início** no topo para voltar. As etapas podem ser abertas em
+  qualquer ordem. Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
   *Concluir avaliação* tira a avaliação da lista de andamento. *Limpar campos* começa uma
   nova avaliação (a anterior continua salva).
 - **Ajuda** – resumo de como usar.
@@ -82,7 +83,7 @@ aba fica escondida (`display: none`), não aparece em Humor e comportamento e n�
 no relatório. Para voltar, remova a classe `etapa-oculta` e o `style` da aba no
 `index.html` e o `oculto: true` da linha do IQCODE em `js/definicoes.js`.
 
-O relatório segue a ordem dos números da barra de etapas e só traz as etapas preenchidas.
+O relatório segue a ordem dos números das etapas e só traz as etapas preenchidas.
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.

@@ -196,16 +196,24 @@
     window.scrollTo({ top: 0 });
   }
 
-  /* A barra de etapas fica no topo do formulário e rola de lado: mantém a etapa aberta à vista. */
+  /* As etapas ficam no menu lateral (no celular, numa faixa que rola de lado):
+     mantém a etapa aberta à vista. */
   const barraEtapas = document.querySelector(".steps");
 
   function rolarParaEtapa() {
     const link = linksSecao[ordem.indexOf(secaoAtual)];
-    if (!link || !barraEtapas) return;
+    if (!link || !barraEtapas || !barraEtapas.clientHeight) return;
     const caixa = barraEtapas.getBoundingClientRect();
     const alvo = link.getBoundingClientRect();
+    const destino = {};
+    if (alvo.top < caixa.top || alvo.bottom > caixa.bottom) {
+      destino.top = alvo.top - caixa.top - (caixa.height - alvo.height) / 2;
+    }
     if (alvo.left < caixa.left || alvo.right > caixa.right) {
-      barraEtapas.scrollLeft += alvo.left - caixa.left - (caixa.width - alvo.width) / 2;
+      destino.left = alvo.left - caixa.left - (caixa.width - alvo.width) / 2;
+    }
+    if ("top" in destino || "left" in destino) {
+      barraEtapas.scrollBy(Object.assign({ behavior: "smooth" }, destino));
     }
   }
 

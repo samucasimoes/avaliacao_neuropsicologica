@@ -185,7 +185,7 @@
     }
   }
 
-  function mostrarSecao(nome) {
+  function mostrarSecao(nome, semRolar) {
     secaoAtual = nome;
     secoes.forEach(function (secao) {
       secao.hidden = secao.id !== "secao-" + nome;
@@ -198,7 +198,33 @@
     });
     atualizarNavegacao();
     rolarParaEtapa();
-    window.scrollTo({ top: 0 });
+    levarCabecalho();
+    if (!semRolar) window.scrollTo({ top: 0 });
+  }
+
+  /* ---------- Cabeçalho da etapa no topo da página ----------
+     Em Nova Avaliação, o card-head da etapa aberta (título e explicação) sai da seção
+     e vai para a barra do topo; ao trocar de etapa ou de tela, volta para o lugar. */
+
+  const slotEtapa = document.getElementById("appbar-etapa");
+  let cabecalhoVisivel = false;
+  let cabecalhoMovido = null;
+
+  function devolverCabecalho() {
+    if (!cabecalhoMovido) return;
+    cabecalhoMovido.secao.insertBefore(cabecalhoMovido.el, cabecalhoMovido.secao.firstChild);
+    cabecalhoMovido = null;
+  }
+
+  function levarCabecalho() {
+    devolverCabecalho();
+    slotEtapa.hidden = !cabecalhoVisivel;
+    if (!cabecalhoVisivel) return;
+    const secao = document.getElementById("secao-" + secaoAtual);
+    const cabecalho = secao && secao.querySelector(":scope > .card-head");
+    if (!cabecalho) return;
+    slotEtapa.appendChild(cabecalho);
+    cabecalhoMovido = { el: cabecalho, secao: secao };
   }
 
   /* As etapas ficam no menu lateral (no celular, numa faixa que rola de lado):
@@ -824,6 +850,35 @@
           marcarStatusSalvo("");
           mostrarSecao(ordem.indexOf(dados.secao) !== -1 ? dados.secao : "dados");
           gravarRascunho();
+        });
+    },
+    /* Mostra (ou devolve) o cabeçalho da etapa na barra do topo. */
+    exibirCabecalho: function (visivel) {
+      cabecalhoVisivel = !!visivel;
+      levarCabecalho();
+    },
+    /* Histórico: baixa o PDF e o .json de uma avaliação salva sem trocar a que está aberta.
+       Coloca a avaliação no formulário só para gerar os arquivos e depois volta a anterior. */
+    baixarArquivos: function (id) {
+      return gravarNoBanco()
+        .then(function () { return Banco.abrirAvaliacao(id); })
+        .then(function (dados) {
+          const anterior = {
+            campos: coletarCampos(), id: avaliacaoId, status: statusAvaliacao,
+            secao: secaoAtual, alterado: alterado
+          };
+          try {
+            preencherCampos(dados.campos || {});
+            const situacao = situacaoArquivo();
+            const nome = valor("nome");
+            Relatorio.gerarPdf(coletarDados(), nome, secoesDoRelatorio(), { situacao: situacao });
+            Relatorio.gerarBackup(coletarCampos(), nome, situacao);
+          } finally {
+            preencherCampos(anterior.campos);
+            definirAvaliacao(anterior.id, anterior.status);
+            alterado = anterior.alterado;
+            mostrarSecao(anterior.secao, true);
+          }
         });
     },
     /* Ao sair do sistema: grava o que falta e apaga o rascunho deste navegador. */

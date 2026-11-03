@@ -1,7 +1,8 @@
 /* Firebase: login (Authentication) e banco de dados (Firestore).
    Coleções:
    - avaliacoes/{id}: paciente, campos (os mesmos nomes do formulário e do .json), secao,
-     status ("em_andamento" ou "concluida"), responsavelNome/Uid, criadoEm, atualizadoEm.
+     status ("em_andamento" ou "concluida"), responsavelNome/Uid, criadoEm, atualizadoEm
+     e expiraEm (30 dias depois da última alteração; depois disso é apagada de vez).
    - profissionais/{uid}: nome e e-mail de quem já entrou (usado na saudação).
    Os acessos são criados no console do Firebase (Authentication > Usuários). */
 
@@ -17,6 +18,21 @@ const Banco = (function () {
     auth = firebase.auth();
     auth.languageCode = "pt-BR";
     db = firebase.firestore();
+  }
+
+  /* Cada avaliação fica guardada por 30 dias depois da última alteração. */
+  const DIAS_GUARDADA = 30;
+  const DIA_MS = 24 * 60 * 60 * 1000;
+
+  function limiteGuarda() {
+    return new Date(Date.now() - DIAS_GUARDADA * DIA_MS);
+  }
+
+  /* Quando a avaliação será apagada (a partir da última alteração). */
+  function expiraEm(avaliacao) {
+    const base = avaliacao.atualizadoEm && avaliacao.atualizadoEm.toDate
+      ? avaliacao.atualizadoEm.toDate() : new Date();
+    return new Date(base.getTime() + DIAS_GUARDADA * DIA_MS);
   }
 
   const agora = function () { return firebase.firestore.FieldValue.serverTimestamp(); };
@@ -106,9 +122,18 @@ const Banco = (function () {
 
   /* Cria (sem id) ou atualiza a avaliação. Devolve o id. */
   function salvarAvaliacao(id, dados, responsavelNome) {
-    const registro = Object.assign({}, dados, { atualizadoEm: agora() });
+    const registro = Object.assign({}, dados, {
+      atualizadoEm: agora(),
+      expiraEm: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + DIAS_GUARDADA * DIA_MS))
+    });
     if (id) {
-      return colecao("avaliacoes").doc(id).update(registro).then(function () { return id; });
+      return colecao("avaliacoes").doc(id).update(registro)
+        .then(function () { return id; })
+        .catch(function (erro) {
+          /* Já foi apagada (passou dos 30 dias): grava de novo como avaliação nova. */
+          if (erro && erro.code === "not-found") return salvarAvaliacao(null, dados, responsavelNome);
+          throw erro;
+        });
     }
     Object.assign(registro, {
       status: "em_andamento",
@@ -119,9 +144,29 @@ const Banco = (function () {
     return colecao("avaliacoes").add(registro).then(function (ref) { return ref.id; });
   }
 
+  /* Só as dos últimos 30 dias (as mais antigas são apagadas), da mais recente para a mais antiga. */
   function listarAvaliacoes(limite) {
-    return colecao("avaliacoes").orderBy("atualizadoEm", "desc").limit(limite || 100).get()
+    return colecao("avaliacoes")
+      .where("atualizadoEm", ">=", limiteGuarda())
+      .orderBy("atualizadoEm", "desc")
+      .limit(limite || 100)
+      .get()
       .then(function (r) { return r.docs.map(lerDoc); });
+  }
+
+  /* Apaga de vez as avaliações sem alteração há mais de 30 dias (feito ao entrar no sistema).
+     As regras do Firestore só deixam apagar as que já passaram do prazo. */
+  function apagarExpiradas() {
+    return colecao("avaliacoes")
+      .where("atualizadoEm", "<", limiteGuarda())
+      .limit(100)
+      .get()
+      .then(function (r) {
+        if (r.empty) return 0;
+        const lote = db.batch();
+        r.docs.forEach(function (doc) { lote.delete(doc.ref); });
+        return lote.commit().then(function () { return r.size; });
+      });
   }
 
   function abrirAvaliacao(id) {
@@ -147,6 +192,9 @@ const Banco = (function () {
     perfil: perfil,
     salvarAvaliacao: salvarAvaliacao,
     listarAvaliacoes: listarAvaliacoes,
+    apagarExpiradas: apagarExpiradas,
+    expiraEm: expiraEm,
+    DIAS_GUARDADA: DIAS_GUARDADA,
     abrirAvaliacao: abrirAvaliacao,
     marcarStatus: marcarStatus
   };

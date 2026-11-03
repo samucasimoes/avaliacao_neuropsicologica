@@ -97,18 +97,30 @@ body.aguardando-login .toast {
   color: #fff;
 }
 
+/* Logo e nome do sistema, no topo do menu lateral. */
 .sidebar-marca {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  margin: 0 auto 30px 52px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 2px 4px 28px;
+  padding: 4px;
   border-radius: 12px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.sidebar-marca-nome {
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
 }
 
 .sidebar-marca-icone {
-  width: 44px;
-  height: 44px;
+  flex: none;
+  width: 40px;
+  height: 40px;
   fill: none;
   stroke: #fff;
   stroke-width: 1.3;
@@ -156,17 +168,7 @@ body.aguardando-login .toast {
   outline-offset: 1px;
 }
 
-.sidebar-cerebro {
-  width: 150px;
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.16);
-  stroke-width: 0.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-
-/* ---------- Barra do topo (marca e usuário) ---------- */
+/* ---------- Barra do topo (título da tela e usuário) ---------- */
 
 .appbar {
   position: sticky;
@@ -176,34 +178,52 @@ body.aguardando-login .toast {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  height: 72px;
+  min-height: 76px;
   margin: 0 -24px 18px;
-  padding: 0 24px 0 48px;
+  padding: 12px 24px 12px 32px;
   background: rgba(255, 255, 255, 0.96);
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
   box-shadow: 0 4px 18px rgba(30, 26, 61, 0.05);
 }
 
-.appbar-marca {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--ink);
-  font-size: 20px;
-  font-weight: 600;
-  text-decoration: none;
+.appbar-titulo {
+  min-width: 0;
+  flex: 1;
 }
 
-.appbar-marca-icone {
-  width: 40px;
-  height: 40px;
-  flex: none;
-  fill: none;
-  stroke: var(--brand);
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.appbar-view-titulo {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.appbar-view-texto {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+/* Cabeçalho da etapa (card-head) trazido do formulário. */
+.appbar-etapa .card-head {
+  margin: 0;
+  animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.appbar-etapa .card-title {
+  margin-bottom: 2px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.appbar-etapa .card-text {
+  max-width: 900px;
+  font-size: 14px;
+}
+
+.appbar-view.surgindo {
+  animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .usuario {
@@ -579,7 +599,146 @@ body.aguardando-login .toast {
   gap: 0 22px;
 }
 
-/* ---------- Formulário (aba Avaliações) ---------- */
+/* ---------- Histórico de Avaliações ---------- */
+
+.aviso-retencao {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 6px 0 18px;
+  padding: 14px 18px;
+  border: 1px solid #ecd3a4;
+  border-radius: 14px;
+  background: #fbf3e2;
+  color: #6f4a0e;
+}
+
+.aviso-retencao p {
+  margin: 0;
+  font-size: 14.5px;
+}
+
+.aviso-retencao .icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+}
+
+.historico-total {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.historico-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.historico-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  animation: surgir 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.historico-item:hover {
+  border-color: #cfc6ee;
+  box-shadow: 0 6px 18px rgba(30, 26, 61, 0.06);
+}
+
+.historico-item.abrindo {
+  opacity: 0.55;
+}
+
+.historico-nome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--ink) !important;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.historico-nome .icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--ink-soft);
+}
+
+.historico-nome span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historico-detalhes {
+  margin: 2px 0 0 30px !important;
+  font-size: 13.5px;
+}
+
+.prazo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.prazo .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.prazo-normal {
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+}
+
+.prazo-atencao {
+  background: #fde3a3;
+  color: #5a3b00;
+}
+
+.prazo-urgente {
+  background: #f8e3e1;
+  color: #9c3a33;
+}
+
+.historico-acoes {
+  display: flex;
+  gap: 8px;
+}
+
+.historico-acoes .btn {
+  gap: 6px;
+}
+
+@media (max-width: 1180px) {
+  .historico-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .historico-acoes {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- Formulário (aba Nova Avaliação) ---------- */
 
 .status-salvo {
   color: var(--muted);
@@ -716,18 +875,6 @@ body.modo-avaliacao .menu-etapas .steps-list li {
   scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
-}
-
-.sidebar-cerebro {
-  position: absolute;
-  left: 18px;
-  bottom: -14px;
-  z-index: 0;
-  transition: opacity 0.4s ease;
-}
-
-body.modo-avaliacao .sidebar-cerebro {
-  opacity: 0;
 }
 
 /* ---------- Etapas ---------- */
@@ -1119,7 +1266,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .escala-resumo {
   position: sticky;
-  top: 8px;
+  top: calc(var(--altura-appbar, 76px) + 8px);
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1889,10 +2036,13 @@ td.estreita .input-tabela {
   }
 
   .sidebar-marca {
-    width: 40px;
-    height: 40px;
     margin: 0;
+    padding: 0;
     flex: none;
+  }
+
+  .sidebar-marca-nome {
+    display: none;
   }
 
   .sidebar-marca-icone {
@@ -1915,29 +2065,30 @@ td.estreita .input-tabela {
     height: 18px;
   }
 
-  .sidebar-cerebro {
-    display: none;
-  }
-
   .main {
     padding: 0 16px 16px;
   }
 
   .appbar {
     position: static;
-    height: 60px;
+    min-height: 60px;
     margin: 0 -16px 12px;
-    padding: 0 16px;
+    padding: 10px 16px;
     border-radius: 0;
   }
 
-  .appbar-marca {
-    font-size: 16px;
+  .appbar-view-titulo,
+  .appbar-etapa .card-title {
+    font-size: 18px;
   }
 
-  .appbar-marca-icone {
-    width: 30px;
-    height: 30px;
+  .appbar-view-texto,
+  .appbar-etapa .card-text {
+    font-size: 13px;
+  }
+
+  .usuario-nome {
+    display: none;
   }
 
   .usuario-avatar {
@@ -1985,8 +2136,13 @@ td.estreita .input-tabela {
 }
 
 @media (max-width: 560px) {
-  .appbar-marca span {
-    display: none;
+  .historico-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .historico-acoes {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .atalho {

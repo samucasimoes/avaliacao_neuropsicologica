@@ -8,13 +8,25 @@ avaliações salvas no banco de dados (Firebase).
 - **Login** (`login.html`) – e-mail e senha, "Lembrar meu acesso" e "Esqueci minha senha"
   (envia um link por e-mail). Sem login, o sistema volta para esta tela.
 - **Início** – saudação, atalhos *Iniciar nova avaliação* e *Ver avaliações em andamento*, e a
-  lista das avaliações (clique numa linha para abrir). *Ver todas* mostra também as concluídas.
-- **Avaliações** – o formulário. Ao entrar nesta aba, o menu lateral troca (com animação) para
-  as etapas da avaliação, com **Início** no topo para voltar. As etapas podem ser abertas em
-  qualquer ordem. Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
+  lista das avaliações em andamento (clique numa linha para abrir). *Ver todas* leva ao Histórico.
+- **Nova Avaliação** – o formulário. Ao entrar nesta aba, o menu lateral troca (com animação) para
+  as etapas da avaliação, com **Início** no topo para voltar, e a barra do topo mostra o título e a
+  explicação da etapa aberta (o `card-head` da etapa é levado para lá). As etapas podem ser
+  abertas em qualquer ordem.
+- **Histórico de Avaliações** – as avaliações dos últimos 30 dias, cada uma com o aviso de quanto
+  tempo falta para ser apagada, **Abrir** e **Salvar PDF e arquivo** (baixa o PDF e o .json). Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
   *Concluir avaliação* tira a avaliação da lista de andamento. *Limpar campos* começa uma
   nova avaliação (a anterior continua salva).
 - **Ajuda** – resumo de como usar.
+
+### 30 dias no banco
+
+Para gastar pouco do banco, cada avaliação fica guardada por **30 dias depois da última
+alteração** e depois é **apagada de vez**. A limpeza é feita pelo próprio sistema sempre que
+alguém entra, e as regras do Firestore (`firestore.rules`) só deixam apagar as que já passaram
+do prazo — publique as regras de novo depois desta mudança. As listas só leem as avaliações
+dos últimos 30 dias. Cada avaliação também tem o campo `expiraEm`: se quiser, dá para criar
+uma política de TTL no Firestore com esse campo (opcional).
 
 ## Firebase
 

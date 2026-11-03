@@ -2,7 +2,7 @@
    Coleções:
    - avaliacoes/{id}: paciente, campos (os mesmos nomes do formulário e do .json), secao,
      status ("em_andamento" ou "concluida"), responsavelNome/Uid, criadoEm, atualizadoEm.
-   - profissionais/{uid}: nome e e-mail de quem tem acesso.
+   - profissionais/{uid}: nome e e-mail de quem já entrou (usado na saudação).
    Os acessos são criados no console do Firebase (Authentication > Usuários). */
 
 const Banco = (function () {
@@ -86,7 +86,7 @@ const Banco = (function () {
     return auth ? auth.currentUser : null;
   }
 
-  /* ---------- Profissionais ---------- */
+  /* ---------- Perfil ---------- */
 
   /* Lê o perfil de quem entrou; no primeiro acesso, cria com o nome do e-mail. */
   function perfil() {
@@ -99,17 +99,6 @@ const Banco = (function () {
         novo.id = u.uid;
         return novo;
       });
-    });
-  }
-
-  function salvarNome(nome) {
-    const u = usuario();
-    return colecao("profissionais").doc(u.uid).set({ nome: nome, email: u.email, atualizadoEm: agora() }, { merge: true });
-  }
-
-  function listarProfissionais() {
-    return colecao("profissionais").orderBy("nome").get().then(function (r) {
-      return r.docs.map(lerDoc);
     });
   }
 
@@ -156,8 +145,6 @@ const Banco = (function () {
     aoMudarUsuario: aoMudarUsuario,
     usuario: usuario,
     perfil: perfil,
-    salvarNome: salvarNome,
-    listarProfissionais: listarProfissionais,
     salvarAvaliacao: salvarAvaliacao,
     listarAvaliacoes: listarAvaliacoes,
     abrirAvaliacao: abrirAvaliacao,

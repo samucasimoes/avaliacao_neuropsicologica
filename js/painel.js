@@ -1,8 +1,8 @@
 /* Painel: exige login, troca de tela pelo menu lateral (Início, Avaliações,
-   Profissionais, Ajuda), lista as avaliações do banco e o menu do usuário. */
+   Ajuda), lista as avaliações do banco e o menu do usuário. */
 
 (function () {
-  const VIEWS = ["inicio", "avaliacoes", "profissionais", "ajuda"];
+  const VIEWS = ["inicio", "avaliacoes", "ajuda"];
   const views = {};
   VIEWS.forEach(function (nome) { views[nome] = document.getElementById("view-" + nome); });
   const itensMenu = document.querySelectorAll(".menu-item");
@@ -45,7 +45,6 @@
     const primeiro = String(nome || "").trim().split(/\s+/)[0] || "";
     document.getElementById("usuario-nome").textContent = primeiro;
     document.getElementById("saudacao-nome").textContent = primeiro;
-    document.getElementById("perfil-nome").value = nome || "";
     window.Formulario.definirResponsavel(nome);
   }
 
@@ -67,7 +66,6 @@
     if (window.location.hash !== "#" + nome) history.replaceState(null, "", "#" + nome);
     window.scrollTo({ top: 0 });
     if (nome === "inicio") window.Formulario.salvar().then(carregarLista);
-    if (nome === "profissionais") carregarProfissionais();
   }
 
   /* Links do menu e da marca (as etapas do formulário têm o próprio controle). */
@@ -214,40 +212,6 @@
         mensagemLista(Banco.mensagemErro(erro));
       });
   }
-
-  /* ---------- Profissionais ---------- */
-
-  const corpoProfissionais = document.getElementById("profissionais-corpo");
-
-  function carregarProfissionais() {
-    Banco.listarProfissionais()
-      .then(function (lista) {
-        corpoProfissionais.replaceChildren.apply(corpoProfissionais, lista.map(function (p) {
-          const tr = document.createElement("tr");
-          tr.appendChild(celula(p.nome || "—"));
-          tr.appendChild(celula(p.email || "—"));
-          return tr;
-        }));
-      })
-      .catch(function (erro) { aviso(Banco.mensagemErro(erro)); });
-  }
-
-  document.getElementById("form-perfil").addEventListener("submit", function (evento) {
-    evento.preventDefault();
-    const nome = document.getElementById("perfil-nome").value.trim().replace(/\s+/g, " ");
-    if (!nome) {
-      aviso("Digite seu nome.");
-      return;
-    }
-    Banco.salvarNome(nome)
-      .then(function () {
-        perfil = Object.assign(perfil || {}, { nome: nome });
-        mostrarNome(nome);
-        carregarProfissionais();
-        aviso("Nome salvo.");
-      })
-      .catch(function (erro) { aviso(Banco.mensagemErro(erro)); });
-  });
 
   /* ---------- Menu do usuário ---------- */
 

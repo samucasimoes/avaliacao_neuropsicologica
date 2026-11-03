@@ -31,10 +31,6 @@
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
           Avaliações
         </a>
-        <a class="menu-item" href="#profissionais" data-view="profissionais">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18.5 14.2A6.5 6.5 0 0 1 21.5 20"/></svg>
-          Profissionais
-        </a>
         <a class="menu-item" href="#ajuda" data-view="ajuda">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9"/><path d="M12 17.2h.01"/></svg>
           Ajuda
@@ -60,7 +56,6 @@
           </button>
           <div class="usuario-menu" id="usuario-menu" role="menu" hidden>
             <p class="usuario-email" id="usuario-email"></p>
-            <a class="usuario-opcao" href="#profissionais" role="menuitem">Alterar meu nome</a>
             <button class="usuario-opcao" id="btn-sair" type="button" role="menuitem">Sair</button>
           </div>
         </div>
@@ -372,34 +367,6 @@
           </div>
         </form>
       </main>
-      </section>
-
-      <!-- ---------- Profissionais ---------- -->
-      <section class="view" id="view-profissionais" hidden>
-        <h1 class="pagina-titulo">Profissionais</h1>
-        <p class="pagina-sub">Quem tem acesso ao sistema.</p>
-
-        <section class="painel">
-          <h2 class="painel-titulo">Seu nome</h2>
-          <form class="perfil-form" id="form-perfil">
-            <label class="sr-only" for="perfil-nome">Seu nome</label>
-            <input class="input" type="text" id="perfil-nome" maxlength="60" placeholder="Como você quer ser chamada" autocomplete="name">
-            <button class="btn btn-primary" type="submit">Salvar</button>
-          </form>
-          <p class="nota">Aparece na saudação e como responsável nas avaliações que você iniciar.</p>
-        </section>
-
-        <section class="painel">
-          <h2 class="painel-titulo">Com acesso</h2>
-          <div class="tabela-wrap">
-            <table class="tabela">
-              <thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th></tr></thead>
-              <tbody id="profissionais-corpo"></tbody>
-            </table>
-          </div>
-          <p class="nota">Para dar acesso a uma nova profissional, crie o usuário no console do Firebase
-            (Authentication &gt; Usuários &gt; Adicionar usuário). Ela aparece aqui depois do primeiro acesso.</p>
-        </section>
       </section>
 
       <!-- ---------- Ajuda ---------- -->

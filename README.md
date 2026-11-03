@@ -13,7 +13,6 @@ avaliações salvas no banco de dados (Firebase).
   abertas em qualquer ordem. Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
   *Concluir avaliação* tira a avaliação da lista de andamento. *Limpar campos* começa uma
   nova avaliação (a anterior continua salva).
-- **Profissionais** – quem tem acesso e o campo para cada uma mudar o próprio nome.
 - **Ajuda** – resumo de como usar.
 
 ## Firebase
@@ -33,8 +32,9 @@ direto com dois cliques). Para testar no computador: `python3 -m http.server` na
 projeto e abrir `http://localhost:8000`.
 
 No banco, cada avaliação fica em `avaliacoes` com os campos do formulário (os mesmos nomes do
-arquivo .json), o nome do paciente, a etapa aberta, o status e quem iniciou. Os nomes das
-profissionais ficam em `profissionais`.
+arquivo .json), o nome do paciente, a etapa aberta, o status e quem iniciou. O nome de cada
+profissional (usado na saudação e como responsável) fica em `profissionais`: no primeiro
+acesso ele vem do e-mail e pode ser corrigido pelo próprio console do Firestore.
 
 ## Etapas do formulário
 
@@ -114,11 +114,11 @@ antigos são convertidos para os nomes de campos atuais (`migrarCampos` em `js/a
 ## Estrutura
 
 - `login.html`, `css/login.css`, `js/login.js` – tela de login
-- `index.html` – menu lateral, Início, Profissionais, Ajuda e o formulário (dados do paciente, Cornell e Shulman)
+- `index.html` – menu lateral, Início, Ajuda e o formulário (dados do paciente, Cornell e Shulman)
 - `css/style.css` – estilos
 - `js/firebase-config.js` – configuração do projeto no Firebase (preencher)
 - `js/banco.js` – login e leitura/gravação no Firestore
-- `js/painel.js` – exige login, troca de telas, lista de avaliações, profissionais e menu do usuário
+- `js/painel.js` – exige login, troca de telas, lista de avaliações e menu do usuário
 - `firestore.rules` – regras de acesso do banco (colar no console do Firebase)
 - `assets/cerebro-login.webp` – imagem do cérebro da tela de login (fundo transparente)
 - `js/app.js` – comportamento do formulário (etapas, idade automática, máscara de telefone, backup, salvamento automático no banco)

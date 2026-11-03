@@ -807,7 +807,7 @@ body.aguardando-login .toast {
 }
 
 .btn-documento {
-  height: 32px;
+  height: 30px !important;
   padding: 0 14px;
   font-size: 13px;
   white-space: nowrap;

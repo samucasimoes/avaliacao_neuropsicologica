@@ -110,7 +110,7 @@ body.aguardando-login .toast {
 }
 
 .sidebar-marca-nome {
-  font-size: 15.5px;
+  font-size: 14.5px;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.005em;
@@ -119,7 +119,7 @@ body.aguardando-login .toast {
 
 .sidebar-marca-icone {
   flex: none;
-  width: 56px;
+  width: 50px;
   height: auto;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.18));
 }
@@ -341,17 +341,18 @@ body.aguardando-login .toast {
 /* ---------- Início ---------- */
 
 .saudacao {
-  margin: 24px 0 2px;
-  font-size: 40px;
+  margin: 12px 0 2px;
+  font-size: 30px;
+  overflow-wrap: anywhere;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .saudacao-sub,
 .pagina-sub {
-  margin: 0 0 24px;
+  margin: 0 0 18px;
   color: var(--ink-soft);
-  font-size: 19px;
+  font-size: 16px;
 }
 
 .pagina-titulo {
@@ -364,16 +365,16 @@ body.aguardando-login .toast {
 .atalhos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-  margin-bottom: 22px;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 
 .atalho {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 22px;
-  padding: 24px 26px 26px;
+  gap: 14px;
+  padding: 16px 20px 18px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: linear-gradient(135deg, #ffffff 0%, #f7f5fd 100%);
@@ -383,22 +384,22 @@ body.aguardando-login .toast {
 .atalho-topo {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 16px;
 }
 
 .atalho-icone {
   display: grid;
   place-items: center;
   flex: none;
-  width: 104px;
-  height: 104px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: var(--brand-soft);
 }
 
 .atalho-icone svg {
-  width: 48px;
-  height: 48px;
+  width: 28px;
+  height: 28px;
   fill: none;
   stroke: var(--brand);
   stroke-width: 1.7;
@@ -415,8 +416,8 @@ body.aguardando-login .toast {
 }
 
 .atalho-titulo {
-  margin: 0 0 6px;
-  font-size: 27px;
+  margin: 0 0 2px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -424,19 +425,19 @@ body.aguardando-login .toast {
 .atalho-texto {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 17px;
+  font-size: 14px;
 }
 
 .btn.btn-grande {
   width: 100%;
-  height: 56px;
+  height: 42px;
   border-radius: 10px;
-  font-size: 18px;
+  font-size: 15px;
 }
 
 .btn.btn-grande .icon {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
 }
 
 .btn.btn-contorno {
@@ -477,7 +478,7 @@ body.aguardando-login .toast {
   align-items: center;
   gap: 10px;
   margin: 0 0 12px;
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 700;
 }
 
@@ -1987,24 +1988,6 @@ td.estreita .input-tabela {
     grid-template-columns: 244px 1fr;
   }
 
-  .atalho-icone {
-    width: 80px;
-    height: 80px;
-  }
-
-  .atalho-icone svg {
-    width: 38px;
-    height: 38px;
-  }
-
-  .atalho-titulo {
-    font-size: 23px;
-  }
-
-  .btn.btn-grande {
-    font-size: 16px;
-  }
-
   .row-a,
   .row-b,
   .row-c {
@@ -2158,7 +2141,7 @@ td.estreita .input-tabela {
 
   .saudacao {
     margin-top: 8px;
-    font-size: 30px;
+    font-size: 26px;
   }
 
   .saudacao-sub,
@@ -2201,29 +2184,17 @@ td.estreita .input-tabela {
   }
 
   .atalho {
-    padding: 18px;
-  }
-
-  .atalho-topo {
-    gap: 16px;
+    padding: 14px 16px 16px;
   }
 
   .atalho-icone {
-    width: 60px;
-    height: 60px;
+    width: 48px;
+    height: 48px;
   }
 
   .atalho-icone svg {
-    width: 30px;
-    height: 30px;
-  }
-
-  .atalho-titulo {
-    font-size: 20px;
-  }
-
-  .atalho-texto {
-    font-size: 15px;
+    width: 24px;
+    height: 24px;
   }
 
   .tabela th,

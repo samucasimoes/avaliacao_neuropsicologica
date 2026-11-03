@@ -107,7 +107,7 @@ entre com e-mail e senha. É preciso internet para o login e o banco de dados.
 
 O botão **Imprimir Avaliação** baixa o relatório em PDF e o botão
 **Gerar Arquivo** baixa a avaliação em `.json`. Os arquivos saem com o nome do
-paciente e a data em que foram gerados (ex.: `Maria da Silva - 30-10-2026.pdf`). Para continuar ou
+paciente, a data em que foram gerados e a situação: **Concluído** quando todas as etapas estão 100% preenchidas, senão **Pendente** (ex.: `Maria da Silva - 30-10-2026 - Pendente.pdf`). Para continuar ou
 corrigir uma avaliação, clique em **Carregar arquivo** (no topo do formulário),
 escolha esse arquivo e os campos serão preenchidos novamente (vira uma avaliação nova no banco). Backups e rascunhos
 antigos são convertidos para os nomes de campos atuais (`migrarCampos` em `js/app.js`).

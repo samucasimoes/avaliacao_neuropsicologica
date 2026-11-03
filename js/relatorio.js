@@ -4,8 +4,9 @@
 const Relatorio = (function () {
   const TITULO = "Avaliação Neuropsicológica";
 
-  /* Ex.: "Maria da Silva - 30-10-2026.pdf" (nome do paciente + data em que o arquivo foi gerado). */
-  function nomeArquivo(nome, extensao) {
+  /* Ex.: "Maria da Silva - 30-10-2026 - Pendente.pdf" (nome do paciente, data em que o
+     arquivo foi gerado e situação: Concluído com todas as etapas 100% preenchidas). */
+  function nomeArquivo(nome, extensao, situacao) {
     const base = String(nome || "")
       .replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ")
       .replace(/\s+/g, " ")
@@ -16,7 +17,7 @@ const Relatorio = (function () {
       .map(function (n) { return String(n).padStart(2, "0"); })
       .concat(hoje.getFullYear())
       .join("-");
-    return (base || "Paciente") + " - " + data + "." + extensao;
+    return [base || "Paciente", data, situacao].filter(Boolean).join(" - ") + "." + extensao;
   }
 
   function baixar(blob, nome) {
@@ -551,7 +552,7 @@ const Relatorio = (function () {
       doc.autoPrint();
       return doc.output("bloburl");
     }
-    doc.save(nomeArquivo(nomePaciente, "pdf"));
+    doc.save(nomeArquivo(nomePaciente, "pdf", opcoes && opcoes.situacao));
     return null;
   }
 
@@ -702,7 +703,7 @@ const Relatorio = (function () {
 
   const TIPO_BACKUP = "avaliacao-neuropsicologica";
 
-  function gerarBackup(campos, nomePaciente) {
+  function gerarBackup(campos, nomePaciente, situacao) {
     const conteudo = {
       tipo: TIPO_BACKUP,
       versao: 2,
@@ -710,7 +711,7 @@ const Relatorio = (function () {
       campos: campos
     };
     const blob = new Blob([JSON.stringify(conteudo, null, 2)], { type: "application/json" });
-    baixar(blob, nomeArquivo(nomePaciente, "json"));
+    baixar(blob, nomeArquivo(nomePaciente, "json", situacao));
   }
 
   /* Devolve os campos do backup ou lança erro se o arquivo não for válido. */

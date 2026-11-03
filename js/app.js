@@ -162,6 +162,11 @@
     });
   }
 
+  /* Situação no nome do arquivo: Concluído só com todas as etapas 100% preenchidas. */
+  function situacaoArquivo() {
+    return ordem.every(etapaCompleta) ? "Concluído" : "Pendente";
+  }
+
   function atualizarNavegacao() {
     const posicao = ordem.indexOf(secaoAtual);
     const anterior = ordem[posicao - 1];
@@ -483,7 +488,7 @@
     toast.hidden = true;
     botoesImprimir.forEach(function (botao) { botao.disabled = true; });
     try {
-      Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio());
+      Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio(), { situacao: situacaoArquivo() });
       mostrarAviso("Avaliação em PDF baixada.");
     } catch (erro) {
       console.error(erro);
@@ -497,7 +502,7 @@
   document.getElementById("btn-gerar-arquivo").addEventListener("click", function () {
     toast.hidden = true;
     try {
-      Relatorio.gerarBackup(coletarCampos(), valor("nome"));
+      Relatorio.gerarBackup(coletarCampos(), valor("nome"), situacaoArquivo());
       mostrarAviso("Arquivo da avaliação (.json) baixado.");
     } catch (erro) {
       console.error(erro);

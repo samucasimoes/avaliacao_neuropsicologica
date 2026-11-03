@@ -5,10 +5,10 @@
    do Firestore (arquivo firestore.rules) e o login. */
 
 window.FIREBASE_CONFIG = {
-  apiKey: "COLE_AQUI_A_API_KEY",
-  authDomain: "SEU-PROJETO.firebaseapp.com",
-  projectId: "SEU-PROJETO",
-  storageBucket: "SEU-PROJETO.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "COLE_AQUI_O_APP_ID"
+  apiKey: "AIzaSyC6vsnpsF7rqY1Zog7Tb08NDFzqC0jaAzA",
+  authDomain: "avaliacao-neuro.firebaseapp.com",
+  projectId: "avaliacao-neuro",
+  storageBucket: "avaliacao-neuro.firebasestorage.app",
+  messagingSenderId: "929385474042",
+  appId: "1:929385474042:web:bfc834f8b615670af7e643"
 };

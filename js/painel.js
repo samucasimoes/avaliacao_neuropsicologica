@@ -234,7 +234,7 @@
     Banco.listarAvaliacoes(100)
       .then(function (lista) {
         if (pedido !== pedidoLista) return;
-        const itens = lista.filter(function (av) { return av.status !== "concluida"; }).slice(0, 8);
+        const itens = lista.slice(0, 8);
         if (!itens.length) {
           mensagemLista("Nenhuma avaliação em andamento. Clique em Iniciar nova avaliação para começar.");
           return;

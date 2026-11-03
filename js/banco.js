@@ -181,10 +181,6 @@ const Banco = (function () {
     return colecao("avaliacoes").doc(id).delete();
   }
 
-  function marcarStatus(id, status) {
-    return colecao("avaliacoes").doc(id).update({ status: status, atualizadoEm: agora() });
-  }
-
   return {
     configurado: configurado,
     mensagemErro: mensagemErro,
@@ -201,7 +197,6 @@ const Banco = (function () {
     expiraEm: expiraEm,
     DIAS_GUARDADA: DIAS_GUARDADA,
     abrirAvaliacao: abrirAvaliacao,
-    marcarStatus: marcarStatus,
     excluirAvaliacao: excluirAvaliacao
   };
 })();

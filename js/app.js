@@ -643,7 +643,6 @@
   let salvando = null;
   let timerBanco = null;
   const statusSalvo = document.getElementById("status-salvo");
-  const botaoConcluir = document.getElementById("btn-concluir");
 
   function marcarStatusSalvo(texto, erro) {
     statusSalvo.textContent = texto;
@@ -653,12 +652,6 @@
   function definirAvaliacao(id, status) {
     avaliacaoId = id;
     statusAvaliacao = status || "em_andamento";
-    botaoConcluir.hidden = !id;
-    const concluida = statusAvaliacao === "concluida";
-    botaoConcluir.textContent = concluida ? "Reabrir avaliação" : "Concluir avaliação";
-    botaoConcluir.title = concluida
-      ? "Voltar a avaliação para a lista de andamento"
-      : "Marcar como concluída: sai da lista de andamento, mas continua em Ver todas";
   }
 
   function horaAgora() {
@@ -718,20 +711,6 @@
   });
   linksSecao.forEach(function (el) {
     el.addEventListener("click", function () { if (avaliacaoId) marcarAlterado(); });
-  });
-
-  botaoConcluir.addEventListener("click", function () {
-    const novo = statusAvaliacao === "concluida" ? "em_andamento" : "concluida";
-    botaoConcluir.disabled = true;
-    gravarNoBanco()
-      .then(function () { return Banco.marcarStatus(avaliacaoId, novo); })
-      .then(function () {
-        definirAvaliacao(avaliacaoId, novo);
-        gravarRascunho();
-        mostrarAviso(novo === "concluida" ? "Avaliação concluída." : "Avaliação reaberta.");
-      })
-      .catch(function (erro) { mostrarAviso(Banco.mensagemErro(erro)); })
-      .then(function () { botaoConcluir.disabled = false; });
   });
 
   /* ---------- Rascunho no navegador ----------

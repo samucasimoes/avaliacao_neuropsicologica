@@ -183,11 +183,11 @@
           <span class="status-salvo" id="status-salvo" aria-live="polite"></span>
         </div>
         <div class="topbar-acoes">
-          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um arquivo (.json) salvo pelo botão Gerar Arquivo para continuar ou corrigir a avaliação">
+          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Adicionar um backup: carregar o arquivo (.json) baixado em Gerar Arquivo ou Salvar PDF e arquivo para continuar ou corrigir a avaliação">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             Carregar arquivo
           </button>
           <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
-          <button class="btn btn-light btn-pequeno" id="btn-concluir" type="button" hidden></button>
           <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Esvaziar os campos e começar uma nova avaliação (a atual continua salva)">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
             Limpar campos
@@ -421,8 +421,8 @@
             <p>Tudo o que é digitado é salvo sozinho no banco de dados, alguns segundos depois. Ao lado do título aparece “Salvo às …”. A avaliação fica na lista do Início e no Histórico para qualquer profissional continuar.</p>
           </section>
           <section class="painel">
-            <h2 class="painel-titulo">Continuar ou concluir</h2>
-            <p>Clique na avaliação na lista do Início para abrir. Quando terminar, use <strong>Concluir avaliação</strong> no topo do formulário: ela sai da lista de andamento, mas continua no <strong>Histórico de Avaliações</strong>.</p>
+            <h2 class="painel-titulo">Continuar uma avaliação</h2>
+            <p>Clique na avaliação na lista do Início ou use <strong>Abrir</strong> no <strong>Histórico de Avaliações</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>+ Carregar arquivo</strong> no topo do formulário.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Por quanto tempo fica guardada</h2>

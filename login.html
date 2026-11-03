@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar · Avaliação Neuropsicológica</title>
+  <link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+  <!-- Fundo: cérebro em traço claro e ondas -->
+  <svg class="fundo-cerebro" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+    <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+    <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
+    <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
+    <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
+    <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
+    <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
+    <path d="M6 18a4 4 0 0 1-1.967-.516"/>
+    <path d="M19.967 17.484A4 4 0 0 1 18 18"/>
+  </svg>
+  <svg class="fundo-ondas" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
+    <path class="onda-1" d="M0 230C240 150 420 140 640 190S1080 300 1440 120V320H0Z"/>
+    <path class="onda-2" d="M0 270C300 210 520 220 760 250S1180 290 1440 200V320H0Z"/>
+  </svg>
+
+  <main class="login">
+    <img class="login-logo" src="assets/cerebro-login.webp" alt="Ilustração de um cérebro" width="640" height="478">
+    <h1 class="login-titulo">Avaliação Neuropsicológica</h1>
+    <p class="login-subtitulo">Sistema de Preenchimento e Acompanhamento</p>
+
+    <form class="login-form" id="form-login" novalidate>
+      <h2 class="login-chamada">Acesse sua conta</h2>
+
+      <div class="aviso" id="aviso-login" role="alert" hidden></div>
+
+      <label class="campo">
+        <span class="sr-only">E-mail</span>
+        <svg class="campo-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <input type="email" id="email" name="email" placeholder="E-mail" autocomplete="username" required>
+      </label>
+
+      <label class="campo">
+        <span class="sr-only">Senha</span>
+        <svg class="campo-icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
+        <input type="password" id="senha" name="senha" placeholder="Senha" autocomplete="current-password" required>
+        <button class="campo-olho" id="btn-olho" type="button" aria-label="Mostrar senha" title="Mostrar senha" aria-pressed="false">
+          <svg class="olho-fechado" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3.1"/><path d="M6.6 6.6A16.6 16.6 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg>
+          <svg class="olho-aberto" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </label>
+
+      <div class="login-linha">
+        <label class="lembrar">
+          <input type="checkbox" id="lembrar" checked>
+          <span>Lembrar meu acesso</span>
+        </label>
+        <button class="link" id="btn-esqueci" type="button">Esqueci minha senha</button>
+      </div>
+
+      <button class="btn-entrar" id="btn-entrar" type="submit">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
+        <span>Entrar</span>
+      </button>
+    </form>
+
+    <p class="login-rodape">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+      <span>Acesso restrito às profissionais responsáveis pela avaliação.</span>
+    </p>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/banco.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

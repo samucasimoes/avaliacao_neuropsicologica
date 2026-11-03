@@ -14,25 +14,145 @@
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="aguardando-login">
   <div class="app">
 
     <aside class="sidebar">
-      <div class="brand">
-        <img class="brand-icon" src="./assets/image.png" alt="imagem cerebro">
-        <!-- <svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
-          <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
-          <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
-          <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
-          <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
-          <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
-          <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
-          <path d="M6 18a4 4 0 0 1-1.967-.516"/>
-          <path d="M19.967 17.484A4 4 0 0 1 18 18"/>
-        </svg> -->
-        <span class="brand-name">Avaliação<br>Neuropsicológica</span>
-      </div>
+      <a class="sidebar-marca" href="#inicio" aria-label="Início">
+        <svg class="sidebar-marca-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
+      </a>
+
+      <nav class="menu" aria-label="Menu principal">
+        <a class="menu-item" href="#inicio" data-view="inicio">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg>
+          Início
+        </a>
+        <a class="menu-item" href="#avaliacoes" data-view="avaliacoes">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
+          Avaliações
+        </a>
+        <a class="menu-item" href="#profissionais" data-view="profissionais">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18.5 14.2A6.5 6.5 0 0 1 21.5 20"/></svg>
+          Profissionais
+        </a>
+        <a class="menu-item" href="#ajuda" data-view="ajuda">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9"/><path d="M12 17.2h.01"/></svg>
+          Ajuda
+        </a>
+      </nav>
+
+      <svg class="sidebar-cerebro" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/><path d="M12 18v4"/></svg>
+    </aside>
+
+    <div class="main">
+      <header class="appbar">
+        <a class="appbar-marca" href="#inicio">
+          <svg class="appbar-marca-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
+          <span>Avaliação Neuropsicológica</span>
+        </a>
+        <div class="usuario">
+          <button class="usuario-btn" id="btn-usuario" type="button" aria-haspopup="menu" aria-expanded="false" title="Sua conta">
+            <span class="usuario-avatar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+            </span>
+            <span class="usuario-nome" id="usuario-nome"></span>
+            <svg class="icon usuario-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="usuario-menu" id="usuario-menu" role="menu" hidden>
+            <p class="usuario-email" id="usuario-email"></p>
+            <a class="usuario-opcao" href="#profissionais" role="menuitem">Alterar meu nome</a>
+            <button class="usuario-opcao" id="btn-sair" type="button" role="menuitem">Sair</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ---------- Início ---------- -->
+      <section class="view" id="view-inicio" hidden>
+        <h1 class="saudacao">Olá, <span id="saudacao-nome"></span>!</h1>
+        <p class="saudacao-sub">O que você deseja fazer agora?</p>
+
+        <div class="atalhos">
+          <article class="atalho">
+            <div class="atalho-topo">
+              <span class="atalho-icone">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M14 3v5h5v4"/><path d="M9 13h4"/><path d="M9 17h2"/><path d="M18 15v6"/><path d="M15 18h6"/></svg>
+              </span>
+              <div>
+                <h2 class="atalho-titulo">Nova avaliação</h2>
+                <p class="atalho-texto">Cadastrar um novo paciente e iniciar o preenchimento.</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-grande" id="btn-nova-avaliacao" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Iniciar nova avaliação
+            </button>
+          </article>
+
+          <article class="atalho">
+            <div class="atalho-topo">
+              <span class="atalho-icone atalho-icone-verde">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13.5a2 2 0 0 0 1.9-1.4L22.5 12a1.5 1.5 0 0 0-1.4-2H7.6a2 2 0 0 0-1.9 1.4L3 20"/></svg>
+              </span>
+              <div>
+                <h2 class="atalho-titulo">Continuar avaliação</h2>
+                <p class="atalho-texto">Acesse avaliações em andamento para dar continuidade.</p>
+              </div>
+            </div>
+            <button class="btn btn-contorno btn-grande" id="btn-ver-andamento" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13.5a2 2 0 0 0 1.9-1.4L22.5 12a1.5 1.5 0 0 0-1.4-2H7.6a2 2 0 0 0-1.9 1.4L3 20"/></svg>
+              Ver avaliações em andamento
+            </button>
+          </article>
+        </div>
+
+        <section class="painel" id="lista-avaliacoes">
+          <div class="painel-head">
+            <h2 class="painel-titulo">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2"/></svg>
+              <span id="lista-titulo">Avaliações em andamento</span>
+            </h2>
+            <button class="link" id="btn-ver-todas" type="button">Ver todas</button>
+          </div>
+          <div class="tabela-wrap">
+            <table class="tabela">
+              <thead>
+                <tr>
+                  <th scope="col">Paciente</th>
+                  <th scope="col">Última atualização</th>
+                  <th scope="col">Responsável</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="sr-only">Abrir</span></th>
+                </tr>
+              </thead>
+              <tbody id="lista-corpo"></tbody>
+            </table>
+          </div>
+          <p class="lista-vazia" id="lista-vazia" hidden></p>
+        </section>
+      </section>
+
+      <!-- ---------- Avaliações (formulário) ---------- -->
+      <section class="view" id="view-avaliacoes" hidden>
+      <header class="topbar">
+        <div class="topbar-title">
+          <button class="icon-btn" id="btn-topo" type="button" aria-label="Voltar ao início do formulário" title="Voltar ao início do formulário">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <h1 class="page-title" id="titulo-pagina">Nova avaliação</h1>
+          <span class="status-salvo" id="status-salvo" aria-live="polite"></span>
+        </div>
+        <div class="topbar-acoes">
+          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um arquivo (.json) salvo pelo botão Gerar Arquivo para continuar ou corrigir a avaliação">
+            Carregar arquivo
+          </button>
+          <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
+          <button class="btn btn-light btn-pequeno" id="btn-concluir" type="button" hidden></button>
+          <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Esvaziar os campos e começar uma nova avaliação (a atual continua salva)">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            Limpar campos
+          </button>
+        </div>
+      </header>
 
       <nav class="steps" aria-label="Etapas da avaliação">
         <ol class="steps-list">
@@ -60,30 +180,6 @@
           <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
         </ol>
       </nav>
-
-      <div class="sidebar-rodape">
-        <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um arquivo (.json) salvo pelo botão Gerar Arquivo para continuar ou corrigir a avaliação">
-          Carregar arquivo
-        </button>
-        <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
-      </div>
-    </aside>
-
-    <div class="main">
-      <header class="topbar">
-        <div class="topbar-title">
-          <button class="icon-btn" id="btn-topo" type="button" aria-label="Voltar ao início do formulário" title="Voltar ao início do formulário">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-          <h1 class="page-title" id="titulo-pagina">Nova avaliação</h1>
-        </div>
-        <div class="topbar-acoes">
-          <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Apagar todos os dados preenchidos e começar uma nova avaliação">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-            Limpar campos
-          </button>
-        </div>
-      </header>
 
       <main class="card">
         <form class="form" id="form-avaliacao" novalidate autocomplete="off">
@@ -276,13 +372,66 @@
           </div>
         </form>
       </main>
+      </section>
+
+      <!-- ---------- Profissionais ---------- -->
+      <section class="view" id="view-profissionais" hidden>
+        <h1 class="pagina-titulo">Profissionais</h1>
+        <p class="pagina-sub">Quem tem acesso ao sistema.</p>
+
+        <section class="painel">
+          <h2 class="painel-titulo">Seu nome</h2>
+          <form class="perfil-form" id="form-perfil">
+            <label class="sr-only" for="perfil-nome">Seu nome</label>
+            <input class="input" type="text" id="perfil-nome" maxlength="60" placeholder="Como você quer ser chamada" autocomplete="name">
+            <button class="btn btn-primary" type="submit">Salvar</button>
+          </form>
+          <p class="nota">Aparece na saudação e como responsável nas avaliações que você iniciar.</p>
+        </section>
+
+        <section class="painel">
+          <h2 class="painel-titulo">Com acesso</h2>
+          <div class="tabela-wrap">
+            <table class="tabela">
+              <thead><tr><th scope="col">Nome</th><th scope="col">E-mail</th></tr></thead>
+              <tbody id="profissionais-corpo"></tbody>
+            </table>
+          </div>
+          <p class="nota">Para dar acesso a uma nova profissional, crie o usuário no console do Firebase
+            (Authentication &gt; Usuários &gt; Adicionar usuário). Ela aparece aqui depois do primeiro acesso.</p>
+        </section>
+      </section>
+
+      <!-- ---------- Ajuda ---------- -->
+      <section class="view" id="view-ajuda" hidden>
+        <h1 class="pagina-titulo">Ajuda</h1>
+        <p class="pagina-sub">Como usar o sistema.</p>
+        <div class="ajuda">
+          <section class="painel">
+            <h2 class="painel-titulo">Começar uma avaliação</h2>
+            <p>No Início, clique em <strong>Iniciar nova avaliação</strong>. O formulário abre na aba Avaliações, com as etapas na barra do topo. Nenhum campo é obrigatório e as etapas podem ser abertas em qualquer ordem.</p>
+          </section>
+          <section class="painel">
+            <h2 class="painel-titulo">Salvamento</h2>
+            <p>Tudo o que é digitado é salvo sozinho no banco de dados, alguns segundos depois. Ao lado do título aparece “Salvo às …”. A avaliação fica na lista do Início para qualquer profissional continuar.</p>
+          </section>
+          <section class="painel">
+            <h2 class="painel-titulo">Continuar ou concluir</h2>
+            <p>Clique na avaliação na lista do Início para abrir. Quando terminar, use <strong>Concluir avaliação</strong> no topo do formulário: ela sai da lista de andamento, mas continua em <strong>Ver todas</strong>.</p>
+          </section>
+          <section class="painel">
+            <h2 class="painel-titulo">Relatório e arquivo</h2>
+            <p><strong>Imprimir Avaliação</strong> baixa o PDF (ou use Ctrl+P). <strong>Gerar Arquivo</strong> baixa um .json da avaliação, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+          </section>
+        </div>
+      </section>
     </div>
   </div>
 
   <dialog class="modal" id="modal-limpar">
     <form class="modal-body" method="dialog">
       <h3 class="modal-title">Limpar campos?</h3>
-      <p class="modal-text">Todos os dados preenchidos serão apagados. Essa ação não pode ser desfeita.</p>
+      <p class="modal-text">Os campos serão esvaziados para começar uma nova avaliação. A avaliação atual continua salva na lista do Início.</p>
       <div class="modal-actions">
         <button class="btn btn-light" value="cancelar">Cancelar</button>
         <button class="btn btn-danger" value="confirmar">Limpar</button>
@@ -298,6 +447,11 @@
     ou o botão <strong>Imprimir Avaliação</strong>.
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/banco.js"></script>
   <script src="libs/jspdf.umd.min.js"></script>
   <script src="libs/jspdf.plugin.autotable.min.js"></script>
   <script src="libs/exceljs.min.js"></script>
@@ -307,5 +461,6 @@
   <script src="js/shulman.js"></script>
   <script src="js/relatorio.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/painel.js"></script>
 </body>
 </html>

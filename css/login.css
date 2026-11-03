@@ -1,0 +1,371 @@
+:root {
+  --brand: #5533b1;
+  --brand-dark: #44279a;
+  --ink: #1e1a3d;
+  --ink-soft: #5b5675;
+  --line: #dcd7ea;
+  --danger: #b4443d;
+  --font: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 32px 16px;
+  overflow-x: hidden;
+  background: linear-gradient(160deg, #ecebfd 0%, #f4f2fd 45%, #e9e4fb 100%);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Fundo ---------- */
+
+.fundo-cerebro {
+  position: fixed;
+  left: -4vw;
+  top: 22vh;
+  width: 26vw;
+  min-width: 220px;
+  fill: none;
+  stroke: #c9c0f0;
+  stroke-width: 0.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.fundo-ondas {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 34vh;
+  pointer-events: none;
+}
+
+.onda-1 {
+  fill: #d9d1f8;
+}
+
+.onda-2 {
+  fill: #bfb2f1;
+  opacity: 0.75;
+}
+
+/* ---------- Cartão ---------- */
+
+.login {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  padding: 32px 38px 26px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 20px 60px rgba(60, 40, 140, 0.14), 0 2px 6px rgba(60, 40, 140, 0.05);
+  text-align: center;
+}
+
+.login-logo {
+  display: block;
+  width: 190px;
+  height: auto;
+  margin: 0 auto 12px;
+}
+
+.login-titulo {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.login-subtitulo {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+.login-form {
+  margin-top: 28px;
+  text-align: left;
+}
+
+.login-chamada {
+  margin: 0 0 16px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.aviso {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fbeceb;
+  color: var(--danger);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.aviso-ok {
+  background: #e8f5ee;
+  color: #2c7a53;
+}
+
+/* ---------- Campos ---------- */
+
+.campo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.campo input {
+  width: 100%;
+  height: 48px;
+  padding: 0 46px 0 46px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.campo input::placeholder {
+  color: #8c88a4;
+}
+
+.campo input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(85, 51, 177, 0.12);
+}
+
+.campo-icone {
+  position: absolute;
+  left: 15px;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #6c63a0;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.campo:focus-within .campo-icone {
+  stroke: var(--brand);
+}
+
+.campo-olho {
+  position: absolute;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.campo-olho:hover {
+  background: #f1eefb;
+}
+
+.campo-olho svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #514c6e;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.campo-olho .olho-aberto,
+.campo-olho.aberto .olho-fechado {
+  display: none;
+}
+
+.campo-olho.aberto .olho-aberto {
+  display: block;
+}
+
+/* ---------- Lembrar / Esqueci ---------- */
+
+.login-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 2px 0 20px;
+}
+
+.lembrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.lembrar input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Entrar ---------- */
+
+.btn-entrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 50px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-entrar:hover:not(:disabled) {
+  background: var(--brand-dark);
+}
+
+.btn-entrar:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.btn-entrar svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn-entrar:focus-visible,
+.link:focus-visible,
+.campo-olho:focus-visible {
+  outline: 3px solid rgba(85, 51, 177, 0.4);
+  outline-offset: 2px;
+}
+
+/* ---------- Rodapé ---------- */
+
+.login-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid #ebe8f3;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.login-rodape svg {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: #514c6e;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.login-rodape span {
+  max-width: 270px;
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 16px;
+  }
+
+  .login {
+    padding: 24px 20px 20px;
+    border-radius: 18px;
+  }
+
+  .login-logo {
+    width: 140px;
+  }
+
+  .login-titulo {
+    font-size: 21px;
+  }
+
+  .login-subtitulo {
+    font-size: 14px;
+  }
+}

@@ -1,7 +1,43 @@
 # Avaliação Neuropsicológica
 
-Formulário web para preencher a avaliação e gerar o relatório em **PDF**.
-As etapas aparecem no menu lateral e podem ser abertas em qualquer ordem.
+Sistema web para preencher a avaliação e gerar o relatório em **PDF**, com login e as
+avaliações salvas no banco de dados (Firebase).
+
+## Telas
+
+- **Login** (`login.html`) – e-mail e senha, "Lembrar meu acesso" e "Esqueci minha senha"
+  (envia um link por e-mail). Sem login, o sistema volta para esta tela.
+- **Início** – saudação, atalhos *Iniciar nova avaliação* e *Ver avaliações em andamento*, e a
+  lista das avaliações (clique numa linha para abrir). *Ver todas* mostra também as concluídas.
+- **Avaliações** – o formulário. As etapas ficam numa barra no topo do formulário e podem ser
+  abertas em qualquer ordem. Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
+  *Concluir avaliação* tira a avaliação da lista de andamento. *Limpar campos* começa uma
+  nova avaliação (a anterior continua salva).
+- **Profissionais** – quem tem acesso e o campo para cada uma mudar o próprio nome.
+- **Ajuda** – resumo de como usar.
+
+## Firebase
+
+1. No console do Firebase, abra o projeto e ative **Authentication > Método de login > E-mail/senha**.
+2. Crie o banco em **Firestore Database** e, em **Regras**, cole o conteúdo de `firestore.rules`
+   e clique em **Publicar**.
+3. Em **Configurações do projeto > Seus apps**, crie um app da Web (`</>`) e copie o objeto
+   `firebaseConfig` para `js/firebase-config.js`.
+4. Crie os acessos em **Authentication > Usuários > Adicionar usuário** (não existe cadastro
+   pela tela de login).
+5. Se o site estiver publicado num domínio próprio (ou GitHub Pages), adicione o endereço em
+   **Authentication > Configurações > Domínios autorizados**. `localhost` já vem autorizado.
+
+O sistema precisa ser aberto por um endereço `http(s)://` (não funciona abrindo o arquivo
+direto com dois cliques). Para testar no computador: `python3 -m http.server` na pasta do
+projeto e abrir `http://localhost:8000`.
+
+No banco, cada avaliação fica em `avaliacoes` com os campos do formulário (os mesmos nomes do
+arquivo .json), o nome do paciente, a etapa aberta, o status e quem iniciou. Os nomes das
+profissionais ficam em `profissionais`.
+
+## Etapas do formulário
+
 Nenhum campo é obrigatório.
 As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 
@@ -46,7 +82,7 @@ aba fica escondida (`display: none`), não aparece em Humor e comportamento e n�
 no relatório. Para voltar, remova a classe `etapa-oculta` e o `style` da aba no
 `index.html` e o `oculto: true` da linha do IQCODE em `js/definicoes.js`.
 
-O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
+O relatório segue a ordem dos números da barra de etapas e só traz as etapas preenchidas.
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
@@ -63,23 +99,29 @@ Todos os botões, campos e opções mostram uma dica ao passar o mouse.
 
 ## Como usar
 
-Abra o `index.html` no navegador (funciona sem servidor e sem internet;
-só a fonte Figtree depende de conexão).
+Abra o endereço do site (ou `http://localhost:8000` para testar, veja **Firebase** acima) e
+entre com e-mail e senha. É preciso internet para o login e o banco de dados.
 
 ## Backup para editar depois
 
 O botão **Imprimir Avaliação** baixa o relatório em PDF e o botão
 **Gerar Arquivo** baixa a avaliação em `.json`. Os arquivos saem com o nome do
 paciente e a data em que foram gerados (ex.: `Maria da Silva - 30-10-2026.pdf`). Para continuar ou
-corrigir uma avaliação, clique em **Carregar documento** (no fim do menu lateral),
-escolha esse arquivo e os campos serão preenchidos novamente. Backups e rascunhos
+corrigir uma avaliação, clique em **Carregar arquivo** (no topo do formulário),
+escolha esse arquivo e os campos serão preenchidos novamente (vira uma avaliação nova no banco). Backups e rascunhos
 antigos são convertidos para os nomes de campos atuais (`migrarCampos` em `js/app.js`).
 
 ## Estrutura
 
-- `index.html` – página, menu e formulário dos dados do paciente, Cornell e Shulman
+- `login.html`, `css/login.css`, `js/login.js` – tela de login
+- `index.html` – menu lateral, Início, Profissionais, Ajuda e o formulário (dados do paciente, Cornell e Shulman)
 - `css/style.css` – estilos
-- `js/app.js` – comportamento geral (navegação entre etapas, idade automática, máscara de telefone, validação, backup)
+- `js/firebase-config.js` – configuração do projeto no Firebase (preencher)
+- `js/banco.js` – login e leitura/gravação no Firestore
+- `js/painel.js` – exige login, troca de telas, lista de avaliações, profissionais e menu do usuário
+- `firestore.rules` – regras de acesso do banco (colar no console do Firebase)
+- `assets/cerebro-login.webp` – imagem do cérebro da tela de login (fundo transparente)
+- `js/app.js` – comportamento do formulário (etapas, idade automática, máscara de telefone, backup, salvamento automático no banco)
 - `js/definicoes.js` – conteúdo das demais etapas: itens, colunas, textos e cálculos da planilha
 - `js/secoes.js` – monta as etapas de `definicoes.js` na tela e no relatório
 - `js/cornell.js` – itens, pontuação e interpretação da Escala Cornell

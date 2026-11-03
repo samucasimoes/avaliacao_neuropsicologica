@@ -1,0 +1,24 @@
+rules_version = '2';
+
+// Regras do Firestore: cole no console do Firebase (Firestore Database > Regras > Publicar).
+// Só quem entrou com e-mail e senha lê e grava. Os acessos são criados em
+// Authentication > Usuários; não existe cadastro pela tela de login.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /avaliacoes/{id} {
+      allow read, create, update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // Cada profissional só altera o próprio nome.
+    match /profissionais/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /{documento=**} {
+      allow read, write: if false;
+    }
+  }
+}

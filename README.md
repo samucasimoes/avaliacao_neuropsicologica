@@ -42,6 +42,16 @@ uma política de TTL no Firestore com esse campo (opcional).
 5. Se o site estiver publicado num domínio próprio (ou GitHub Pages), adicione o endereço em
    **Authentication > Configurações > Domínios autorizados**. `localhost` já vem autorizado.
 
+### Publicar no Firebase Hosting
+
+`firebase.json` e `.firebaserc` já apontam para o projeto `avaliacao-neuro`. Com o
+[Firebase CLI](https://firebase.google.com/docs/cli) instalado e logado (`firebase login`):
+
+- Prévia com link próprio, que expira sozinha (para mostrar e aprovar uma versão):
+  `firebase hosting:channel:deploy nova-versao --expires 30d`
+- Site oficial (`https://avaliacao-neuro.web.app`): `firebase deploy --only hosting`
+- Regras do Firestore (em vez de colar no console): `firebase deploy --only firestore:rules`
+
 O sistema precisa ser aberto por um endereço `http(s)://` (não funciona abrindo o arquivo
 direto com dois cliques). Para testar no computador: `python3 -m http.server` na pasta do
 projeto e abrir `http://localhost:8000`.

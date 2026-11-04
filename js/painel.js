@@ -259,16 +259,49 @@
   const ICONE_LIXEIRA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
   const ICONE_ABRIR = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="m10 13 2 2 3-3"/></svg>';
 
-  /* "Será apagada em 12 dias", "amanhã", "hoje"… e o nível do alerta (cor). */
+  /* Contagem regressiva até a exclusão ("Será apagada em 29d 23h 59min 08s") e o nível do
+     alerta (cor). Atualiza a cada segundo enquanto o Histórico está aberto. */
+  function textoPrazo(restante) {
+    if (restante <= 0) return "Prazo vencido: será apagada no próximo acesso";
+    const total = Math.floor(restante / 1000);
+    const dias = Math.floor(total / 86400);
+    const horas = Math.floor((total % 86400) / 3600);
+    const minutos = Math.floor((total % 3600) / 60);
+    const segundos = total % 60;
+    const dois = function (n) { return String(n).padStart(2, "0"); };
+    return "Será apagada em " + (dias ? dias + "d " : "") + dois(horas) + "h " +
+      dois(minutos) + "min " + dois(segundos) + "s";
+  }
+
+  function nivelPrazo(restante) {
+    const dias = restante / 86400000;
+    return dias <= 3 ? "urgente" : dias <= 7 ? "atencao" : "normal";
+  }
+
   function prazo(av) {
-    const restante = Banco.expiraEm(av).getTime() - Date.now();
-    const horas = Math.max(0, Math.ceil(restante / 3600000));
-    const dias = Math.ceil(restante / 86400000);
-    let texto;
-    if (horas < 24) texto = horas <= 1 ? "Será apagada em menos de 1 hora" : "Será apagada em " + horas + " horas";
-    else if (dias === 1) texto = "Será apagada amanhã";
-    else texto = "Será apagada em " + dias + " dias";
-    return { texto: texto, nivel: dias <= 3 ? "urgente" : dias <= 7 ? "atencao" : "normal", dias: dias };
+    const expira = Banco.expiraEm(av).getTime();
+    const restante = expira - Date.now();
+    return { expira: expira, texto: textoPrazo(restante), nivel: nivelPrazo(restante) };
+  }
+
+  let relogioHistorico = null;
+
+  function atualizarPrazos() {
+    if (views.historico.hidden) {
+      clearInterval(relogioHistorico);
+      relogioHistorico = null;
+      return;
+    }
+    const agora = Date.now();
+    listaHistorico.querySelectorAll(".prazo[data-expira]").forEach(function (el) {
+      const restante = Number(el.dataset.expira) - agora;
+      el.querySelector("span").textContent = textoPrazo(restante);
+      el.className = "prazo prazo-" + nivelPrazo(restante);
+    });
+  }
+
+  function ligarRelogio() {
+    if (!relogioHistorico) relogioHistorico = setInterval(atualizarPrazos, 1000);
   }
 
   function itemHistorico(av) {
@@ -282,11 +315,13 @@
       '<div class="historico-info">' +
         '<p class="historico-nome">' + ICONE_PESSOA + '<span></span></p>' +
         '<p class="historico-detalhes"></p>' +
+        '<div class="historico-selos">' +
+          '<span class="status ' + (concluida ? "status-concluida" : "status-andamento") + '">' +
+            (concluida ? ICONE_OK + "Concluída" : ICONE_RELOGIO + "Em andamento") + "</span>" +
+          '<span class="prazo prazo-' + p.nivel + '" data-expira="' + p.expira + '" title="Apagada de vez ' + Banco.DIAS_GUARDADA + ' dias depois da última alteração">' +
+            ICONE_ALERTA + "<span></span></span>" +
+        "</div>" +
       "</div>" +
-      '<span class="status ' + (concluida ? "status-concluida" : "status-andamento") + '">' +
-        (concluida ? ICONE_OK + "Concluída" : ICONE_RELOGIO + "Em andamento") + "</span>" +
-      '<span class="prazo prazo-' + p.nivel + '" title="Apagada de vez ' + Banco.DIAS_GUARDADA + ' dias depois da última alteração">' +
-        ICONE_ALERTA + "<span></span></span>" +
       '<div class="historico-acoes">' +
         '<button class="btn btn-light btn-pequeno" type="button" data-acao="abrir">' + ICONE_ABRIR + "Abrir</button>" +
         '<button class="btn btn-primary btn-pequeno" type="button" data-acao="baixar">' + ICONE_BAIXAR + "Salvar PDF e arquivo</button>" +
@@ -362,8 +397,10 @@
       .catch(function (erro) {
         console.error(erro);
         pedido.botao.disabled = false;
+        /* O botão só aparece para quem iniciou; se o banco recusar, quase sempre é porque
+           as regras novas do Firestore (firestore.rules) ainda não foram publicadas. */
         aviso(erro && erro.code === "permission-denied"
-          ? "Só quem iniciou a avaliação pode excluí-la."
+          ? "O banco recusou a exclusão. Publique as regras novas do Firestore (firestore.rules) e tente de novo."
           : "Não foi possível excluir: " + Banco.mensagemErro(erro));
       });
   });
@@ -383,6 +420,7 @@
         listaHistorico.replaceChildren.apply(listaHistorico, lista.map(itemHistorico));
         historicoVazio.textContent = "Nenhuma avaliação nos últimos " + Banco.DIAS_GUARDADA + " dias.";
         historicoVazio.hidden = lista.length > 0;
+        ligarRelogio();
       })
       .catch(function (erro) {
         if (pedido !== pedidoHistorico) return;

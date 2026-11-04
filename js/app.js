@@ -571,6 +571,7 @@
 
   /* Esvazia o formulário. A avaliação anterior continua salva no banco. */
   function esvaziarFormulario() {
+    trocas++;
     form.reset();
     campoDataAvaliacao.value = hojeISO();
     selects.forEach(atualizarSelect);
@@ -617,6 +618,7 @@
       }
       /* O arquivo vira uma avaliação nova no banco; a que estava aberta continua salva. */
       terminarGravacao().then(function () {
+        trocas++;
         preencherCampos(campos);
         definirAvaliacao(null, "em_andamento");
         mostrarSecao("dados");
@@ -641,6 +643,10 @@
   let responsavelNome = "";
   let alterado = false;
   let salvando = null;
+  /* Conta as trocas de avaliação no formulário (nova, abrir, carregar arquivo). Uma leitura
+     do banco que chega depois de uma troca é ignorada, para não preencher o formulário
+     novo com os dados da avaliação anterior. */
+  let trocas = 0;
   let timerBanco = null;
   const statusSalvo = document.getElementById("status-salvo");
 
@@ -789,16 +795,21 @@
       if (alterado) {
         gravarNoBanco();
       } else if (avaliacaoId) {
-        Banco.abrirAvaliacao(avaliacaoId)
+        const troca = trocas;
+        const id = avaliacaoId;
+        const mesmaAvaliacao = function () {
+          return !alterado && troca === trocas && avaliacaoId === id;
+        };
+        Banco.abrirAvaliacao(id)
           .then(function (dados) {
-            if (alterado) return;
+            if (!mesmaAvaliacao()) return;
             preencherCampos(dados.campos || {});
             definirAvaliacao(dados.id, dados.status);
             gravarRascunho();
           })
           .catch(function (erro) {
             /* Apagada no banco: o que está na tela vira uma avaliação nova. */
-            if (erro && erro.code === "not-found") {
+            if (erro && erro.code === "not-found" && mesmaAvaliacao()) {
               definirAvaliacao(null, "em_andamento");
               marcarAlterado();
             }
@@ -823,9 +834,15 @@
     },
     abrir: function (id) {
       if (id === avaliacaoId) return Promise.resolve();
+      let troca;
       return terminarGravacao()
-        .then(function () { return Banco.abrirAvaliacao(id); })
+        .then(function () {
+          troca = ++trocas;
+          return Banco.abrirAvaliacao(id);
+        })
         .then(function (dados) {
+          /* Outra ação trocou o formulário enquanto a avaliação carregava. */
+          if (troca !== trocas) throw new Error("cancelado");
           preencherCampos(dados.campos || {});
           definirAvaliacao(dados.id, dados.status);
           alterado = false;

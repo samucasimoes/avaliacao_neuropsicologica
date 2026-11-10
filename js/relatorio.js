@@ -66,8 +66,11 @@ const Relatorio = (function () {
   /* Na identificação, ocupam a linha inteira (textos longos). */
   const CAMPOS_LARGOS = ["Endereço"];
 
-  /* Cada aba ocupa uma folha: se o conteúdo não couber, a folha é refeita com letra menor. */
+  /* Cada aba ocupa uma folha: a letra começa 20% maior e, se o conteúdo não couber,
+     a folha é refeita com letra um pouco menor até caber. */
+  const ESCALA_INICIAL = 1.2;
   const ESCALA_MINIMA = 0.5;
+  const PASSO_ESCALA = 0.05;
 
   /* Com opcoes.imprimir, devolve o endereço (blob) do PDF, que abre já com a janela
      de impressão (usado no Ctrl+P), em vez de baixar o arquivo. */
@@ -133,13 +136,13 @@ const Relatorio = (function () {
     function tituloSecao(texto) {
       garantirEspaco(24);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
+      doc.setFontSize(12);
       cor(COR.escuro);
       doc.text(textoPdf(texto).toUpperCase().replace(/\bMOCA\b/g, "MoCA"), margem, y, { charSpace: 0.4 });
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
-      doc.line(margem, y + 2.5, margem + util, y + 2.5);
-      y += 9;
+      doc.line(margem, y + 2.8, margem + util, y + 2.8);
+      y += 10;
     }
 
     function paragrafo(texto, tamanho, estilo, rgb) {
@@ -342,8 +345,9 @@ const Relatorio = (function () {
     }
 
     function imagem(bloco) {
-      const w = e(bloco.largura);
-      const h = e(bloco.altura);
+      /* Com a letra maior, a imagem não passa da largura da folha. */
+      const w = Math.min(util, e(bloco.largura));
+      const h = w * bloco.altura / bloco.largura;
       garantirEspaco(h + (bloco.titulo ? e(7) : 0) + e(4));
       if (bloco.titulo) {
         fonte(9.5, "bold", COR.escuro);
@@ -489,7 +493,7 @@ const Relatorio = (function () {
 
     /* Desenha uma folha; se passar de uma página, apaga e refaz com letra menor. */
     function folhaUnica(desenhar) {
-      for (k = 1; ; k = Math.max(ESCALA_MINIMA, k - 0.06)) {
+      for (k = ESCALA_INICIAL; ; k = Math.max(ESCALA_MINIMA, Math.round((k - PASSO_ESCALA) * 100) / 100)) {
         const antes = doc.getNumberOfPages();
         novaPagina();
         desenhar();
@@ -543,7 +547,7 @@ const Relatorio = (function () {
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
       doc.line(margem, altura - 13, largura - margem, altura - 13);
-      fonte(7.5, "normal", COR.suave);
+      fonte(8.5, "normal", COR.suave);
       doc.text("Página " + i + " de " + paginas, largura - margem, altura - 8.5, { align: "right" });
     }
 

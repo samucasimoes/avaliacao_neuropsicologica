@@ -54,6 +54,7 @@ Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na t
 letra da impressão começa 20% maior; se o conteúdo não couber, ela diminui só naquela folha
 até caber, sem passar para outra página (os títulos mantêm o mesmo tamanho).
 O botão **Imprimir Avaliação** baixa o PDF completo direto, sem perguntas.
+A tecla ENTER não baixa o relatório (nos textos longos ela só quebra a linha).
 Nenhum dado é salvo: tudo acontece no navegador.
 
 **Ctrl+P** (Cmd+P no Mac) não imprime a página do formulário: abre o relatório completo em

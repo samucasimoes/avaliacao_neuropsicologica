@@ -51,8 +51,9 @@ Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resu
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela) e a
-letra da impressão começa 20% maior; se o conteúdo não couber, ela diminui só naquela folha
-até caber, sem passar para outra página (os títulos mantêm o mesmo tamanho).
+letra da impressão começa 20% maior; se o conteúdo não couber, primeiro os espaços entre os
+blocos e nas linhas das tabelas encolhem e, só se ainda faltar lugar, a letra diminui naquela
+folha até caber, sem passar para outra página (os títulos mantêm o mesmo tamanho).
 O botão **Imprimir Avaliação** baixa o PDF completo direto, sem perguntas.
 A tecla ENTER não baixa o relatório (nos textos longos ela só quebra a linha).
 Nenhum dado é salvo: tudo acontece no navegador.

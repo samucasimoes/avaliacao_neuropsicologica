@@ -71,6 +71,9 @@ const Relatorio = (function () {
   const ESCALA_INICIAL = 1.2;
   const ESCALA_MINIMA = 0.5;
   const PASSO_ESCALA = 0.05;
+  /* Numa folha cheia, os espaços entre os blocos e nas linhas das tabelas encolhem
+     (até 55%) antes da letra, para a letra ficar o maior possível. */
+  const ESPACOS = [1, 0.85, 0.7, 0.55];
 
   /* Com opcoes.imprimir, devolve o endereço (blob) do PDF, que abre já com a janela
      de impressão (usado no Ctrl+P), em vez de baixar o arquivo. */
@@ -86,12 +89,25 @@ const Relatorio = (function () {
     linhas.forEach(function (linha) { dados[linha[0]] = linha[1]; });
     let y = 0;
     let k = 1;
+    /* Fator dos espaços da folha atual (veja ESPACOS). */
+    let c = 1;
     /* Espaçamento extra das tabelas da etapa atual (ex.: MoCA). */
     let espacamento = 1;
 
     /* Medida proporcional à escala da folha atual. */
     function e(medida) {
       return medida * k;
+    }
+
+    /* Espaço entre blocos: segue a escala da folha e encolhe com "c" nas folhas cheias. */
+    function g(medida) {
+      return medida * k * c;
+    }
+
+    /* Depois de tabelas, caixas e imagens: a parte fixa evita que o texto
+       seguinte encoste na linha de baixo quando os espaços encolhem. */
+    function depoisDeBloco() {
+      return e(3.5) + g(2.5);
     }
 
     function alturaTexto() {
@@ -161,7 +177,7 @@ const Relatorio = (function () {
     function caixaTexto(rotulo, valor, compacto) {
       const tamanho = compacto ? 9 : 10;
       const passo = e(compacto ? 4.3 : 4.9);
-      const respiro = e(compacto ? 4 : 6);
+      const respiro = g(compacto ? 4 : 6);
       fonte(tamanho, "normal");
       const texto = doc.splitTextToSize(textoPdf(valor || "Não informado"), util - 10);
 
@@ -182,7 +198,7 @@ const Relatorio = (function () {
         y += alturaBloco;
         if (inicio < texto.length) novaPagina();
       }
-      y += e(compacto ? 4 : 7);
+      y += g(compacto ? 4 : 7);
     }
 
     /* Caixas de resultado lado a lado; a última ocupa o resto e quebra linha se preciso.
@@ -208,7 +224,7 @@ const Relatorio = (function () {
         linhasUltima = doc.splitTextToSize(textoPdf(lista[ultima][1]), larguras[ultima] - 8);
       }
       const alturaCaixa = e(10.5 + linhasUltima.length * 4.6);
-      garantirEspaco(alturaCaixa + e(6));
+      garantirEspaco(alturaCaixa + depoisDeBloco());
       let x = margem;
       lista.forEach(function (caixa, i) {
         borda(x, y, larguras[i], alturaCaixa);
@@ -223,7 +239,7 @@ const Relatorio = (function () {
         }
         x += larguras[i] + espaco;
       });
-      y += alturaCaixa + e(6);
+      y += alturaCaixa + depoisDeBloco();
     }
 
     function tabela(bloco) {
@@ -247,7 +263,7 @@ const Relatorio = (function () {
       garantirEspaco(e(16));
       doc.autoTable({
         startY: y,
-        margin: { left: margem, right: margem, top: 16, bottom: 22 },
+        margin: { left: margem, right: margem, top: 16, bottom: altura - limite },
         head: [bloco.cabecalho.map(textoPdf)],
         body: corpo,
         theme: "plain",
@@ -256,7 +272,7 @@ const Relatorio = (function () {
           font: "helvetica",
           fontSize: e(espacamento > 1 ? 10 : 9),
           textColor: COR.tinta,
-          cellPadding: { top: e(1.8 * espacamento), bottom: e(1.8 * espacamento), left: 2.5, right: 2.5 },
+          cellPadding: { top: g(1.8 * espacamento), bottom: g(1.8 * espacamento), left: 2.5, right: 2.5 },
           lineColor: COR.linha,
           lineWidth: { bottom: 0.2 },
           valign: "middle"
@@ -271,7 +287,7 @@ const Relatorio = (function () {
         columnStyles: bloco.estilos || {},
         didDrawPage: faixaTopo
       });
-      y = doc.lastAutoTable.finalY + e(6);
+      y = doc.lastAutoTable.finalY + depoisDeBloco();
     }
 
     /* Lista em tópicos. Com preencherFolha, os itens se espalham para ocupar a folha toda. */
@@ -283,6 +299,8 @@ const Relatorio = (function () {
       if (preencherFolha) {
         const sobra = limite - y - e(6) - linhasTotal * alturaTexto();
         folga = Math.min(e(14), Math.max(folga, sobra / Math.max(1, itens.length)));
+      } else {
+        folga = g(0.8);
       }
       quebras.forEach(function (linhasItem) {
         fonte(10.5, "normal");
@@ -291,7 +309,7 @@ const Relatorio = (function () {
         doc.text(linhasItem, margem + 6, y, { lineHeightFactor: 1.35 });
         y += linhasItem.length * alturaTexto() + folga;
       });
-      y += e(4);
+      y += g(4);
     }
 
     /* Escala de Katz como a folha de papel: cada área com as descrições e um círculo;
@@ -304,7 +322,7 @@ const Relatorio = (function () {
     function escolhas(bloco) {
       if (bloco.introducao) {
         paragrafo(bloco.introducao, 10, "bold", COR.tinta);
-        y += e(3);
+        y += g(3);
       }
       const passo = e(4.35);
       bloco.itens.forEach(function (item) {
@@ -314,14 +332,14 @@ const Relatorio = (function () {
         const opcoes = item.opcoes.map(function (texto) {
           return doc.splitTextToSize(textoPdf(texto), util - 10);
         });
-        const alturaItem = titulo.length * passo + e(1.8) + opcoes.reduce(function (total, linhasOpcao) {
-          return total + linhasOpcao.length * passo + e(1.6);
-        }, 0) + e(3);
+        const alturaItem = titulo.length * passo + g(1.8) + opcoes.reduce(function (total, linhasOpcao) {
+          return total + linhasOpcao.length * passo + g(1.6);
+        }, 0) + g(3);
         garantirEspaco(alturaItem);
 
         fonte(9.5, "bold", COR.escuro);
         doc.text(titulo, margem, y, { lineHeightFactor: 1.3 });
-        y += titulo.length * passo + e(1.8);
+        y += titulo.length * passo + g(1.8);
         opcoes.forEach(function (linhasOpcao, j) {
           const cx = margem + 4;
           const cy = y - e(1.15);
@@ -334,14 +352,14 @@ const Relatorio = (function () {
           }
           fonte(9.5, "normal");
           doc.text(linhasOpcao, margem + 9, y, { lineHeightFactor: 1.3 });
-          y += linhasOpcao.length * passo + e(1.6);
+          y += linhasOpcao.length * passo + g(1.6);
         });
         cor(COR.linha, "draw");
         doc.setLineWidth(0.2);
-        doc.line(margem, y - e(1), margem + util, y - e(1));
-        y += e(3);
+        doc.line(margem, y - g(1), margem + util, y - g(1));
+        y += g(3);
       });
-      y += e(2);
+      y += g(2);
     }
 
     function imagem(bloco) {
@@ -357,7 +375,7 @@ const Relatorio = (function () {
       const x = margem + (util - w) / 2;
       doc.addImage(bloco.imagem, "PNG", x, y, w, h);
       if (bloco.borda) borda(x, y, w, h);
-      y += h + e(6);
+      y += h + depoisDeBloco();
     }
 
     function assinaturas(pessoas) {
@@ -391,31 +409,31 @@ const Relatorio = (function () {
         case "imagem": imagem(bloco); break;
         case "assinaturas": assinaturas(bloco.pessoas); break;
         case "subtitulo":
-          y += e(bloco.menor ? 1 : 3);
+          y += g(bloco.menor ? 1 : 3);
           garantirEspaco(e(18));
           fonte(bloco.menor ? 9.5 : 10.5, "bold", COR.escuro);
           doc.text(textoPdf(bloco.texto), margem, y);
-          y += e(bloco.menor ? 3 : 6);
+          y += bloco.menor ? e(3) : e(4) + g(2);
           break;
         case "paragrafo":
           paragrafo(bloco.texto, 10, bloco.negrito ? "bold" : "normal", COR.tinta);
-          y += e(4);
+          y += g(4);
           break;
         case "nota":
           paragrafo(bloco.texto, 8, "normal", COR.suave);
-          y += e(5);
+          y += g(5);
           break;
         case "legenda":
           /* Uma linha por item; os títulos (terminados em ":") em negrito. */
-          y += e(2);
+          y += g(2);
           bloco.texto.split("\n").forEach(function (linha) {
             if (!linha) {
-              y += e(1.5);
+              y += g(1.5);
               return;
             }
             paragrafo(linha, 9, /:$/.test(linha) ? "bold" : "normal", COR.tinta);
           });
-          y += e(4);
+          y += g(4);
           break;
       }
     }
@@ -449,7 +467,7 @@ const Relatorio = (function () {
         fonte(9, "normal", COR.suave);
         doc.text(resumo, margem + util - 4, y + e(7.2), { align: "right" });
       }
-      y += alturaCartao + e(7);
+      y += alturaCartao + g(7);
 
       /* Identificação em quatro colunas por linha; os campos largos (Endereço) ocupam a linha toda. */
       tituloSecao("Identificação");
@@ -471,7 +489,7 @@ const Relatorio = (function () {
           return { rotulo: linha[0], valor: doc.splitTextToSize(textoPdf(linha[1] || "—"), largo ? util : coluna) };
         });
         const linhasTexto = Math.max.apply(null, grupo.map(function (c) { return c.valor.length; }));
-        const alturaLinha = e(4.5 + linhasTexto * 4.2 + 3);
+        const alturaLinha = e(4.5 + linhasTexto * 4.2) + g(3);
         garantirEspaco(alturaLinha);
         grupo.forEach(function (campo, j) {
           const x = margem + j * (coluna + 6);
@@ -482,7 +500,7 @@ const Relatorio = (function () {
         });
         y += alturaLinha;
       });
-      y += e(3);
+      y += g(3);
 
       /* Informações clínicas em blocos de texto compactos */
       tituloSecao("Informações clínicas");
@@ -491,17 +509,45 @@ const Relatorio = (function () {
       });
     }
 
-    /* Desenha uma folha; se passar de uma página, apaga e refaz com letra menor. */
-    function folhaUnica(desenhar) {
-      for (k = ESCALA_INICIAL; ; k = Math.max(ESCALA_MINIMA, Math.round((k - PASSO_ESCALA) * 100) / 100)) {
-        const antes = doc.getNumberOfPages();
-        novaPagina();
-        desenhar();
-        const depois = doc.getNumberOfPages();
-        if (depois === antes + 1 || k === ESCALA_MINIMA) break;
+    /* Desenha uma folha com a letra "escala" e os espaços "espacos".
+       Com apagar, desenha só para medir: apaga e diz se coube numa página. */
+    function desenharFolha(desenhar, escala, espacos, apagar) {
+      k = escala;
+      c = espacos;
+      const antes = doc.getNumberOfPages();
+      novaPagina();
+      desenhar();
+      const depois = doc.getNumberOfPages();
+      if (apagar) {
         for (let p = depois; p > antes; p--) doc.deletePage(p);
       }
+      return depois === antes + 1;
+    }
+
+    /* Cada aba numa folha só, com a maior letra que couber: primeiro acha a letra
+       (com os espaços mais apertados), depois devolve o máximo de espaço possível. */
+    function folhaUnica(desenhar) {
+      const apertado = ESPACOS[ESPACOS.length - 1];
+      const cabe = function (escala, espacos) {
+        return desenharFolha(desenhar, escala, espacos, true);
+      };
+      let escala = ESCALA_INICIAL;
+      while (escala > ESCALA_MINIMA && !cabe(escala, apertado)) {
+        escala = Math.max(ESCALA_MINIMA, Math.round((escala - PASSO_ESCALA) * 1000) / 1000);
+      }
+      /* Meio degrau acima, para aproveitar o branco que sobra no fim da folha. */
+      const meio = Math.round((escala + PASSO_ESCALA / 2) * 1000) / 1000;
+      if (escala < ESCALA_INICIAL && cabe(meio, apertado)) escala = meio;
+      let espacos = apertado;
+      for (let i = 0; i < ESPACOS.length - 1; i++) {
+        if (cabe(escala, ESPACOS[i])) {
+          espacos = ESPACOS[i];
+          break;
+        }
+      }
+      desenharFolha(desenhar, escala, espacos, false);
       k = 1;
+      c = 1;
     }
 
     /* Monta as folhas: uma etapa com juntarCom sai na mesma folha da etapa indicada
@@ -527,7 +573,7 @@ const Relatorio = (function () {
           /* Junto de outra etapa, a Trilhas sai sem o título próprio (os subtítulos bastam). */
           const comSubtitulos = parte.secao.blocos.some(function (b) { return b.soJunto; });
           espacamento = parte.secao.espacamento || 1;
-          if (parte.junto) y += e(4);
+          if (parte.junto) y += g(4);
           if (!parte.junto || !comSubtitulos) tituloSecao(parte.secao.titulo);
           parte.secao.blocos.forEach(function (bloco) {
             if (bloco.soJunto && !parte.junto) return;

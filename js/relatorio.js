@@ -151,6 +151,9 @@ const Relatorio = (function () {
        a folha é refeita com letra menor para caber. */
     function tituloSecao(texto) {
       garantirEspaco(24);
+      /* No meio da folha, uma folga fixa para o título (que não diminui) não encostar
+         no bloco de cima quando a letra e os espaços da folha encolhem. */
+      if (y > 16) y += 3.5;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       cor(COR.escuro);
@@ -172,33 +175,31 @@ const Relatorio = (function () {
       });
     }
 
-    /* Rótulo em negrito + caixa com borda (sem fundo). */
-    /* Rótulo em negrito + caixa com borda (sem fundo). "compacto" usa letra e espaços menores. */
+    /* Rótulo em negrito e o texto logo abaixo, sem borda. "compacto" usa letra e espaços menores. */
     function caixaTexto(rotulo, valor, compacto) {
       const tamanho = compacto ? 9 : 10;
       const passo = e(compacto ? 4.3 : 4.9);
-      const respiro = g(compacto ? 4 : 6);
       fonte(tamanho, "normal");
-      const texto = doc.splitTextToSize(textoPdf(valor || "Não informado"), util - 10);
+      const texto = doc.splitTextToSize(textoPdf(valor || "Não informado"), util);
 
       garantirEspaco(e(compacto ? 12 : 18));
       fonte(compacto ? 8.5 : 9.5, "bold", COR.escuro);
       doc.text(textoPdf(rotulo), margem, y);
-      y += e(compacto ? 2 : 3);
+      y += e(compacto ? 4.4 : 5.2);
 
       let inicio = 0;
       while (inicio < texto.length) {
-        const cabem = Math.max(1, Math.floor((limite - y - e(8)) / passo));
+        const cabem = Math.max(1, Math.floor((limite - y) / passo) + 1);
         const trecho = texto.slice(inicio, inicio + cabem);
-        const alturaBloco = trecho.length * passo + respiro;
-        borda(margem, y, util, alturaBloco);
         fonte(tamanho, valor ? "normal" : "italic", valor ? COR.tinta : COR.suave);
-        doc.text(trecho, margem + 4, y + respiro / 2 + e(compacto ? 2.6 : 3.2), { lineHeightFactor: 1.35 });
+        trecho.forEach(function (linhaTexto, i) {
+          doc.text(linhaTexto, margem, y + i * passo);
+        });
         inicio += trecho.length;
-        y += alturaBloco;
+        y += (trecho.length - 1) * passo;
         if (inicio < texto.length) novaPagina();
       }
-      y += g(compacto ? 4 : 7);
+      y += e(2.5) + g(compacto ? 4 : 5.5);
     }
 
     /* Caixas de resultado lado a lado; a última ocupa o resto e quebra linha se preciso.
@@ -456,9 +457,10 @@ const Relatorio = (function () {
       borda(margem, y, util, alturaCartao);
       fonte(7, "normal", COR.suave);
       doc.text("PACIENTE", margem + 4, y + e(7), { charSpace: 0.3 });
+      const xNome = margem + 4 + doc.getTextWidth("PACIENTE") + 8 * 0.3 + 4;
       fonte(11.5, "bold");
       const nome = doc.splitTextToSize(textoPdf(dados["Nome"] || "—"), util - 90)[0];
-      doc.text(nome, margem + 22, y + e(7.2));
+      doc.text(nome, xNome, y + e(7.2));
       const resumo = [
         dados["Idade"],
         dados["Data de Nascimento"] ? "Nascimento: " + dados["Data de Nascimento"] : ""

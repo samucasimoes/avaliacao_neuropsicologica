@@ -49,8 +49,17 @@ const Relatorio = (function () {
     escuro: [33, 33, 33],
     tinta: [25, 25, 25],
     suave: [112, 112, 112],
-    linha: [214, 214, 214]
+    linha: [214, 214, 214],
+    /* Linhas que dividem as questões da Escala de Katz. */
+    divisoria: [120, 120, 120]
   };
+
+  /* Tamanhos da letra na impressão: títulos 14, subtítulo da aba 13 e o restante 12. */
+  const TAMANHO_TITULO = 14;
+  const TAMANHO_SUBTITULO = 13;
+  const TAMANHO_TEXTO = 12;
+  /* Distância entre as linhas de um texto em letra 12 (mm). */
+  const PASSO_LINHA = 5.6;
 
   const CAMPOS_TEXTO = [
     "Informante",
@@ -66,9 +75,9 @@ const Relatorio = (function () {
   /* Na identificação, ocupam a linha inteira (textos longos). */
   const CAMPOS_LARGOS = ["Endereço"];
 
-  /* Cada aba ocupa uma folha: a letra começa 20% maior e, se o conteúdo não couber,
+  /* Cada aba ocupa uma folha: a letra é 12 e, só se o conteúdo não couber,
      a folha é refeita com letra um pouco menor até caber. */
-  const ESCALA_INICIAL = 1.2;
+  const ESCALA_INICIAL = 1;
   const ESCALA_MINIMA = 0.5;
   const PASSO_ESCALA = 0.05;
   /* Numa folha cheia, os espaços entre os blocos e nas linhas das tabelas encolhem
@@ -84,7 +93,9 @@ const Relatorio = (function () {
     const altura = doc.internal.pageSize.getHeight();
     const margem = 18;
     const util = largura - margem * 2;
-    const limite = altura - 20;
+    const meio = largura / 2;
+    /* Sem rodapé (não há numeração das páginas): o conteúdo vai até 16 mm do fim da folha. */
+    const limite = altura - 16;
     const dados = {};
     linhas.forEach(function (linha) { dados[linha[0]] = linha[1]; });
     let y = 0;
@@ -110,8 +121,8 @@ const Relatorio = (function () {
       return e(3.5) + g(2.5);
     }
 
-    function alturaTexto() {
-      return e(4.9);
+    function passo() {
+      return e(PASSO_LINHA);
     }
 
     function cor(rgb, tipo) {
@@ -120,9 +131,10 @@ const Relatorio = (function () {
       else doc.setTextColor(rgb[0], rgb[1], rgb[2]);
     }
 
-    function fonte(tamanho, estilo, rgb) {
+    /* Letra do texto: 12, ou um pouco menor numa folha que precisou encolher. */
+    function fonte(estilo, rgb) {
       doc.setFont("helvetica", estilo || "normal");
-      doc.setFontSize(tamanho * k);
+      doc.setFontSize(TAMANHO_TEXTO * k);
       cor(rgb || COR.tinta);
     }
 
@@ -147,56 +159,92 @@ const Relatorio = (function () {
       doc.roundedRect(x, topo, w, h, 2, 2, "S");
     }
 
-    /* O título tem sempre o mesmo tamanho (o da Escala Cornell), mesmo quando
+    /* Quebra o texto em linhas que cabem na largura, contando o espaço entre as letras. */
+    function quebrarLinhas(texto, larguraMax, espacoLetras) {
+      const linhasTexto = [];
+      let atual = "";
+      const larguraDe = function (t) { return doc.getTextWidth(t) + espacoLetras * Math.max(0, t.length - 1); };
+      texto.split(/\s+/).filter(Boolean).forEach(function (palavra) {
+        const tentativa = atual ? atual + " " + palavra : palavra;
+        if (atual && larguraDe(tentativa) > larguraMax) {
+          linhasTexto.push(atual);
+          atual = palavra;
+        } else {
+          atual = tentativa;
+        }
+      });
+      if (atual) linhasTexto.push(atual);
+      return linhasTexto;
+    }
+
+    /* Escreve linhas centralizadas na folha; devolve a altura usada. */
+    function textoCentralizado(linhasTexto, passoLinha, espacoLetras) {
+      linhasTexto.forEach(function (linhaTexto, i) {
+        const w = doc.getTextWidth(linhaTexto) + espacoLetras * Math.max(0, linhaTexto.length - 1);
+        doc.text(linhaTexto, meio - w / 2, y + i * passoLinha, espacoLetras ? { charSpace: espacoLetras } : undefined);
+      });
+      return (linhasTexto.length - 1) * passoLinha;
+    }
+
+    /* Os títulos ficam centralizados e têm sempre o mesmo tamanho (14), mesmo quando
        a folha é refeita com letra menor para caber. */
     function tituloSecao(texto) {
-      garantirEspaco(24);
+      garantirEspaco(26);
       /* No meio da folha, uma folga fixa para o título (que não diminui) não encostar
          no bloco de cima quando a letra e os espaços da folha encolhem. */
       if (y > 16) y += 3.5;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
+      doc.setFontSize(TAMANHO_TITULO);
       cor(COR.escuro);
-      doc.text(textoPdf(texto).toUpperCase().replace(/\bMOCA\b/g, "MoCA"), margem, y, { charSpace: 0.4 });
+      const espacoLetras = 0.3;
+      const titulo = textoPdf(texto).toUpperCase().replace(/\bMOCA\b/g, "MoCA");
+      y += textoCentralizado(quebrarLinhas(titulo, util, espacoLetras), 6.4, espacoLetras);
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
-      doc.line(margem, y + 2.8, margem + util, y + 2.8);
-      y += 10;
+      doc.line(margem, y + 3, margem + util, y + 3);
+      y += 10.5;
     }
 
-    function paragrafo(texto, tamanho, estilo, rgb) {
-      fonte(tamanho, estilo, rgb);
+    /* Subtítulo logo abaixo do título da aba (ex.: Questionário de Atividades Funcionais), letra 13. */
+    function subtituloSecao(texto) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(TAMANHO_SUBTITULO);
+      cor(COR.escuro);
+      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);
+      y += 9;
+    }
+
+    function paragrafo(texto, estilo, rgb) {
+      fonte(estilo, rgb);
       const linhasTexto = doc.splitTextToSize(textoPdf(texto), util);
-      const passo = e(tamanho * 0.47);
       linhasTexto.forEach(function (linhaTexto) {
-        garantirEspaco(passo + 1);
+        garantirEspaco(passo() + 1);
         doc.text(linhaTexto, margem, y);
-        y += passo;
+        y += passo();
       });
     }
 
-    /* Rótulo em negrito e o texto logo abaixo, sem borda. "compacto" usa letra e espaços menores. */
+    /* Rótulo em negrito e o texto logo abaixo, sem borda. "compacto" usa espaços menores. */
     function caixaTexto(rotulo, valor, compacto) {
-      const tamanho = compacto ? 9 : 10;
-      const passo = e(compacto ? 4.3 : 4.9);
-      fonte(tamanho, "normal");
+      const passoTexto = e(compacto ? 5.3 : PASSO_LINHA);
+      fonte("normal");
       const texto = doc.splitTextToSize(textoPdf(valor || "Não informado"), util);
 
-      garantirEspaco(e(compacto ? 12 : 18));
-      fonte(compacto ? 8.5 : 9.5, "bold", COR.escuro);
+      garantirEspaco(e(compacto ? 14 : 18));
+      fonte("bold", COR.escuro);
       doc.text(textoPdf(rotulo), margem, y);
-      y += e(compacto ? 4.4 : 5.2);
+      y += e(compacto ? 5.6 : 6.2);
 
       let inicio = 0;
       while (inicio < texto.length) {
-        const cabem = Math.max(1, Math.floor((limite - y) / passo) + 1);
+        const cabem = Math.max(1, Math.floor((limite - y) / passoTexto) + 1);
         const trecho = texto.slice(inicio, inicio + cabem);
-        fonte(tamanho, valor ? "normal" : "italic", valor ? COR.tinta : COR.suave);
+        fonte(valor ? "normal" : "italic", valor ? COR.tinta : COR.suave);
         trecho.forEach(function (linhaTexto, i) {
-          doc.text(linhaTexto, margem, y + i * passo);
+          doc.text(linhaTexto, margem, y + i * passoTexto);
         });
         inicio += trecho.length;
-        y += (trecho.length - 1) * passo;
+        y += (trecho.length - 1) * passoTexto;
         if (inicio < texto.length) novaPagina();
       }
       y += e(2.5) + g(compacto ? 4 : 5.5);
@@ -207,12 +255,11 @@ const Relatorio = (function () {
     function caixas(lista) {
       const espaco = 4;
       const ultima = lista.length > 1 ? lista.length - 1 : -1;
-      fonte(12, "bold");
       const larguras = lista.map(function (caixa, i) {
         if (i === ultima) return 0;
-        fonte(12, "bold");
+        fonte("bold");
         const valor = doc.getTextWidth(textoPdf(caixa[1]));
-        fonte(7, "normal");
+        fonte("normal");
         const rotulo = textoPdf(caixa[0]).toUpperCase();
         const larguraRotulo = doc.getTextWidth(rotulo) + rotulo.length * 0.3;
         return Math.max(34, valor + 12, larguraRotulo + 10);
@@ -221,22 +268,21 @@ const Relatorio = (function () {
       if (ultima !== -1) {
         const usadas = larguras.reduce(function (a, b) { return a + b; }, 0) + espaco * ultima;
         larguras[ultima] = util - usadas;
-        fonte(10.5, "bold");
+        fonte("bold");
         linhasUltima = doc.splitTextToSize(textoPdf(lista[ultima][1]), larguras[ultima] - 8);
       }
-      const alturaCaixa = e(10.5 + linhasUltima.length * 4.6);
+      const alturaCaixa = e(11.5 + linhasUltima.length * PASSO_LINHA);
       garantirEspaco(alturaCaixa + depoisDeBloco());
       let x = margem;
       lista.forEach(function (caixa, i) {
         borda(x, y, larguras[i], alturaCaixa);
-        fonte(7, "normal", COR.suave);
-        doc.text(textoPdf(caixa[0]).toUpperCase(), x + 4, y + e(5.5), { charSpace: 0.3 });
+        fonte("normal", COR.suave);
+        doc.text(textoPdf(caixa[0]).toUpperCase(), x + 4, y + e(6.5), { charSpace: 0.3 });
+        fonte("bold");
         if (i === ultima) {
-          fonte(10.5, "bold");
-          doc.text(linhasUltima, x + 4, y + e(11.5), { lineHeightFactor: 1.25 });
+          doc.text(linhasUltima, x + 4, y + e(13), { lineHeightFactor: 1.3 });
         } else {
-          fonte(12, "bold");
-          doc.text(textoPdf(caixa[1]), x + 4, y + e(11.5));
+          doc.text(textoPdf(caixa[1]), x + 4, y + e(13));
         }
         x += larguras[i] + espaco;
       });
@@ -250,7 +296,7 @@ const Relatorio = (function () {
           return [{
             content: textoPdf(linha.grupo),
             colSpan: colunas,
-            styles: { fontStyle: "bold", textColor: COR.escuro, fontSize: e(8.5), halign: "left" }
+            styles: { fontStyle: "bold", textColor: COR.escuro, halign: "left" }
           }];
         }
         const estilo = linha.destaque ? { fontStyle: "bold" }
@@ -271,7 +317,7 @@ const Relatorio = (function () {
         rowPageBreak: "avoid",
         styles: {
           font: "helvetica",
-          fontSize: e(espacamento > 1 ? 10 : 9),
+          fontSize: e(TAMANHO_TEXTO),
           textColor: COR.tinta,
           cellPadding: { top: g(1.8 * espacamento), bottom: g(1.8 * espacamento), left: 2.5, right: 2.5 },
           lineColor: COR.linha,
@@ -280,7 +326,7 @@ const Relatorio = (function () {
         },
         headStyles: {
           fontStyle: "bold",
-          fontSize: e(espacamento > 1 ? 8.5 : 8),
+          fontSize: e(TAMANHO_TEXTO),
           textColor: COR.suave,
           lineWidth: { bottom: 0.4 },
           lineColor: COR.escuro
@@ -293,22 +339,22 @@ const Relatorio = (function () {
 
     /* Lista em tópicos. Com preencherFolha, os itens se espalham para ocupar a folha toda. */
     function lista(itens, preencherFolha) {
-      fonte(10.5, "normal");
+      fonte("normal");
       const quebras = itens.map(function (item) { return doc.splitTextToSize(textoPdf(item), util - 6); });
       const linhasTotal = quebras.reduce(function (t, l) { return t + l.length; }, 0);
       let folga = e(0.8);
       if (preencherFolha) {
-        const sobra = limite - y - e(6) - linhasTotal * alturaTexto();
+        const sobra = limite - y - e(6) - linhasTotal * passo();
         folga = Math.min(e(14), Math.max(folga, sobra / Math.max(1, itens.length)));
       } else {
         folga = g(0.8);
       }
       quebras.forEach(function (linhasItem) {
-        fonte(10.5, "normal");
-        garantirEspaco(linhasItem.length * alturaTexto() + 1);
+        fonte("normal");
+        garantirEspaco(linhasItem.length * passo() + 1);
         doc.text("•", margem + 1, y);
-        doc.text(linhasItem, margem + 6, y, { lineHeightFactor: 1.35 });
-        y += linhasItem.length * alturaTexto() + folga;
+        doc.text(linhasItem, margem + 6, y, { lineHeightFactor: 1.32 });
+        y += linhasItem.length * passo() + folga;
       });
       y += g(4);
     }
@@ -322,56 +368,71 @@ const Relatorio = (function () {
 
     function escolhas(bloco) {
       if (bloco.introducao) {
-        paragrafo(bloco.introducao, 10, "bold", COR.tinta);
+        paragrafo(bloco.introducao, "bold", COR.tinta);
         y += g(3);
       }
-      const passo = e(4.35);
+      const passoItem = e(5.4);
       bloco.itens.forEach(function (item) {
-        fonte(9.5, "bold");
+        fonte("bold");
         const titulo = doc.splitTextToSize(textoPdf(item.numero + " - " + tituloArea(item.titulo)), util);
-        fonte(9.5, "normal");
+        fonte("normal");
         const opcoes = item.opcoes.map(function (texto) {
           return doc.splitTextToSize(textoPdf(texto), util - 10);
         });
-        const alturaItem = titulo.length * passo + g(1.8) + opcoes.reduce(function (total, linhasOpcao) {
-          return total + linhasOpcao.length * passo + g(1.6);
-        }, 0) + g(3);
+        const alturaItem = titulo.length * passoItem + g(1.8) + opcoes.reduce(function (total, linhasOpcao) {
+          return total + linhasOpcao.length * passoItem + g(1.6);
+        }, 0) + e(2.4) + g(0.8);
         garantirEspaco(alturaItem);
 
-        fonte(9.5, "bold", COR.escuro);
-        doc.text(titulo, margem, y, { lineHeightFactor: 1.3 });
-        y += titulo.length * passo + g(1.8);
+        fonte("bold", COR.escuro);
+        doc.text(titulo, margem, y, { lineHeightFactor: 1.27 });
+        y += titulo.length * passoItem + g(1.8);
+        let ultimaLinha = y;
         opcoes.forEach(function (linhasOpcao, j) {
           const cx = margem + 4;
-          const cy = y - e(1.15);
+          const cy = y - e(1.4);
           cor(COR.escuro, "draw");
           doc.setLineWidth(0.3);
-          doc.circle(cx, cy, e(1.5), "S");
+          doc.circle(cx, cy, e(1.7), "S");
           if (j === item.marcada) {
             cor(COR.escuro, "fill");
-            doc.circle(cx, cy, e(0.85), "F");
+            doc.circle(cx, cy, e(0.95), "F");
           }
-          fonte(9.5, "normal");
-          doc.text(linhasOpcao, margem + 9, y, { lineHeightFactor: 1.3 });
-          y += linhasOpcao.length * passo + g(1.6);
+          fonte("normal");
+          doc.text(linhasOpcao, margem + 9, y, { lineHeightFactor: 1.27 });
+          ultimaLinha = y + (linhasOpcao.length - 1) * passoItem;
+          y += linhasOpcao.length * passoItem + g(1.6);
         });
-        cor(COR.linha, "draw");
-        doc.setLineWidth(0.2);
-        doc.line(margem, y - g(1), margem + util, y - g(1));
-        y += g(3);
+        /* Linha mais escura entre as questões, sem encostar no texto de cima nem no de baixo. */
+        const linhaY = ultimaLinha + e(2.4) + g(0.8);
+        cor(COR.divisoria, "draw");
+        doc.setLineWidth(0.35);
+        doc.line(margem, linhaY, margem + util, linhaY);
+        y = linhaY + e(5) + g(1);
       });
       y += g(2);
+    }
+
+    /* "ESCORE DO PACIENTE: 3" no fim das questões (Escala de Katz). */
+    function escore(bloco) {
+      garantirEspaco(passo() + depoisDeBloco());
+      y += g(1);
+      fonte("bold", COR.escuro);
+      const rotulo = textoPdf(bloco.rotulo).toUpperCase() + ": ";
+      doc.text(rotulo, margem, y);
+      doc.text(textoPdf(bloco.valor), margem + doc.getTextWidth(rotulo) + e(1), y);
+      y += depoisDeBloco() + g(2);
     }
 
     function imagem(bloco) {
       /* Com a letra maior, a imagem não passa da largura da folha. */
       const w = Math.min(util, e(bloco.largura));
       const h = w * bloco.altura / bloco.largura;
-      garantirEspaco(h + (bloco.titulo ? e(7) : 0) + e(4));
+      garantirEspaco(h + (bloco.titulo ? e(8) : 0) + e(4));
       if (bloco.titulo) {
-        fonte(9.5, "bold", COR.escuro);
-        doc.text(textoPdf(bloco.titulo), margem, y);
-        y += e(4);
+        fonte("bold", COR.escuro);
+        doc.text(textoPdf(bloco.titulo), meio, y, { align: "center" });
+        y += e(4.5);
       }
       const x = margem + (util - w) / 2;
       doc.addImage(bloco.imagem, "PNG", x, y, w, h);
@@ -379,25 +440,36 @@ const Relatorio = (function () {
       y += h + depoisDeBloco();
     }
 
-    function assinaturas(pessoas) {
-      garantirEspaco(e(42));
-      y += e(4);
-      fonte(10, "normal");
+    /* Local com espaço para o dia, o mês e o ano, e as assinaturas no fim da folha. */
+    function assinaturas(bloco) {
+      const pessoas = bloco.pessoas || [];
+      const alturaLocal = bloco.local ? e(14) : 0;
+      const alturaAssinaturas = pessoas.length ? e(36) : 0;
+      const alturaTotal = alturaLocal + alturaAssinaturas;
+      garantirEspaco(alturaTotal + e(6));
+      y = Math.max(y + e(6), limite - alturaTotal);
+      if (bloco.local) {
+        fonte("normal");
+        doc.text(textoPdf(bloco.local) + ", _______ de ________________________ de __________.", margem, y);
+        y += alturaLocal;
+      }
+      if (!pessoas.length) return;
+      fonte("normal");
       doc.text("Atenciosamente,", margem, y);
-      y += e(24);
+      y += e(22);
       const coluna = util / pessoas.length;
       pessoas.forEach(function (pessoa, i) {
         const centro = margem + coluna * i + coluna / 2;
-        const meia = Math.min(32, coluna / 2 - 6);
+        const meia = Math.min(34, coluna / 2 - 6);
         cor(COR.tinta, "draw");
         doc.setLineWidth(0.3);
         doc.line(centro - meia, y, centro + meia, y);
-        fonte(10, "bold");
-        doc.text(textoPdf(pessoa.nome), centro, y + e(5), { align: "center" });
-        fonte(9, "normal", COR.suave);
-        doc.text(textoPdf(pessoa.registro), centro, y + e(10), { align: "center" });
+        fonte("bold");
+        doc.text(textoPdf(pessoa.nome), centro, y + e(5.5), { align: "center" });
+        fonte("normal", COR.suave);
+        doc.text(textoPdf(pessoa.registro), centro, y + e(11), { align: "center" });
       });
-      y += e(16);
+      y += e(14);
     }
 
     function desenharBloco(bloco) {
@@ -407,21 +479,25 @@ const Relatorio = (function () {
         case "texto": caixaTexto(bloco.rotulo, bloco.texto); break;
         case "lista": lista(bloco.itens, bloco.preencherFolha); break;
         case "escolhas": escolhas(bloco); break;
+        case "escore": escore(bloco); break;
         case "imagem": imagem(bloco); break;
-        case "assinaturas": assinaturas(bloco.pessoas); break;
-        case "subtitulo":
+        case "assinaturas": assinaturas(bloco); break;
+        case "subtitulo": {
+          /* Subtítulos centralizados, em negrito. */
           y += g(bloco.menor ? 1 : 3);
           garantirEspaco(e(18));
-          fonte(bloco.menor ? 9.5 : 10.5, "bold", COR.escuro);
-          doc.text(textoPdf(bloco.texto), margem, y);
-          y += bloco.menor ? e(3) : e(4) + g(2);
+          fonte("bold", COR.escuro);
+          const linhasSubtitulo = doc.splitTextToSize(textoPdf(bloco.texto), util);
+          y += textoCentralizado(linhasSubtitulo, passo(), 0);
+          y += bloco.menor ? e(3.5) : e(4.5) + g(2);
           break;
+        }
         case "paragrafo":
-          paragrafo(bloco.texto, 10, bloco.negrito ? "bold" : "normal", COR.tinta);
+          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", COR.tinta);
           y += g(4);
           break;
         case "nota":
-          paragrafo(bloco.texto, 8, "normal", COR.suave);
+          paragrafo(bloco.texto, "normal", COR.suave);
           y += g(5);
           break;
         case "legenda":
@@ -432,7 +508,7 @@ const Relatorio = (function () {
               y += g(1.5);
               return;
             }
-            paragrafo(linha, 9, /:$/.test(linha) ? "bold" : "normal", COR.tinta);
+            paragrafo(linha, /:$/.test(linha) ? "bold" : "normal", COR.tinta);
           });
           y += g(4);
           break;
@@ -441,42 +517,41 @@ const Relatorio = (function () {
 
     /* Primeira folha: cabeçalho, paciente, identificação e informações clínicas. */
     function folhaDados() {
-      /* Cabeçalho compacto */
-      fonte(21, "bold", COR.escuro);
-      doc.text(TITULO, margem, 18);
-      fonte(9, "normal", COR.suave);
-      doc.text("Relatório da avaliação", margem, 24);
-      fonte(7.5, "normal", COR.suave);
-      doc.text("DATA DA AVALIAÇÃO", largura - margem, 16, { align: "right", charSpace: 0.3 });
-      fonte(10, "bold");
-      doc.text(dados["Data da Avaliação"] || "—", largura - margem, 21.5, { align: "right" });
+      /* Cabeçalho centralizado: título (14) e, abaixo, a data da avaliação */
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(TAMANHO_TITULO);
+      cor(COR.escuro);
+      y = 15;
+      textoCentralizado([TITULO.toUpperCase()], 0, 0.3);
+      fonte("normal", COR.suave);
+      doc.text("Relatório da avaliação   •   Data da avaliação: " + (dados["Data da Avaliação"] || "—"),
+        meio, 21.5, { align: "center" });
 
       /* Paciente numa linha só: nome, idade e nascimento */
-      y = 29;
-      const alturaCartao = e(11);
+      y = 28;
+      const alturaCartao = e(12);
       borda(margem, y, util, alturaCartao);
-      fonte(7, "normal", COR.suave);
-      doc.text("PACIENTE", margem + 4, y + e(7), { charSpace: 0.3 });
+      fonte("normal", COR.suave);
+      doc.text("PACIENTE", margem + 4, y + e(7.8), { charSpace: 0.3 });
       const xNome = margem + 4 + doc.getTextWidth("PACIENTE") + 8 * 0.3 + 4;
-      fonte(11.5, "bold");
-      const nome = doc.splitTextToSize(textoPdf(dados["Nome"] || "—"), util - 90)[0];
-      doc.text(nome, xNome, y + e(7.2));
       const resumo = [
         dados["Idade"],
         dados["Data de Nascimento"] ? "Nascimento: " + dados["Data de Nascimento"] : ""
       ].filter(Boolean).join("   •   ");
-      if (resumo) {
-        fonte(9, "normal", COR.suave);
-        doc.text(resumo, margem + util - 4, y + e(7.2), { align: "right" });
-      }
+      const larguraResumo = resumo ? doc.getTextWidth(resumo) + 6 : 0;
+      if (resumo) doc.text(resumo, margem + util - 4, y + e(7.8), { align: "right" });
+      fonte("bold");
+      const nome = doc.splitTextToSize(textoPdf(dados["Nome"] || "—"),
+        Math.max(30, margem + util - 4 - larguraResumo - xNome))[0];
+      doc.text(nome, xNome, y + e(7.8));
       y += alturaCartao + g(7);
 
-      /* Identificação em quatro colunas por linha; os campos largos (Endereço) ocupam a linha toda. */
+      /* Identificação em três colunas por linha; os campos largos (Endereço) ocupam a linha toda. */
       tituloSecao("Identificação");
       const identificacao = linhas.filter(function (linha) {
         return EXIBIDOS_NO_TOPO.indexOf(linha[0]) === -1 && CAMPOS_TEXTO.indexOf(linha[0]) === -1;
       });
-      const porLinha = 4;
+      const porLinha = 3;
       const coluna = (util - 6 * (porLinha - 1)) / porLinha;
       const estreitos = identificacao.filter(function (linha) { return CAMPOS_LARGOS.indexOf(linha[0]) === -1; });
       const grupos = [];
@@ -486,19 +561,24 @@ const Relatorio = (function () {
       });
       grupos.forEach(function (linhasGrupo) {
         const largo = linhasGrupo.length === 1 && CAMPOS_LARGOS.indexOf(linhasGrupo[0][0]) !== -1;
-        fonte(9.5, "normal");
+        const larguraCampo = largo ? util : coluna;
         const grupo = linhasGrupo.map(function (linha) {
-          return { rotulo: linha[0], valor: doc.splitTextToSize(textoPdf(linha[1] || "—"), largo ? util : coluna) };
+          fonte("normal");
+          const valor = doc.splitTextToSize(textoPdf(linha[1] || "—"), larguraCampo);
+          const rotulo = doc.splitTextToSize(linha[0].toUpperCase(), larguraCampo);
+          return { rotulo: rotulo, valor: valor };
         });
+        const linhasRotulo = Math.max.apply(null, grupo.map(function (c) { return c.rotulo.length; }));
         const linhasTexto = Math.max.apply(null, grupo.map(function (c) { return c.valor.length; }));
-        const alturaLinha = e(4.5 + linhasTexto * 4.2) + g(3);
+        const alturaRotulo = e(5.4) * linhasRotulo;
+        const alturaLinha = alturaRotulo + e(linhasTexto * 5.3) + g(3);
         garantirEspaco(alturaLinha);
         grupo.forEach(function (campo, j) {
           const x = margem + j * (coluna + 6);
-          fonte(6.8, "normal", COR.suave);
-          doc.text(campo.rotulo.toUpperCase(), x, y, { charSpace: 0.2 });
-          fonte(9.5, "normal", campo.valor[0] === "—" ? COR.suave : COR.tinta);
-          doc.text(campo.valor, x, y + e(4.5), { lineHeightFactor: 1.25 });
+          fonte("normal", COR.suave);
+          doc.text(campo.rotulo, x, y, { lineHeightFactor: 1.27 });
+          fonte("normal", campo.valor[0] === "—" ? COR.suave : COR.tinta);
+          doc.text(campo.valor, x, y + alturaRotulo, { lineHeightFactor: 1.25 });
         });
         y += alturaLinha;
       });
@@ -526,8 +606,8 @@ const Relatorio = (function () {
       return depois === antes + 1;
     }
 
-    /* Cada aba numa folha só, com a maior letra que couber: primeiro acha a letra
-       (com os espaços mais apertados), depois devolve o máximo de espaço possível. */
+    /* Cada aba numa folha só, com a maior letra que couber (no máximo 12): primeiro acha
+       a letra (com os espaços mais apertados), depois devolve o máximo de espaço possível. */
     function folhaUnica(desenhar) {
       const apertado = ESPACOS[ESPACOS.length - 1];
       const cabe = function (escala, espacos) {
@@ -538,8 +618,8 @@ const Relatorio = (function () {
         escala = Math.max(ESCALA_MINIMA, Math.round((escala - PASSO_ESCALA) * 1000) / 1000);
       }
       /* Meio degrau acima, para aproveitar o branco que sobra no fim da folha. */
-      const meio = Math.round((escala + PASSO_ESCALA / 2) * 1000) / 1000;
-      if (escala < ESCALA_INICIAL && cabe(meio, apertado)) escala = meio;
+      const meioDegrau = Math.round((escala + PASSO_ESCALA / 2) * 1000) / 1000;
+      if (escala < ESCALA_INICIAL && cabe(meioDegrau, apertado)) escala = meioDegrau;
       let espacos = apertado;
       for (let i = 0; i < ESPACOS.length - 1; i++) {
         if (cabe(escala, ESPACOS[i])) {
@@ -576,7 +656,10 @@ const Relatorio = (function () {
           const comSubtitulos = parte.secao.blocos.some(function (b) { return b.soJunto; });
           espacamento = parte.secao.espacamento || 1;
           if (parte.junto) y += g(4);
-          if (!parte.junto || !comSubtitulos) tituloSecao(parte.secao.titulo);
+          if (!parte.junto || !comSubtitulos) {
+            tituloSecao(parte.secao.titulo);
+            if (parte.secao.subtitulo) subtituloSecao(parte.secao.subtitulo);
+          }
           parte.secao.blocos.forEach(function (bloco) {
             if (bloco.soJunto && !parte.junto) return;
             desenharBloco(bloco);
@@ -585,19 +668,9 @@ const Relatorio = (function () {
         });
       });
     });
-    /* A primeira página criada pelo jsPDF fica em branco: as folhas começam na segunda. */
+    /* A primeira página criada pelo jsPDF fica em branco: as folhas começam na segunda.
+       Não há rodapé nem numeração das páginas. */
     doc.deletePage(1);
-
-    /* Rodapé: só a numeração das páginas */
-    const paginas = doc.getNumberOfPages();
-    for (let i = 1; i <= paginas; i++) {
-      doc.setPage(i);
-      cor(COR.linha, "draw");
-      doc.setLineWidth(0.3);
-      doc.line(margem, altura - 13, largura - margem, altura - 13);
-      fonte(8.5, "normal", COR.suave);
-      doc.text("Página " + i + " de " + paginas, largura - margem, altura - 8.5, { align: "right" });
-    }
 
     if (opcoes && opcoes.imprimir) {
       doc.autoPrint();
@@ -720,7 +793,11 @@ const Relatorio = (function () {
         case "imagem":
           adicionarImagem(bloco.imagem, 520, Math.round(520 * bloco.altura / bloco.largura));
           break;
+        case "escore":
+          campo(bloco.rotulo, bloco.valor, true);
+          break;
         case "assinaturas":
+          if (bloco.local) linhaMesclada([bloco.local + ", ____ de ______________ de ______."], 1, false);
           linhaMesclada(["Atenciosamente,"], 1, false);
           bloco.pessoas.forEach(function (p) { campo(p.nome, p.registro); });
           break;
@@ -740,6 +817,7 @@ const Relatorio = (function () {
     (secoes || []).forEach(function (secao) {
       sheet.addRow([]).height = 10;
       titulo(secao.titulo, 13);
+      if (secao.subtitulo) titulo(secao.subtitulo, 12);
       secao.blocos.forEach(blocoExcel);
     });
 

@@ -14,19 +14,29 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão.
 5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta na tela. Enunciado e
    opções iguais à folha de papel (Lino et al., Cad. Saúde Pública). Na impressão sai como
-   a folha: cada área com as descrições e a assinalada marcada, sem as caixas de resumo.
-6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30.
+   a folha: cada área com as descrições e a assinalada marcada, sem as caixas de resumo, com o
+   título "Escala de Independência para as Atividades de Alterações de Vida Diária". No fim das
+   questões há o campo **Escore do paciente** (sai como "ESCORE DO PACIENTE: 3"); em branco,
+   vale o total calculado, que aparece como dica no campo.
+6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30. Na
+   impressão o título é "Escalas, Inventários e Questionários", com o nome do questionário
+   logo abaixo (letra 13).
 7. **Escala Cornell** – escore e interpretação automáticos. Opções: Impossibilitado de
    avaliar, Ausente, Leve e Intenso. Na impressão sai só o escore do paciente.
 8. **Humor e comportamento** – total de Katz, Pfeffer e Cornell (vindos das
    abas) e GAI, GDS e BHS (digitados), com interpretação na tela. Na impressão saem só os
    resultados e a legenda das escalas.
 9. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
-    e não entra no total até ser corrigido. Os comentários sobre o Relógio de Shulman saem
-    na mesma folha da tabela.
+    e não entra no total até ser corrigido. Os comentários sobre o Teste do Relógio de Shulman
+    saem na mesma folha da tabela.
 10. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
-11. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB).
+11. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
+    do CERAD vêm das abas já preenchidas (fluência Animais e Frutas e Nomeação de Boston da
+    Linguagem, total do MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o
+    Reconhecimento); só Praxia construtiva e Evocação tardia da praxia são digitadas. Na
+    impressão o título é "Consortium to Establish a Registry for Alzheimer's Disease", com
+    "Bateria do CERAD e Funções Executivas" logo abaixo.
 12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
 13. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
@@ -39,7 +49,9 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
     17. **Bateria Wechsler**, 18. **Stroop Test** (com testes complementares).
 19. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
     tabela (domínio e resultado).
-20. **Conclusão** – texto e assinaturas dos profissionais.
+20. **Conclusão** – texto (até 3.000 caracteres, quase a folha toda) e assinaturas dos
+    profissionais. Na impressão, "Rio de Janeiro, ___ de ___ de ___." (para escrever a data à
+    mão) e as assinaturas ficam no fim da folha.
 
 A escala **IQCODE** está fora de uso por enquanto: o código continua no projeto, mas a
 aba fica escondida (`display: none`), não aparece em Humor e comportamento e não sai
@@ -50,10 +62,12 @@ O relatório segue a ordem dos números do menu e só traz as etapas preenchidas
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
-Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela) e a
-letra da impressão começa 20% maior; se o conteúdo não couber, primeiro os espaços entre os
-blocos e nas linhas das tabelas encolhem e, só se ainda faltar lugar, a letra diminui naquela
-folha até caber, sem passar para outra página (os títulos mantêm o mesmo tamanho).
+Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
+páginas não são numeradas. Os escores saem sem o máximo (ex.: "14", não "14 / 30").
+Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela); se o
+conteúdo não couber, primeiro os espaços entre os blocos e nas linhas das tabelas encolhem e,
+só se ainda faltar lugar, a letra diminui naquela folha até caber, sem passar para outra
+página (os títulos mantêm o mesmo tamanho).
 O botão **Imprimir Avaliação** baixa o PDF completo direto, sem perguntas.
 A tecla ENTER não baixa o relatório (nos textos longos ela só quebra a linha).
 Nenhum dado é salvo: tudo acontece no navegador.

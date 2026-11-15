@@ -35,10 +35,6 @@ const Secoes = (function () {
     return isFinite(n) ? n : null;
   }
 
-  function textoNumero(n) {
-    return n === null ? "—" : formatarNumero(n);
-  }
-
   /* Opção em formato de pílula (mesmo visual da Escala Cornell). */
   function pilula(nome, valor, rotulo, pontos, dica) {
     const label = criar("label", "opcao");
@@ -169,7 +165,7 @@ const Secoes = (function () {
           tipo: "tabela",
           cabecalho: cabecalho,
           linhas: linhas,
-          estilos: { 0: { cellWidth: 10, halign: "center" }, 2: { cellWidth: 46 }, 3: { cellWidth: 16, halign: "center" } }
+          estilos: { 0: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 50 }, 3: { cellWidth: 21, halign: "center" } }
         }];
       }
     };
@@ -358,10 +354,27 @@ const Secoes = (function () {
       return !!(linha.calculos && linha.calculos[coluna]);
     }
 
+    /* Célula que mostra o escore de outra aba (ex.: CERAD puxa a fluência da Linguagem). */
+    function puxado(linha, coluna) {
+      return !!(linha.puxar && linha.puxar[coluna]);
+    }
+
+    function origemPuxada(linha, coluna) {
+      const ref = linha.puxar[coluna];
+      return { secao: porId[ref[0]], ref: ref };
+    }
+
+    function valorPuxado(linha, coluna) {
+      const origem = origemPuxada(linha, coluna);
+      const bloco = origem.secao && origem.secao.bloco(origem.ref[1]);
+      return bloco && bloco.texto ? bloco.texto(origem.ref[2], origem.ref[3]) || "" : "";
+    }
+
     const acesso = {
       num: function (chave, coluna) {
         const linha = porChave[chave];
         if (!linha) return null;
+        if (puxado(linha, coluna)) return numero(valorPuxado(linha, coluna));
         if (calculado(linha, coluna)) return linha.calculos[coluna](acesso);
         const valor = valorDe(nome(linha, coluna));
         if (acimaDoMaximo(valor, linha.maximo)) return null;
@@ -418,6 +431,7 @@ const Secoes = (function () {
     function celula(linha, coluna) {
       const tipo = b.colunas[coluna].tipo;
       if (tipo === "referencia") return referencia(linha, b.colunas[coluna].dado);
+      if (puxado(linha, coluna)) return valorPuxado(linha, coluna);
       if (calculado(linha, coluna)) {
         const v = linha.calculos[coluna](acesso);
         return v === null ? "" : formatarNumero(v);
@@ -438,13 +452,13 @@ const Secoes = (function () {
     function linhaCompleta(linha) {
       return b.colunas.every(function (coluna, c) {
         return informativa(coluna) || coluna.tipo === "calculo" || calculado(linha, c) ||
-          celula(linha, c) !== "";
+          puxado(linha, c) || celula(linha, c) !== "";
       });
     }
 
     function linhaDigitada(linha) {
       return b.colunas.some(function (coluna, c) {
-        return !informativa(coluna) && !calculado(linha, c) && celula(linha, c) !== "";
+        return !informativa(coluna) && !calculado(linha, c) && !puxado(linha, c) && celula(linha, c) !== "";
       });
     }
 
@@ -486,8 +500,8 @@ const Secoes = (function () {
           b.colunas.forEach(function (coluna, c) {
             const td = criar("td", coluna.estreita ? "estreita" : "");
             const rotulo = linha.rotulo + " – " + coluna.rotulo;
-            if (calculado(linha, c)) {
-              const saida = criar("output", "calc", "—");
+            if (calculado(linha, c) || puxado(linha, c)) {
+              const saida = criar("output", "calc" + (puxado(linha, c) ? " puxado" : ""), "—");
               saida.setAttribute("aria-label", rotulo);
               saidas.push({ el: saida, linha: linha, coluna: c });
               td.appendChild(saida);
@@ -541,7 +555,11 @@ const Secoes = (function () {
       },
       atualizar: function () {
         saidas.forEach(function (s) {
-          s.el.value = textoNumero(s.linha.calculos[s.coluna](acesso));
+          s.el.value = celula(s.linha, s.coluna) || "—";
+          if (puxado(s.linha, s.coluna)) {
+            const origem = origemPuxada(s.linha, s.coluna).secao;
+            s.el.title = "Vem da aba " + (origem ? origem.def.titulo : "correspondente") + " (preencha lá)";
+          }
         });
         referencias.forEach(function (r) {
           const valor = referencia(r.linha, r.dado);
@@ -560,6 +578,11 @@ const Secoes = (function () {
       },
       valor: function (chave, coluna) {
         return acesso.num(chave, coluna);
+      },
+      /* Valor da célula como aparece na tela (usado por outras abas). */
+      texto: function (chave, coluna) {
+        const linha = porChave[chave];
+        return linha ? celula(linha, coluna) : "";
       },
       preenchido: function () {
         return linhas.some(linhaDigitada);
@@ -597,7 +620,7 @@ const Secoes = (function () {
         const campo = criar("div", "field");
         const label = criar("label", "label", b.rotulo);
         label.htmlFor = nome;
-        const area = criar("textarea", "input textarea" + (b.alto ? " alta" : ""));
+        const area = criar("textarea", "input textarea" + (b.folha ? " folha" : b.alto ? " alta" : ""));
         area.id = nome;
         area.name = nome;
         area.placeholder = b.placeholder || "Digite aqui...";
@@ -606,6 +629,9 @@ const Secoes = (function () {
         campo.appendChild(label);
         campo.appendChild(area);
         container.appendChild(campo);
+      },
+      texto: function () {
+        return valorDe(nome);
       },
       preenchido: function () {
         return valorDe(nome) !== "";
@@ -616,6 +642,60 @@ const Secoes = (function () {
       relatorio: function () {
         const texto = valorDe(nome);
         return texto ? [{ tipo: "texto", rotulo: b.rotulo, texto: texto }] : [];
+      }
+    };
+  }
+
+  /* Escore digitado pelo profissional no fim das questões (Escala de Katz).
+     Em branco, a impressão usa o valor calculado (b.calculado), mostrado como dica no campo. */
+  function blocoEscore(secao, b) {
+    const nome = secao.id + "-" + b.id;
+    let input = null;
+
+    function digitado() {
+      const valor = valorDe(nome);
+      return acimaDoMaximo(valor, b.maximo) ? null : numero(valor);
+    }
+
+    function calculado() {
+      return b.calculado ? b.calculado(secao.api) : null;
+    }
+
+    return {
+      montar: function (container) {
+        const campo = criar("div", "field campo-escore");
+        const label = criar("label", "label", b.rotulo + ":");
+        label.htmlFor = nome;
+        input = criar("input", "input input-escore");
+        input.type = "number";
+        input.id = nome;
+        input.name = nome;
+        input.min = "0";
+        input.step = "1";
+        input.inputMode = "numeric";
+        input.autocomplete = "off";
+        input.title = b.rotulo + (b.maximo !== undefined ? " (de 0 a " + b.maximo + ")" : "") +
+          ". Em branco, a impressão usa o total calculado.";
+        if (b.maximo !== undefined) {
+          input.max = String(b.maximo);
+          limitarMaximo(input, b.maximo, b.rotulo);
+        }
+        campo.appendChild(label);
+        campo.appendChild(input);
+        container.appendChild(campo);
+      },
+      atualizar: function () {
+        const total = calculado();
+        input.placeholder = total === null ? "" : "Calculado: " + formatarNumero(total);
+      },
+      valor: digitado,
+      preenchido: function () {
+        return valorDe(nome) !== "";
+      },
+      completo: function () { return true; },
+      relatorio: function () {
+        const valor = digitado() !== null ? digitado() : calculado();
+        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor) }];
       }
     };
   }
@@ -965,7 +1045,7 @@ const Secoes = (function () {
         const pessoas = b.pessoas.map(function (pessoa, i) {
           return { nome: valorDe(nome(i + 1, "nome")), registro: valorDe(nome(i + 1, "registro")) };
         }).filter(function (p) { return p.nome || p.registro; });
-        return pessoas.length ? [{ tipo: "assinaturas", pessoas: pessoas }] : [];
+        return pessoas.length || b.local ? [{ tipo: "assinaturas", pessoas: pessoas, local: b.local || "" }] : [];
       }
     };
   }
@@ -984,6 +1064,7 @@ const Secoes = (function () {
     frase: blocoFrase,
     grafico: blocoGrafico,
     resultados: blocoResultados,
+    escore: blocoEscore,
     assinaturas: blocoAssinaturas
   };
 
@@ -1103,8 +1184,8 @@ const Secoes = (function () {
       const caixas = secao.def.resumo(secao.api).filter(function (caixa) {
         return caixa.selo !== "" && !caixa.soTela;
       }).map(function (caixa) {
-        return [caixa.rotulo, caixa.selo !== undefined ? caixa.selo
-          : String(caixa.valor) + (caixa.de ? " / " + caixa.de : "")];
+        /* Na impressão sai só o escore, sem o máximo (ex.: "14", não "14 / 30"). */
+        return [caixa.rotulo, caixa.selo !== undefined ? caixa.selo : String(caixa.valor)];
       });
       if (caixas.length) blocos.push({ tipo: "caixas", caixas: caixas });
     }
@@ -1131,6 +1212,7 @@ const Secoes = (function () {
     if (!blocos.length) return null;
     return {
       titulo: secao.def.tituloImpressao || secao.def.titulo,
+      subtitulo: secao.def.subtituloImpressao || "",
       blocos: blocos,
       juntarCom: impressao.juntarCom || null,
       espacamento: impressao.espacamento || 1

@@ -194,13 +194,13 @@ const Cornell = (function () {
         {
           tipo: "caixas",
           /* A interpretação e os itens respondidos aparecem só na tela, nunca na impressão. */
-          caixas: [["Escore do paciente", r.total + " / " + r.pontuacaoMaxima]]
+          caixas: [["Escore do paciente", String(r.total)]]
         },
         {
           tipo: "tabela",
           cabecalho: ["Nº", "Sinal avaliado", "Avaliação", "Pontos"],
           linhas: linhas,
-          estilos: { 0: { cellWidth: 10, halign: "center" }, 2: { cellWidth: 42 }, 3: { cellWidth: 16, halign: "center" } }
+          estilos: { 0: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 46 }, 3: { cellWidth: 21, halign: "center" } }
         }
       ]
     };

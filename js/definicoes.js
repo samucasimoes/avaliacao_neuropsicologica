@@ -225,6 +225,7 @@ const DEFINICOES = [
   {
     id: "katz",
     titulo: "Escala de Katz",
+    tituloImpressao: "Escala de Independência para as Atividades de Alterações de Vida Diária",
     descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
     blocos: [
       {
@@ -293,6 +294,11 @@ const DEFINICOES = [
           }
         ]
       },
+      /* Digitado pelo profissional; em branco, a impressão usa o total calculado. */
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 6, calculado: function (s) {
+        const r = s.bloco("itens").pontuacao();
+        return r.respondidos ? r.total : null;
+      } },
       {
         tipo: "nota",
         soTela: true,
@@ -300,18 +306,21 @@ const DEFINICOES = [
       },
       {
         tipo: "nota",
-        texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 2007 – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
+        texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 23(x): 1-10, xxx, 2007. – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
       }
     ],
+    /* O escore digitado, quando houver, vale no lugar do total calculado. */
     resultado: function (s) {
       const r = s.bloco("itens").pontuacao();
-      if (!r.respondidos) return null;
-      const parcial = r.respondidos < r.totalItens;
+      const digitado = s.bloco("escore").valor();
+      if (!r.respondidos && digitado === null) return null;
+      const total = digitado === null ? r.total : digitado;
+      const parcial = digitado === null && r.respondidos < r.totalItens;
       return {
-        valor: String(r.total),
+        valor: String(total),
         texto: parcial ? "Parcial: " + r.respondidos + " de " + r.totalItens + " áreas avaliadas"
-          : KATZ_INTERPRETACAO[r.total],
-        nivel: parcial ? "" : r.total === 0 ? "baixo" : r.total <= 2 ? "medio" : "alto"
+          : KATZ_INTERPRETACAO[total] || "",
+        nivel: parcial ? "" : total === 0 ? "baixo" : total <= 2 ? "medio" : "alto"
       };
     },
     /* soTela: a caixa aparece só na tela, não na impressão. */
@@ -329,6 +338,8 @@ const DEFINICOES = [
   {
     id: "pfeffer",
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
+    tituloImpressao: "Escalas, Inventários e Questionários",
+    subtituloImpressao: "Questionário de Atividades Funcionais (Pfeffer)",
     descricao: "Pergunte ao informante sobre a capacidade do paciente em cada atividade.",
     blocos: [
       {
@@ -564,7 +575,7 @@ const DEFINICOES = [
       {
         tipo: "texto",
         id: "comentario",
-        rotulo: "Comentários Sobre o Relógio de Shulman",
+        rotulo: "Comentários Sobre o Teste do Relógio de Shulman",
         alto: true
       }
     ],
@@ -577,6 +588,8 @@ const DEFINICOES = [
   {
     id: "cerad",
     titulo: "Bateria do CERAD e Funções executivas",
+    tituloImpressao: "Consortium to Establish a Registry for Alzheimer's Disease",
+    subtituloImpressao: "Bateria do CERAD e Funções Executivas",
     descricao: "CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e Bateria de Avaliação Frontal (FAB).",
     blocos: [
       {
@@ -589,14 +602,16 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
         ],
         linhas: [
-          { rotulo: "Fluência verbal: Animais" },
-          { rotulo: "Fluência verbal: Frutas" },
-          { rotulo: "Nomeação de Boston" },
-          { rotulo: "MoCA (Montreal Cognitive Assessment)" },
-          { rotulo: "Memória verbal (fixação)" },
+          /* "puxar": o escore vem de outra aba ([aba, bloco, linha, coluna]) e não é digitado aqui.
+             Praxia construtiva e Evocação tardia da praxia não têm escore em outra aba. */
+          { rotulo: "Fluência verbal: Animais", puxar: { 0: ["linguagem", "semantica", "1", 0] } },
+          { rotulo: "Fluência verbal: Frutas", puxar: { 0: ["linguagem", "semantica", "2", 0] } },
+          { rotulo: "Nomeação de Boston", puxar: { 0: ["linguagem", "boston"] } },
+          { rotulo: "MoCA (Montreal Cognitive Assessment)", puxar: { 0: ["moca", "dominios", "total", 0] } },
+          { rotulo: "Memória verbal (fixação)", puxar: { 0: ["ravlt", "tabela", "total", 0] } },
           { rotulo: "Praxia construtiva" },
-          { rotulo: "Memória verbal (evocação)" },
-          { rotulo: "Memória verbal (reconhecimento)" },
+          { rotulo: "Memória verbal (evocação)", puxar: { 0: ["ravlt", "tabela", "a7", 0] } },
+          { rotulo: "Memória verbal (reconhecimento)", puxar: { 0: ["ravlt", "tabela", "reconhecimento", 0] } },
           { rotulo: "Evocação tardia da praxia" }
         ]
       },
@@ -966,7 +981,7 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
-        texto: "7 - Procurar Símbolos: o examinando analisa, visualmente, 2 grupos de símbolos, 1 grupo modelo (composto de 2 símbolos) e um grupo de procura (composto de 5 símbolos) e indica se um dos símbolos do grupo modelo também faz parte do grupo de procura. Ele deve responder ao maior número de itens possíveis, dentro de um tempo limite de 120 segundos."
+        texto: "7 - Procurar Símbolos: o examinando analisa, visualmente, 2 grupos de símbolos, 1 grupo modelo (composto de 2 símbolos) e um grupo de procura (composto de 5 símbolos) e indica se um dos símbolos do grupo modelo também faz parte do grupo de procura. Ele deve responder ao maior número de itens possíveis, dentro de um tempo limite de 120 segundos. (Avalia velocidade de processamento, flexibilidade cognitiva, memória visual, concentração)"
       },
       {
         tipo: "paragrafo",
@@ -982,7 +997,7 @@ const DEFINICOES = [
     blocos: [
       {
         tipo: "paragrafo",
-        texto: "Teste que avalia atenção, resistência à interferência, impulsividade e flexibilidade de pensamento."
+        texto: "Teste que avalia atenção, controle inibitório, impulsividade, flexibilidade cognitiva e velocidade de processamento."
       },
       {
         tipo: "tabela",
@@ -1062,8 +1077,7 @@ const DEFINICOES = [
           "Praxias",
           "Funções executivas"
         ]
-      },
-      { tipo: "texto", id: "observacoes", rotulo: "Observações", placeholder: "Considerações adicionais sobre os resultados..." }
+      }
     ]
   },
 
@@ -1073,10 +1087,12 @@ const DEFINICOES = [
     descricao: "Conclusão da avaliação e assinatura dos profissionais.",
     sempreImprimir: true,
     blocos: [
-      { tipo: "texto", id: "texto", rotulo: "Conclusão", alto: true, placeholder: "Escreva a conclusão da avaliação..." },
+      { tipo: "texto", id: "texto", rotulo: "Conclusão", alto: true, folha: true, limite: 3000, placeholder: "Escreva a conclusão da avaliação..." },
       {
         tipo: "assinaturas",
         id: "assinaturas",
+        /* Na impressão: local com espaço para o dia, o mês e o ano, e as assinaturas no fim da folha. */
+        local: "Rio de Janeiro",
         pessoas: [
           { nome: "Vania Buksman", registro: "CRP 05/43969" },
           { nome: "Lelia Galvis", registro: "CRP 05/43970" }

@@ -14,56 +14,63 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão.
 5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta na tela. Enunciado e
    opções iguais à folha de papel (Lino et al., Cad. Saúde Pública). Na impressão sai como
-   a folha: cada área com as descrições e a assinalada marcada, sem as caixas de resumo, com o
-   título "Escala de Independência para as Atividades de Alterações de Vida Diária". No fim das
+   a folha: cada área com as descrições e a assinalada marcada, com o título "Escala de Katz
+   (Escala de Independência para as Atividades de Alterações de Vida Diária)". No fim das
    questões há o campo **Escore do paciente** (sai como "ESCORE DO PACIENTE: 3"); em branco,
-   vale o total calculado, que aparece como dica no campo.
+   vale o total calculado, que aparece como dica no campo. Depois vêm a legenda e a
+   referência (letra 9, em negrito).
 6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30. Na
    impressão o título é "Escalas, Inventários e Questionários", com o nome do questionário
-   logo abaixo (letra 13).
-7. **Escala Cornell** – escore e interpretação automáticos. Opções: Impossibilitado de
-   avaliar, Ausente, Leve e Intenso. Na impressão sai só o escore do paciente.
-8. **Humor e comportamento** – total de Katz, Pfeffer e Cornell (vindos das
-   abas) e GAI, GDS e BHS (digitados), com interpretação na tela. Na impressão saem só os
-   resultados e a legenda das escalas.
-9. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
+   logo abaixo (letra 13); o escore e a legenda saem no fim da folha.
+7. **GAI**, **GDS**, **Escala de Desesperança de Beck (BHS)** e **IQCODE** – uma aba para
+   cada, só com o campo Escore do paciente (o IQCODE aceita decimal, ex.: 3,6) e a legenda
+   (o IQCODE não tem legenda). Na impressão saem juntas numa folha, depois do Pfeffer.
+8. **Escala Cornell** – escore e interpretação automáticos. Opções: Impossibilitado de
+   avaliar, Ausente, Leve e Intenso. Na impressão o escore e a legenda saem no fim da folha.
+9. **Humor e comportamento** – quadro com os resultados de Katz, Pfeffer, GAI, GDS, BHS,
+   IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Na impressão
+   sai só o quadro; a legenda de cada escala sai na folha dela.
+
+Em todas as escalas, a legenda tem duas colunas: o escore numa e a interpretação na outra.
+10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
     e não entra no total até ser corrigido. Os comentários sobre o Teste do Relógio de Shulman
     saem na mesma folha da tabela.
-10. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
+11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
-11. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
+12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
     do CERAD vêm das abas já preenchidas (fluência Animais e Frutas e Nomeação de Boston da
     Linguagem, total do MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o
     Reconhecimento); só Praxia construtiva e Evocação tardia da praxia são digitadas. Na
     impressão o título é "Consortium to Establish a Registry for Alzheimer's Disease", com
     "Bateria do CERAD e Funções Executivas" logo abaixo.
-12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
-13. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
+13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
+14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
     e ficam só na tela (tabelas `RAVLT_REFERENCIA` e `RAVLT_DP` em `js/definicoes.js`). Na impressão o título é "Teste de Aprendizagem Auditivo-Verbal
     de Rey - (RAVLT)". A idade aparece ao lado do título, só na tela.
-14. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
+15. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
     operacional (Digit Span), com classificação.
-15. **Trilhas** (com atenção sustentada, seletiva e alternada), 16. **Praxias**,
-    17. **Bateria Wechsler**, 18. **Stroop Test** (com testes complementares).
-19. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
+16. **Trilhas** (com atenção sustentada, seletiva e alternada), 17. **Praxias**,
+    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
+20. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
     tabela (domínio e resultado).
-20. **Conclusão** – texto (até 3.000 caracteres, quase a folha toda) e assinaturas dos
+21. **Conclusão** – texto (até 3.000 caracteres, quase a folha toda) e assinaturas dos
     profissionais. Na impressão, "Rio de Janeiro, ___ de ___ de ___." (para escrever a data à
     mão) e as assinaturas ficam no fim da folha.
 
-A escala **IQCODE** está fora de uso por enquanto: o código continua no projeto, mas a
-aba fica escondida (`display: none`), não aparece em Humor e comportamento e não sai
-no relatório. Para voltar, remova a classe `etapa-oculta` e o `style` da aba no
-`index.html` e o `oculto: true` da linha do IQCODE em `js/definicoes.js`.
+O questionário completo do **IQCODE** (26 itens) está fora de uso: o código continua no
+projeto, mas a aba fica escondida (`display: none`) e não sai no relatório; o escore do
+IQCODE é digitado na aba IQCODE (`iqcode-escore`). Para voltar com o questionário, remova a
+classe `etapa-oculta` e o `style` da aba no `index.html`.
 
 O relatório segue a ordem dos números do menu e só traz as etapas preenchidas.
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
-páginas não são numeradas. Os escores saem sem o máximo (ex.: "14", não "14 / 30").
+páginas não são numeradas. No cabeçalho da primeira folha os rótulos ficam com a primeira
+letra de cada palavra em maiúscula (ex.: "Paciente", "Médico Solicitante"). Os escores saem sem o máximo (ex.: "14", não "14 / 30").
 Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela); se o
 conteúdo não couber, primeiro os espaços entre os blocos e nas linhas das tabelas encolhem e,
 só se ainda faltar lugar, a letra diminui naquela folha até caber, sem passar para outra

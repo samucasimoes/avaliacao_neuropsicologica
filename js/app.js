@@ -241,20 +241,28 @@
 
   /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
      campos, suba a versão e converta os nomes antigos em migrarCampos. */
-  const VERSAO_CAMPOS = 3;
+  const VERSAO_CAMPOS = 4;
 
   /* Converte campos salvos antes da versão 3:
      - Encaminhador virou Médico solicitante;
      - a aba Curva de aprendizagem virou RAVLT (com a coluna DP antes da Classificação);
      - saíram "Traumatismo craniano" (Resumo, item 14) e o TMR (Memória, linha 5);
-     - a lista de Funções avaliadas mudou: volta ao padrão (tudo marcado). */
+     - a lista de Funções avaliadas mudou: volta ao padrão (tudo marcado).
+     Antes da versão 4, GAI, GDS e BHS eram digitados em Humor e comportamento
+     (linhas 4, 5 e 7); agora cada escala tem a própria aba. */
   function migrarCampos(campos) {
-    if ((Number(campos.versaoCampos) || 2) >= VERSAO_CAMPOS) return campos;
+    const versao = Number(campos.versaoCampos) || 2;
+    if (versao >= VERSAO_CAMPOS) return campos;
+    const HUMOR_ANTIGO = { "humor-escalas-4": "gai-escore", "humor-escalas-5": "gds-escore", "humor-escalas-7": "bhs-escore" };
     const novos = {};
     Object.keys(campos).forEach(function (nome) {
       let novo = nome;
       let m;
-      if (nome === "encaminhador") {
+      if (HUMOR_ANTIGO[nome]) {
+        novo = HUMOR_ANTIGO[nome];
+      } else if (versao >= 3) {
+        /* Já está com os nomes da versão 3. */
+      } else if (nome === "encaminhador") {
         novo = "medicoSolicitante";
       } else if (nome === "curva-analise") {
         novo = "ravlt-comentarios";

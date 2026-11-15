@@ -86,15 +86,33 @@ const PFEFFER_OPCOES = [
   { valor: "3", rotulo: "Não é capaz", pontos: 3 }
 ];
 
+/* GAI: ponto de corte 8/9 (9 ou mais) para sintomas relevantes; 13 ou mais sugere TAG. */
 function interpretarGai(n) {
-  return n >= 10 ? { texto: "Sugere presença de ansiedade em nível significativo", nivel: "alto" }
-    : { texto: "", nivel: "" };
+  if (n >= 13) return { texto: "Transtorno de ansiedade generalizada (TAG)", nivel: "alto" };
+  if (n >= 9) return { texto: "Sintomas de ansiedade clinicamente relevantes", nivel: "medio" };
+  return { texto: "", nivel: "" };
 }
 
 function interpretarGds(n) {
   if (n > 10) return { texto: "Sintomas depressivos em nível grave", nivel: "alto" };
-  if (n >= 5) return { texto: "Pode sugerir sintomas depressivos leves a moderados", nivel: "medio" };
+  if (n >= 5) return { texto: "Sintomas depressivos em níveis leve a moderado", nivel: "medio" };
   return { texto: "Normal", nivel: "baixo" };
+}
+
+/* Escore digitado nas abas de uma escala só (GAI, GDS, BHS, IQCODE). */
+function resultadoDigitado(interpretar) {
+  return function (s) {
+    const n = s.bloco("escore").valor();
+    if (n === null) return null;
+    const r = interpretar ? interpretar(n) : { texto: "", nivel: "" };
+    return { valor: formatarNumero(n), texto: r.texto, nivel: r.nivel };
+  };
+}
+
+/* Na tela, a interpretação do escore digitado. */
+function resumoDigitado(s) {
+  const r = this.resultado(s);
+  return [{ rotulo: "Interpretação", selo: r ? r.texto || "—" : "Digite o escore do paciente", nivel: r ? r.nivel : "", soTela: true }];
 }
 
 function interpretarBhs(n) {
@@ -225,7 +243,7 @@ const DEFINICOES = [
   {
     id: "katz",
     titulo: "Escala de Katz",
-    tituloImpressao: "Escala de Independência para as Atividades de Alterações de Vida Diária",
+    tituloImpressao: "Escala de Katz (Escala de Independência para as Atividades de Alterações de Vida Diária)",
     descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
     blocos: [
       {
@@ -300,12 +318,14 @@ const DEFINICOES = [
         return r.respondidos ? r.total : null;
       } },
       {
-        tipo: "nota",
-        soTela: true,
-        texto: "Pontuação: 0 independente em todas as seis funções; 1 independente em cinco e dependente em uma; 2 independente em quatro e dependente em duas; 3 independente em três e dependente em três; 4 independente em duas e dependente em quatro; 5 independente em uma e dependente em cinco; 6 dependente em todas as seis funções."
+        tipo: "faixas",
+        id: "legenda",
+        linhas: KATZ_INTERPRETACAO.map(function (texto, i) { return [String(i), texto]; })
       },
       {
         tipo: "nota",
+        /* Na impressão sai menor (letra 9) e em negrito. */
+        referencia: true,
         texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 23(x): 1-10, xxx, 2007. – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
       }
     ],
@@ -369,7 +389,13 @@ const DEFINICOES = [
             ]
           }
         ]
-      }
+      },
+      /* Calculado (sem campo na tela): sai no fim da folha, depois das respostas. */
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", entrada: false, calculado: function (s) {
+        const r = s.bloco("itens").pontuacao();
+        return r.respondidos ? r.total : null;
+      } },
+      { tipo: "faixas", id: "legenda", linhas: [["> 5", "Comprometimento funcional significativo"]] }
     ],
     resultado: function (s) {
       const r = s.bloco("itens").pontuacao();
@@ -386,10 +412,88 @@ const DEFINICOES = [
     resumo: function (s) {
       const r = s.bloco("itens").pontuacao();
       return [
-        { rotulo: "Escore do paciente", valor: r.total, de: "30" },
+        { rotulo: "Escore do paciente", valor: r.total, de: "30", soTela: true },
         { rotulo: "Respondidos", valor: r.respondidos, de: String(r.totalItens), soTela: true }
       ];
     }
+  },
+
+  /* GAI, GDS, BHS e IQCODE: só o escore digitado e a legenda. Na impressão saem
+     juntas numa folha, depois do Pfeffer. */
+  {
+    id: "gai",
+    titulo: "Inventário de Ansiedade Geriátrica (GAI)",
+    descricao: "Digite o escore do paciente no Inventário de Ansiedade Geriátrica (0 a 20).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 20 },
+      {
+        tipo: "faixas",
+        id: "legenda",
+        linhas: [
+          ["8/9", "Presença de sintomas de ansiedade clinicamente relevantes"],
+          ["≥ 13", "Transtorno de ansiedade generalizada (TAG)"]
+        ]
+      }
+    ],
+    resultado: resultadoDigitado(interpretarGai),
+    resumo: resumoDigitado
+  },
+
+  {
+    id: "gds",
+    titulo: "Escala de Depressão Geriátrica (GDS)",
+    tituloImpressao: "Escala de Depressão Geriátrica (GDS) (Geriatric Depression Scale)",
+    impressao: { juntarCom: ["gai"] },
+    descricao: "Digite o escore do paciente na Escala de Depressão Geriátrica (0 a 15).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 15 },
+      {
+        tipo: "faixas",
+        id: "legenda",
+        linhas: [
+          ["0 a 4", "Normal"],
+          ["5 a 10", "Sintomas depressivos em níveis leve a moderado"],
+          ["Maior que 10", "Sintomas depressivos em nível grave"]
+        ]
+      }
+    ],
+    resultado: resultadoDigitado(interpretarGds),
+    resumo: resumoDigitado
+  },
+
+  {
+    id: "bhs",
+    titulo: "Escala de Desesperança de Beck (BHS)",
+    tituloImpressao: "Escala de Desesperança de Beck (Beck Hopelessness Scale)",
+    impressao: { juntarCom: ["gai", "gds"] },
+    descricao: "Digite o escore do paciente na Escala de Desesperança de Beck (0 a 20).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 20 },
+      {
+        tipo: "faixas",
+        id: "legenda",
+        linhas: [
+          ["0 a 4", "Desesperança mínima"],
+          ["5 a 8", "Desesperança leve"],
+          ["9 a 13", "Desesperança moderada"],
+          ["14 a 20", "Desesperança grave"]
+        ]
+      }
+    ],
+    resultado: resultadoDigitado(interpretarBhs),
+    resumo: resumoDigitado
+  },
+
+  {
+    id: "iqcode-escore",
+    titulo: "IQCODE",
+    tituloImpressao: "IQCODE – Questionário do Declínio (Informant Questionnaire on Cognitive Decline in the Elderly)",
+    impressao: { juntarCom: ["gai", "gds", "bhs"] },
+    descricao: "Digite o escore do paciente no IQCODE – Questionário do Declínio (média de 1 a 5).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 5, decimal: true }
+    ],
+    resultado: resultadoDigitado(null)
   },
 
   {
@@ -472,7 +576,7 @@ const DEFINICOES = [
   {
     id: "humor",
     titulo: "Humor e comportamento",
-    descricao: "Escalas, inventários e questionários. Katz, Pfeffer e Cornell vêm das próprias abas; GAI, GDS e BHS são digitados aqui.",
+    descricao: "Escalas, inventários e questionários: os resultados vêm das próprias abas (Katz, Pfeffer, GAI, GDS, BHS, IQCODE e Cornell). As legendas saem na folha de cada escala.",
     blocos: [
       {
         tipo: "resultados",
@@ -480,53 +584,12 @@ const DEFINICOES = [
         itens: [
           { rotulo: "Escala de independência para as atividades de vida diária (Katz)", origem: "katz" },
           { rotulo: "Questionário de atividades funcionais (Pfeffer)", origem: "pfeffer" },
-          /* IQCODE fora de uso por enquanto: linha escondida e fora da impressão. */
-          { rotulo: "IQCODE (investigação de declínio cognitivo)", origem: "iqcode", oculto: true },
-          { rotulo: "GAI (inventário de ansiedade) autorrelato", maximo: 20, interpretar: interpretarGai },
-          { rotulo: "GDS (Yesavage escala de depressão) autorrelato", maximo: 15, interpretar: interpretarGds },
-          { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" },
-          { rotulo: "BHS (escala de desesperança) autorrelato", maximo: 20, interpretar: interpretarBhs }
+          { rotulo: "GAI (inventário de ansiedade) autorrelato", origem: "gai" },
+          { rotulo: "GDS (Yesavage escala de depressão) autorrelato", origem: "gds" },
+          { rotulo: "BHS (escala de desesperança) autorrelato", origem: "bhs" },
+          { rotulo: "IQCODE (questionário do declínio)", origem: "iqcode-escore" },
+          { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" }
         ]
-      },
-      {
-        tipo: "nota",
-        legenda: true,
-        texto: [
-          "ESCALA KATZ:",
-          "0: independente em todas as seis funções;",
-          "1: independente em cinco funções e dependente em uma função;",
-          "2: independente em quatro funções e dependente em duas funções;",
-          "3: independente em três funções e dependente em três funções;",
-          "4: independente em duas funções e dependente em quatro funções;",
-          "5: independente em uma função e dependente em cinco funções;",
-          "6: dependente em todas as seis funções.",
-          "",
-          "ESCALA DE PFEFFER:",
-          "> 5 = comprometimento funcional significativo.",
-          "",
-          "GAI:",
-          ">= 10 sugerem presença de ansiedade em nível significativo.",
-          "",
-          "GDS (Yesavage):",
-          "0-4 normal;",
-          "5-10 pode sugerir sintomas depressivos em níveis leve a moderado;",
-          "> 10 sintomas depressivos em nível grave.",
-          "",
-          "CORNELL:",
-          "0-8 ausência de depressão;",
-          "9-11 depressão leve;",
-          "12 ou + depressão moderada a grave.",
-          "",
-          /* IQCODE fora de uso por enquanto:
-          "IQCODE:",
-          "escores maiores ou iguais a 3,5 sugerem a presença de declínio cognitivo frente ao nível pré-mórbido.",
-          "", */
-          "BHS:",
-          "0-4 desesperança mínima;",
-          "5-8 desesperança leve;",
-          "9-13 desesperança moderada;",
-          "14-20 desesperança grave."
-        ].join("\n")
       }
     ]
   },

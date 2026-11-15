@@ -1318,3 +1318,13 @@ td.estreita .input-tabela {
     color: #000;
   }
 }
+
+/* Legenda das escalas (escore e interpretação), montada em secoes.js */
+.tabela-faixas {
+  max-width: 640px;
+}
+
+.tabela-faixas th[scope="row"] {
+  white-space: nowrap;
+  font-weight: 600;
+}

@@ -646,8 +646,10 @@ const Secoes = (function () {
     };
   }
 
-  /* Escore digitado pelo profissional no fim das questões (Escala de Katz).
-     Em branco, a impressão usa o valor calculado (b.calculado), mostrado como dica no campo. */
+  /* Escore do paciente no fim das questões ("ESCORE DO PACIENTE: 3" na impressão).
+     Digitado pelo profissional (Katz, GAI, GDS, BHS, IQCODE); em branco, a impressão usa o
+     valor calculado (b.calculado), mostrado como dica no campo. Com entrada: false não há
+     campo na tela e sai só o valor calculado (Pfeffer). Com decimal, aceita vírgula (IQCODE). */
   function blocoEscore(secao, b) {
     const nome = secao.id + "-" + b.id;
     let input = null;
@@ -663,21 +665,28 @@ const Secoes = (function () {
 
     return {
       montar: function (container) {
+        if (b.entrada === false) return;
         const campo = criar("div", "field campo-escore");
         const label = criar("label", "label", b.rotulo + ":");
         label.htmlFor = nome;
         input = criar("input", "input input-escore");
-        input.type = "number";
         input.id = nome;
         input.name = nome;
-        input.min = "0";
-        input.step = "1";
-        input.inputMode = "numeric";
+        if (b.decimal) {
+          input.type = "text";
+          input.inputMode = "decimal";
+          input.maxLength = 6;
+        } else {
+          input.type = "number";
+          input.min = "0";
+          input.step = "1";
+          input.inputMode = "numeric";
+        }
         input.autocomplete = "off";
         input.title = b.rotulo + (b.maximo !== undefined ? " (de 0 a " + b.maximo + ")" : "") +
-          ". Em branco, a impressão usa o total calculado.";
+          (b.calculado ? ". Em branco, a impressão usa o total calculado." : "");
         if (b.maximo !== undefined) {
-          input.max = String(b.maximo);
+          if (!b.decimal) input.max = String(b.maximo);
           limitarMaximo(input, b.maximo, b.rotulo);
         }
         campo.appendChild(label);
@@ -685,17 +694,63 @@ const Secoes = (function () {
         container.appendChild(campo);
       },
       atualizar: function () {
+        if (!input || !b.calculado) return;
         const total = calculado();
         input.placeholder = total === null ? "" : "Calculado: " + formatarNumero(total);
       },
-      valor: digitado,
-      preenchido: function () {
-        return valorDe(nome) !== "";
+      valor: function () {
+        return b.entrada === false ? null : digitado();
       },
-      completo: function () { return true; },
+      preenchido: function () {
+        return b.entrada !== false && valorDe(nome) !== "";
+      },
+      /* Só é obrigatório quando não há valor calculado para usar no lugar. */
+      completo: function () {
+        return b.entrada === false || !!b.calculado || valorDe(nome) !== "";
+      },
       relatorio: function () {
-        const valor = digitado() !== null ? digitado() : calculado();
+        const proprio = b.entrada === false ? null : digitado();
+        const valor = proprio !== null ? proprio : calculado();
         return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor) }];
+      }
+    };
+  }
+
+  /* Legenda da escala em duas colunas: faixa de escore e interpretação.
+     Na impressão sai no fim da folha da escala, quando ela foi preenchida. */
+  function blocoFaixas(secao, b) {
+    const cabecalho = ["Escore", "Interpretação"];
+    return {
+      montar: function (container) {
+        container.appendChild(criar("h3", "escala-grupo", "Legenda"));
+        const tabela = criar("table", "tabela-teste tabela-faixas");
+        const thead = criar("thead");
+        const tr = criar("tr");
+        cabecalho.forEach(function (t) { tr.appendChild(criar("th", "", t)); });
+        thead.appendChild(tr);
+        tabela.appendChild(thead);
+        const tbody = criar("tbody");
+        b.linhas.forEach(function (linha) {
+          const tr = criar("tr");
+          const th = criar("th", "", linha[0]);
+          th.scope = "row";
+          tr.appendChild(th);
+          tr.appendChild(criar("td", "", linha[1]));
+          tbody.appendChild(tr);
+        });
+        tabela.appendChild(tbody);
+        container.appendChild(tabela);
+      },
+      preenchido: function () { return false; },
+      completo: function () { return true; },
+      relatorio: function (grupoPreenchido) {
+        if (!grupoPreenchido) return [];
+        return [{
+          tipo: "tabela",
+          cabecalho: cabecalho,
+          linhas: b.linhas,
+          estilos: { 0: { cellWidth: 34, fontStyle: "bold" } }
+        }];
       }
     };
   }
@@ -766,7 +821,7 @@ const Secoes = (function () {
       completo: function () { return true; },
         relatorio: function (grupoPreenchido) {
           if (!grupoPreenchido || b.soTela) return [];
-          return [{ tipo: b.legenda ? "legenda" : tipoRelatorio, texto: b.texto }];
+          return [{ tipo: b.referencia ? "referencia" : b.legenda ? "legenda" : tipoRelatorio, texto: b.texto }];
         }
       };
     };
@@ -1065,6 +1120,7 @@ const Secoes = (function () {
     grafico: blocoGrafico,
     resultados: blocoResultados,
     escore: blocoEscore,
+    faixas: blocoFaixas,
     assinaturas: blocoAssinaturas
   };
 
@@ -1179,7 +1235,7 @@ const Secoes = (function () {
 
     const blocos = [];
     const r = resultado(id);
-    if (r) {
+    if (r && secao.def.resumo) {
       /* Caixas com soTela (ex.: Dependências da Katz) ficam só na tela. */
       const caixas = secao.def.resumo(secao.api).filter(function (caixa) {
         return caixa.selo !== "" && !caixa.soTela;

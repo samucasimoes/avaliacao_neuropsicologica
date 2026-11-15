@@ -58,6 +58,8 @@ const Relatorio = (function () {
   const TAMANHO_TITULO = 14;
   const TAMANHO_SUBTITULO = 13;
   const TAMANHO_TEXTO = 12;
+  /* Referência bibliográfica no fim da folha (Escala de Katz). */
+  const TAMANHO_REFERENCIA = 9;
   /* Distância entre as linhas de um texto em letra 12 (mm). */
   const PASSO_LINHA = 5.6;
 
@@ -71,6 +73,18 @@ const Relatorio = (function () {
 
   /* Já aparecem no cabeçalho e no cartão do paciente. */
   const EXIBIDOS_NO_TOPO = ["Nome", "Idade", "Data de Nascimento", "Data da Avaliação"];
+
+  /* Palavras que ficam em minúsculo no meio de um rótulo ("Data da Avaliação"). */
+  const PARTICULAS = ["a", "as", "o", "os", "da", "das", "de", "do", "dos", "e", "em"];
+
+  /* Rótulos do cabeçalho padronizados: primeira letra de cada palavra em maiúscula
+     e o resto em minúsculo ("MÉDICO SOLICITANTE" -> "Médico Solicitante"). */
+  function primeiraMaiuscula(texto) {
+    return String(texto).toLowerCase().split(" ").map(function (palavra, i) {
+      if (i > 0 && PARTICULAS.indexOf(palavra) !== -1) return palavra;
+      return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+    }).join(" ");
+  }
 
   /* Na identificação, ocupam a linha inteira (textos longos). */
   const CAMPOS_LARGOS = ["Endereço"];
@@ -500,6 +514,23 @@ const Relatorio = (function () {
           paragrafo(bloco.texto, "normal", COR.suave);
           y += g(5);
           break;
+        case "referencia": {
+          /* Referência bibliográfica (ex.: fim da Escala de Katz): sempre letra 9, em negrito,
+             mesmo quando a folha encolhe para caber. */
+          y += g(2);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(TAMANHO_REFERENCIA);
+          cor(COR.suave);
+          const linhasReferencia = doc.splitTextToSize(textoPdf(bloco.texto), util);
+          const passoReferencia = TAMANHO_REFERENCIA * 0.47;
+          linhasReferencia.forEach(function (linhaTexto) {
+            garantirEspaco(passoReferencia + 1);
+            doc.text(linhaTexto, margem, y);
+            y += passoReferencia;
+          });
+          y += g(3);
+          break;
+        }
         case "legenda":
           /* Uma linha por item; os títulos (terminados em ":") em negrito. */
           y += g(2);
@@ -524,7 +555,7 @@ const Relatorio = (function () {
       y = 15;
       textoCentralizado([TITULO.toUpperCase()], 0, 0.3);
       fonte("normal", COR.suave);
-      doc.text("Relatório da avaliação   •   Data da avaliação: " + (dados["Data da Avaliação"] || "—"),
+      doc.text("Relatório da Avaliação   •   Data da Avaliação: " + (dados["Data da Avaliação"] || "—"),
         meio, 21.5, { align: "center" });
 
       /* Paciente numa linha só: nome, idade e nascimento */
@@ -532,15 +563,16 @@ const Relatorio = (function () {
       const alturaCartao = e(12);
       borda(margem, y, util, alturaCartao);
       fonte("normal", COR.suave);
-      doc.text("PACIENTE", margem + 4, y + e(7.8), { charSpace: 0.3 });
-      const xNome = margem + 4 + doc.getTextWidth("PACIENTE") + 8 * 0.3 + 4;
+      doc.text("Paciente:", margem + 4, y + e(7.8));
+      const xNome = margem + 4 + doc.getTextWidth("Paciente:") + 3;
       const resumo = [
-        dados["Idade"],
+        dados["Idade"] ? "Idade: " + dados["Idade"] : "",
         dados["Data de Nascimento"] ? "Nascimento: " + dados["Data de Nascimento"] : ""
       ].filter(Boolean).join("   •   ");
       const larguraResumo = resumo ? doc.getTextWidth(resumo) + 6 : 0;
       if (resumo) doc.text(resumo, margem + util - 4, y + e(7.8), { align: "right" });
       fonte("bold");
+      /* O nome do paciente sai como foi digitado. */
       const nome = doc.splitTextToSize(textoPdf(dados["Nome"] || "—"),
         Math.max(30, margem + util - 4 - larguraResumo - xNome))[0];
       doc.text(nome, xNome, y + e(7.8));
@@ -565,7 +597,7 @@ const Relatorio = (function () {
         const grupo = linhasGrupo.map(function (linha) {
           fonte("normal");
           const valor = doc.splitTextToSize(textoPdf(linha[1] || "—"), larguraCampo);
-          const rotulo = doc.splitTextToSize(linha[0].toUpperCase(), larguraCampo);
+          const rotulo = doc.splitTextToSize(primeiraMaiuscula(linha[0]), larguraCampo);
           return { rotulo: rotulo, valor: valor };
         });
         const linhasRotulo = Math.max.apply(null, grupo.map(function (c) { return c.rotulo.length; }));
@@ -637,7 +669,10 @@ const Relatorio = (function () {
     const folhas = [{ ids: ["dados"], partes: [{ dados: true }] }];
     (secoes || []).forEach(function (secao) {
       const anterior = folhas[folhas.length - 1];
-      if (secao.juntarCom && anterior.ids.indexOf(secao.juntarCom) !== -1) {
+      /* juntarCom: uma aba ou uma lista (ex.: GDS junta com a GAI; se a GAI não sair, a GDS
+         abre a folha e as seguintes juntam com ela). */
+      const juntar = [].concat(secao.juntarCom || []);
+      if (juntar.some(function (id) { return anterior.ids.indexOf(id) !== -1; })) {
         anterior.ids.push(secao.id);
         anterior.partes.push({ secao: secao, junto: true });
       } else {
@@ -752,6 +787,7 @@ const Relatorio = (function () {
           break;
         case "paragrafo":
         case "nota":
+        case "referencia":
         case "legenda":
           linhaMesclada([bloco.texto], 1, !!bloco.negrito, 130);
           break;

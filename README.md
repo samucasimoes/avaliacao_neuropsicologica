@@ -15,10 +15,10 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta na tela. Enunciado e
    opções iguais à folha de papel (Lino et al., Cad. Saúde Pública). Na impressão sai como
    a folha: cada área com as descrições e a assinalada marcada, com o título "Escala de Katz
-   (Escala de Independência para as Atividades de Alterações de Vida Diária)". No fim das
-   questões há o campo **Escore do paciente** (sai como "ESCORE DO PACIENTE: 3"); em branco,
-   vale o total calculado, que aparece como dica no campo. Depois vêm a legenda e a
-   referência (letra 9, em negrito).
+   (Escala de Independência para as Atividades de Alterações de Vida Diária)". Logo abaixo das
+   questões vem a referência (letra 9, em negrito) e, abaixo dela, o campo **Escore do
+   paciente** (sai como "ESCORE DO PACIENTE: 3"; em branco, vale o total calculado, que
+   aparece como dica no campo) e a legenda.
 6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30. Na
    impressão o título é "Escalas, Inventários e Questionários", com o nome do questionário
    logo abaixo (letra 13); o escore e a legenda saem no fim da folha.

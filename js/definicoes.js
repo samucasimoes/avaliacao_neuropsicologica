@@ -312,6 +312,12 @@ const DEFINICOES = [
           }
         ]
       },
+      {
+        tipo: "nota",
+        /* Logo abaixo das questões e acima do escore; na impressão, letra 9 em negrito. */
+        referencia: true,
+        texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 23(x): 1-10, xxx, 2007. – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
+      },
       /* Digitado pelo profissional; em branco, a impressão usa o total calculado. */
       { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 6, calculado: function (s) {
         const r = s.bloco("itens").pontuacao();
@@ -321,12 +327,6 @@ const DEFINICOES = [
         tipo: "faixas",
         id: "legenda",
         linhas: KATZ_INTERPRETACAO.map(function (texto, i) { return [String(i), texto]; })
-      },
-      {
-        tipo: "nota",
-        /* Na impressão sai menor (letra 9) e em negrito. */
-        referencia: true,
-        texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 23(x): 1-10, xxx, 2007. – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
       }
     ],
     /* O escore digitado, quando houver, vale no lugar do total calculado. */

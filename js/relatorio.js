@@ -86,6 +86,33 @@ const Relatorio = (function () {
     }).join(" ");
   }
 
+  /* Dados do paciente na impressão: o que foi digitado em minúsculo sai com maiúscula
+     (o formulário guarda o texto como foi digitado). Nos campos curtos, cada palavra
+     começa com maiúscula ("professora aposentada" -> "Professora Aposentada"); nos textos,
+     cada frase ("filha. mora com a paciente" -> "Filha. Mora com a paciente").
+     Só a primeira letra muda: siglas e o resto do que foi digitado ficam como estão. */
+  const CAMPOS_PALAVRAS = ["Nome", "Profissão", "Médico solicitante", "Endereço", "Escolaridade"];
+
+  function maiusculaPalavras(texto) {
+    return String(texto).split(" ").map(function (palavra, i) {
+      if (i > 0 && PARTICULAS.indexOf(palavra) !== -1) return palavra;
+      return palavra.replace(/\p{L}/u, function (letra) { return letra.toUpperCase(); });
+    }).join(" ");
+  }
+
+  function maiusculaFrases(texto) {
+    return String(texto).replace(/(^|[.!?]\s+|\n\s*)(\p{L})/gu, function (tudo, antes, letra) {
+      return antes + letra.toUpperCase();
+    });
+  }
+
+  function formatarDado(rotulo, valor) {
+    if (!valor) return valor;
+    if (CAMPOS_PALAVRAS.indexOf(rotulo) !== -1) return maiusculaPalavras(valor);
+    if (CAMPOS_TEXTO.indexOf(rotulo) !== -1) return maiusculaFrases(valor);
+    return valor;
+  }
+
   /* Na identificação, ocupam a linha inteira (textos longos). */
   const CAMPOS_LARGOS = ["Endereço"];
 
@@ -110,6 +137,7 @@ const Relatorio = (function () {
     const meio = largura / 2;
     /* Sem rodapé (não há numeração das páginas): o conteúdo vai até 16 mm do fim da folha. */
     const limite = altura - 16;
+    linhas = linhas.map(function (linha) { return [linha[0], formatarDado(linha[0], linha[1])]; });
     const dados = {};
     linhas.forEach(function (linha) { dados[linha[0]] = linha[1]; });
     let y = 0;

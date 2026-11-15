@@ -70,7 +70,11 @@ Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
 páginas não são numeradas. No cabeçalho da primeira folha os rótulos ficam com a primeira
-letra de cada palavra em maiúscula (ex.: "Paciente", "Médico Solicitante"). Os escores saem sem o máximo (ex.: "14", não "14 / 30").
+letra de cada palavra em maiúscula (ex.: "Paciente", "Médico Solicitante").
+Os dados do paciente podem ser digitados em minúsculo: na impressão, nome, profissão, médico
+solicitante e endereço saem com a primeira letra de cada palavra em maiúscula, e os textos
+(informante, medicamentos, histórias e avaliações) com a primeira letra de cada frase em
+maiúscula. Siglas e o resto do texto ficam como foram digitados. Os escores saem sem o máximo (ex.: "14", não "14 / 30").
 Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela); se o
 conteúdo não couber, primeiro os espaços entre os blocos e nas linhas das tabelas encolhem e,
 só se ainda faltar lugar, a letra diminui naquela folha até caber, sem passar para outra

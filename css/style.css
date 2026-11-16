@@ -1325,6 +1325,11 @@ td.estreita .input-tabela {
 }
 
 .tabela-faixas th[scope="row"] {
+  font-weight: 400;
+}
+
+.tabela-faixas .faixa-escore {
+  text-align: right;
   white-space: nowrap;
   font-weight: 600;
 }

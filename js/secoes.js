@@ -165,7 +165,7 @@ const Secoes = (function () {
           tipo: "tabela",
           cabecalho: cabecalho,
           linhas: linhas,
-          estilos: { 0: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 50 }, 3: { cellWidth: 21, halign: "center" } }
+          estilos: { 0: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 50 }, 3: { cellWidth: 21, halign: "right" } }
         }];
       }
     };
@@ -719,23 +719,24 @@ const Secoes = (function () {
   /* Legenda da escala em duas colunas: faixa de escore e interpretação.
      Na impressão sai no fim da folha da escala, quando ela foi preenchida. */
   function blocoFaixas(secao, b) {
-    const cabecalho = ["Escore", "Interpretação"];
+    /* A faixa de escore fica à direita, alinhada com os outros valores da folha. */
+    const cabecalho = ["Interpretação", "Escore"];
     return {
       montar: function (container) {
         container.appendChild(criar("h3", "escala-grupo", "Legenda"));
         const tabela = criar("table", "tabela-teste tabela-faixas");
         const thead = criar("thead");
         const tr = criar("tr");
-        cabecalho.forEach(function (t) { tr.appendChild(criar("th", "", t)); });
+        cabecalho.forEach(function (t, i) { tr.appendChild(criar("th", i === 1 ? "faixa-escore" : "", t)); });
         thead.appendChild(tr);
         tabela.appendChild(thead);
         const tbody = criar("tbody");
         b.linhas.forEach(function (linha) {
           const tr = criar("tr");
-          const th = criar("th", "", linha[0]);
+          const th = criar("th", "", linha[1]);
           th.scope = "row";
           tr.appendChild(th);
-          tr.appendChild(criar("td", "", linha[1]));
+          tr.appendChild(criar("td", "faixa-escore", linha[0]));
           tbody.appendChild(tr);
         });
         tabela.appendChild(tbody);
@@ -748,8 +749,8 @@ const Secoes = (function () {
         return [{
           tipo: "tabela",
           cabecalho: cabecalho,
-          linhas: b.linhas,
-          estilos: { 0: { cellWidth: 34, fontStyle: "bold" } }
+          linhas: b.linhas.map(function (linha) { return [linha[1], linha[0]]; }),
+          estilos: { 1: { cellWidth: 34, fontStyle: "bold", halign: "right" } }
         }];
       }
     };
@@ -1055,7 +1056,7 @@ const Secoes = (function () {
           tipo: "tabela",
           cabecalho: ["Escalas, inventários e questionários", "Resultado"],
           linhas: corpo,
-          estilos: { 1: { cellWidth: 30, halign: "center" } }
+          estilos: { 1: { cellWidth: 30, halign: "right" } }
         }];
       }
     };

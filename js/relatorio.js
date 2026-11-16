@@ -135,6 +135,8 @@ const Relatorio = (function () {
     const margem = 18;
     const util = largura - margem * 2;
     const meio = largura / 2;
+    /* Borda direita dos valores (pontos e escores): a margem menos o recuo das células. */
+    const DIREITA_VALORES = margem + util - 2.5;
     /* Sem rodapé (não há numeração das páginas): o conteúdo vai até 16 mm do fim da folha. */
     const limite = altura - 16;
     linhas = linhas.map(function (linha) { return [linha[0], formatarDado(linha[0], linha[1])]; });
@@ -353,7 +355,11 @@ const Relatorio = (function () {
       doc.autoTable({
         startY: y,
         margin: { left: margem, right: margem, top: 16, bottom: altura - limite },
-        head: [bloco.cabecalho.map(textoPdf)],
+        /* O cabeçalho segue o alinhamento da coluna (ex.: Pontos e Escore à direita). */
+        head: [bloco.cabecalho.map(function (titulo, i) {
+          const alinhamento = bloco.estilos && bloco.estilos[i] && bloco.estilos[i].halign;
+          return alinhamento ? { content: textoPdf(titulo), styles: { halign: alinhamento } } : textoPdf(titulo);
+        })],
         body: corpo,
         theme: "plain",
         rowPageBreak: "avoid",
@@ -459,10 +465,9 @@ const Relatorio = (function () {
     function escore(bloco) {
       garantirEspaco(passo() + depoisDeBloco());
       y += g(1);
+      /* Alinhado à direita, na mesma borda dos pontos e das faixas de escore das tabelas. */
       fonte("bold", COR.escuro);
-      const rotulo = textoPdf(bloco.rotulo).toUpperCase() + ": ";
-      doc.text(rotulo, margem, y);
-      doc.text(textoPdf(bloco.valor), margem + doc.getTextWidth(rotulo) + e(1), y);
+      doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), DIREITA_VALORES, y, { align: "right" });
       y += depoisDeBloco() + g(2);
     }
 

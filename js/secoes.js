@@ -1254,7 +1254,7 @@ const Secoes = (function () {
       grupos[grupos.length - 1].push(bloco);
     });
     /* A impressão pode trocar a ordem dos grupos e dar um subtítulo a um grupo
-       (usado quando a etapa sai junto com outra, sem o próprio título). */
+       (soJunto: quando a etapa sai junto com outra, esses subtítulos substituem o título). */
     const ordem = impressao.ordemGrupos || grupos.map(function (g, i) { return i; });
     ordem.forEach(function (indice) {
       const grupo = grupos[indice] || [];

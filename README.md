@@ -77,10 +77,12 @@ Os dados do paciente podem ser digitados em minúsculo: na impressão, nome, pro
 solicitante e endereço saem com a primeira letra de cada palavra em maiúscula, e os textos
 (informante, medicamentos, histórias e avaliações) com a primeira letra de cada frase em
 maiúscula. Siglas e o resto do texto ficam como foram digitados. Os escores saem sem o máximo (ex.: "14", não "14 / 30").
-Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na tela); se o
-conteúdo não couber, primeiro os espaços entre os blocos e nas linhas das tabelas encolhem e,
-só se ainda faltar lugar, a letra diminui naquela folha até caber, sem passar para outra
-página (os títulos mantêm o mesmo tamanho).
+Os subtítulos (ex.: "Memória Imediata e Memória Operacional", "Atenção", "Teste das Trilhas")
+têm letra 13. A letra nunca diminui: numa folha cheia, primeiro os espaços entre os blocos e
+nas linhas das tabelas encolhem para a aba caber numa folha; se mesmo assim não couber, o
+conteúdo continua na folha seguinte. Abas que saem juntas (dados + Resumo, Memória + Trilhas,
+Praxias + Wechsler) só dividem a folha quando cabem juntas; senão, cada uma abre a sua folha
+(a Trilhas, sozinha, sai com o título "Atenção e Trilhas").
 O botão **Imprimir Avaliação** baixa o PDF completo direto, sem perguntas.
 A tecla ENTER não baixa o relatório (nos textos longos ela só quebra a linha).
 Nenhum dado é salvo: tudo acontece no navegador.

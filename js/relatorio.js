@@ -56,6 +56,8 @@ const Relatorio = (function () {
 
   /* Tamanhos da letra na impressão: títulos 14, subtítulo da aba 13 e o restante 12. */
   const TAMANHO_TITULO = 14;
+  /* Subtítulos: o da aba (ex.: Questionário de Atividades Funcionais) e os de dentro da
+     folha (ex.: Memória Imediata e Memória Operacional, Atenção, Teste das Trilhas). */
   const TAMANHO_SUBTITULO = 13;
   const TAMANHO_TEXTO = 12;
   /* Referência bibliográfica no fim da folha (Escala de Katz). */
@@ -116,13 +118,9 @@ const Relatorio = (function () {
   /* Na identificação, ocupam a linha inteira (textos longos). */
   const CAMPOS_LARGOS = ["Endereço"];
 
-  /* Cada aba ocupa uma folha: a letra é 12 e, só se o conteúdo não couber,
-     a folha é refeita com letra um pouco menor até caber. */
-  const ESCALA_INICIAL = 1;
-  const ESCALA_MINIMA = 0.5;
-  const PASSO_ESCALA = 0.05;
-  /* Numa folha cheia, os espaços entre os blocos e nas linhas das tabelas encolhem
-     (até 55%) antes da letra, para a letra ficar o maior possível. */
+  /* A letra é sempre 12 (nunca diminui). Numa folha cheia, os espaços entre os blocos e
+     nas linhas das tabelas encolhem (até 55%) para a aba caber numa folha; se mesmo assim
+     não couber, o conteúdo continua na folha seguinte. */
   const ESPACOS = [1, 0.85, 0.7, 0.55];
 
   /* Com opcoes.imprimir, devolve o endereço (blob) do PDF, que abre já com a janela
@@ -477,9 +475,12 @@ const Relatorio = (function () {
       const h = w * bloco.altura / bloco.largura;
       garantirEspaco(h + (bloco.titulo ? e(8) : 0) + e(4));
       if (bloco.titulo) {
-        fonte("bold", COR.escuro);
+        /* Título do gráfico (ex.: Curva de Aprendizagem): subtítulo, letra 13. */
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(TAMANHO_SUBTITULO);
+        cor(COR.escuro);
         doc.text(textoPdf(bloco.titulo), meio, y, { align: "center" });
-        y += e(4.5);
+        y += 5;
       }
       const x = margem + (util - w) / 2;
       doc.addImage(bloco.imagem, "PNG", x, y, w, h);
@@ -530,13 +531,15 @@ const Relatorio = (function () {
         case "imagem": imagem(bloco); break;
         case "assinaturas": assinaturas(bloco); break;
         case "subtitulo": {
-          /* Subtítulos centralizados, em negrito. */
-          y += g(bloco.menor ? 1 : 3);
-          garantirEspaco(e(18));
-          fonte("bold", COR.escuro);
+          /* Subtítulos centralizados, em negrito, letra 13. */
+          y += g(bloco.menor ? 1.5 : 3.5);
+          garantirEspaco(e(20));
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(TAMANHO_SUBTITULO);
+          cor(COR.escuro);
           const linhasSubtitulo = doc.splitTextToSize(textoPdf(bloco.texto), util);
-          y += textoCentralizado(linhasSubtitulo, passo(), 0);
-          y += bloco.menor ? e(3.5) : e(4.5) + g(2);
+          y += textoCentralizado(linhasSubtitulo, 6, 0);
+          y += bloco.menor ? 4 : 5 + g(2);
           break;
         }
         case "paragrafo":
@@ -671,28 +674,16 @@ const Relatorio = (function () {
       return depois === antes + 1;
     }
 
-    /* Cada aba numa folha só, com a maior letra que couber (no máximo 12): primeiro acha
-       a letra (com os espaços mais apertados), depois devolve o máximo de espaço possível. */
+    /* Desenha a aba numa folha, com letra 12: usa os maiores espaços que deixam tudo caber;
+       se nem com os espaços mais apertados couber, continua na folha seguinte. */
+    function cabeNumaFolha(desenhar, espacos) {
+      return desenharFolha(desenhar, 1, espacos, true);
+    }
+
     function folhaUnica(desenhar) {
-      const apertado = ESPACOS[ESPACOS.length - 1];
-      const cabe = function (escala, espacos) {
-        return desenharFolha(desenhar, escala, espacos, true);
-      };
-      let escala = ESCALA_INICIAL;
-      while (escala > ESCALA_MINIMA && !cabe(escala, apertado)) {
-        escala = Math.max(ESCALA_MINIMA, Math.round((escala - PASSO_ESCALA) * 1000) / 1000);
-      }
-      /* Meio degrau acima, para aproveitar o branco que sobra no fim da folha. */
-      const meioDegrau = Math.round((escala + PASSO_ESCALA / 2) * 1000) / 1000;
-      if (escala < ESCALA_INICIAL && cabe(meioDegrau, apertado)) escala = meioDegrau;
-      let espacos = apertado;
-      for (let i = 0; i < ESPACOS.length - 1; i++) {
-        if (cabe(escala, ESPACOS[i])) {
-          espacos = ESPACOS[i];
-          break;
-        }
-      }
-      desenharFolha(desenhar, escala, espacos, false);
+      const espacos = ESPACOS.find(function (fator) { return cabeNumaFolha(desenhar, fator); }) ||
+        ESPACOS[ESPACOS.length - 1];
+      desenharFolha(desenhar, 1, espacos, false);
       k = 1;
       c = 1;
     }
@@ -713,9 +704,9 @@ const Relatorio = (function () {
       }
     });
 
-    folhas.forEach(function (folha) {
-      folhaUnica(function () {
-        folha.partes.forEach(function (parte) {
+    function desenharPartes(partes) {
+      return function () {
+        partes.forEach(function (parte) {
           if (parte.dados) {
             folhaDados();
             return;
@@ -728,12 +719,22 @@ const Relatorio = (function () {
             tituloSecao(parte.secao.titulo);
             if (parte.secao.subtitulo) subtituloSecao(parte.secao.subtitulo);
           }
-          parte.secao.blocos.forEach(function (bloco) {
-            if (bloco.soJunto && !parte.junto) return;
-            desenharBloco(bloco);
-          });
+          parte.secao.blocos.forEach(desenharBloco);
           espacamento = 1;
         });
+      };
+    }
+
+    /* Abas que saem juntas só dividem a folha se couberem nela com letra 12;
+       senão, cada uma abre a própria folha (ex.: Memória e Trilhas). */
+    folhas.forEach(function (folha) {
+      const juntas = desenharPartes(folha.partes);
+      if (folha.partes.length === 1 || cabeNumaFolha(juntas, ESPACOS[ESPACOS.length - 1])) {
+        folhaUnica(juntas);
+        return;
+      }
+      folha.partes.forEach(function (parte) {
+        folhaUnica(desenharPartes([Object.assign({}, parte, { junto: false })]));
       });
     });
     /* A primeira página criada pelo jsPDF fica em branco: as folhas começam na segunda.

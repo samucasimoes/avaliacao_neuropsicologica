@@ -21,7 +21,7 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
    aparece como dica no campo) e a legenda.
 6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30. Na
    impressão o título é "Escalas, Inventários e Questionários", com o nome do questionário
-   logo abaixo (letra 13); o escore e a legenda saem no fim da folha.
+   logo abaixo (letra 10, em itálico); o escore e a legenda saem no fim da folha.
 7. **GAI**, **GDS**, **Escala de Desesperança de Beck (BHS)** e **IQCODE** – uma aba para
    cada, só com o campo Escore do paciente (o IQCODE aceita decimal, ex.: 3,6) e a legenda
    (o IQCODE não tem legenda). Na impressão saem juntas numa folha, depois do Pfeffer.
@@ -72,7 +72,8 @@ Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resu
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
-páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13. As palavras em
+páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13, e o texto logo
+abaixo do título da folha (ex.: Praxias, Stroop Test) sai centralizado. As palavras em
 inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12), menos na folha do
 CERAD; nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
 sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").

@@ -80,7 +80,7 @@ const Relatorio = (function () {
      O subtítulo logo abaixo do título da aba (ex.: Pfeffer) tem 2 a menos que o título, em itálico. */
   const TAMANHO_TITULO = 14;
   const TAMANHO_SUBTITULO = 13;
-  const TAMANHO_SUBTITULO_ABA = TAMANHO_TITULO - 2;
+  const TAMANHO_SUBTITULO_ABA = TAMANHO_TITULO - 4;
   /* Textos menores (ex.: explicação da fluência verbal, textos da Memória verbal e visual). */
   const TAMANHO_MENOR = 10;
   const TAMANHO_TEXTO = 12;
@@ -383,13 +383,13 @@ const Relatorio = (function () {
     }
 
     /* Subtítulo logo abaixo do título da aba (ex.: Questionário de Atividades Funcionais):
-       2 a menos que o título, em itálico. */
+       4 a menos que o título (letra 10), em itálico. */
     function subtituloSecao(texto) {
       doc.setFont("helvetica", "bolditalic");
       doc.setFontSize(TAMANHO_SUBTITULO_ABA);
       cor(COR.escuro);
-      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 5.6, 0);
-      y += 8.5;
+      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 4.6, 0);
+      y += 7.5;
     }
 
     /* Subtítulo dentro da folha: centralizado, em caixa alta, negrito, letra 13. */
@@ -403,13 +403,15 @@ const Relatorio = (function () {
       y += menor ? 4.2 : 5 + g(2);
     }
 
-    function paragrafo(texto, estilo, rgb, tamanho) {
+    /* centralizar: o texto logo abaixo do título da folha (ex.: Praxias, Stroop Test). */
+    function paragrafo(texto, estilo, rgb, tamanho, centralizar) {
       const tamanhoFonte = (tamanho || TAMANHO_TEXTO) * k;
       const passoTexto = e((tamanho || TAMANHO_TEXTO) * 0.47);
       if (temMarcas(texto)) {
         linhasRicas(texto, util, estilo, tamanhoFonte).forEach(function (linha) {
           garantirEspaco(passoTexto + 1);
-          desenharLinhaRica(linha, margem, y, estilo, tamanhoFonte, rgb || COR.tinta);
+          const x = centralizar ? meio - larguraLinhaRica(linha) / 2 : margem;
+          desenharLinhaRica(linha, x, y, estilo, tamanhoFonte, rgb || COR.tinta);
           y += passoTexto;
         });
         return;
@@ -418,7 +420,8 @@ const Relatorio = (function () {
       const linhasTexto = doc.splitTextToSize(textoPdf(texto), util);
       linhasTexto.forEach(function (linhaTexto) {
         garantirEspaco(passoTexto + 1);
-        doc.text(linhaTexto, margem, y);
+        if (centralizar) doc.text(linhaTexto, meio, y, { align: "center" });
+        else doc.text(linhaTexto, margem, y);
         y += passoTexto;
       });
     }
@@ -730,7 +733,8 @@ const Relatorio = (function () {
           break;
         case "paragrafo":
           /* tamanho: letra menor (ex.: 10); cinza: texto explicativo em cinza. */
-          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho);
+          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho,
+            bloco.centralizado);
           y += g(bloco.tamanho ? 3 : 4);
           break;
         case "nota":
@@ -937,7 +941,9 @@ const Relatorio = (function () {
             tituloSecao(parte.secao.titulo);
             if (parte.secao.subtitulo) subtituloSecao(parte.secao.subtitulo);
           }
-          parte.blocos.forEach(function (bloco) {
+          parte.blocos.forEach(function (bloco, i) {
+            /* O texto logo abaixo do título da folha sai centralizado. */
+            if (i === 0 && bloco.tipo === "paragrafo" && !parte.continuacao) bloco = Object.assign({}, bloco, { centralizado: true });
             if (bloco.soJunto && !parte.junto) return;
             desenharBloco(bloco);
           });

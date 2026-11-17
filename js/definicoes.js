@@ -16,6 +16,29 @@ function formatarNumero(n) {
   return n.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 }
 
+/* Teste das Trilhas: tempo (segundos) que marca cada percentil, por faixa de idade
+   (Davies, 1968: Trail Making Test, controles normais). Quanto menor o tempo, maior o percentil.
+   Acima de 79 anos usa a faixa de 70 a 79 (a última da tabela). */
+const TRILHAS_PERCENTIS = [90, 75, 50, 25, 10];
+const TRILHAS_TEMPOS = [
+  { de: 20, ate: 39, A: [21, 26, 32, 42, 50], B: [45, 55, 69, 94, 129] },
+  { de: 40, ate: 49, A: [22, 28, 34, 45, 59], B: [49, 57, 78, 100, 151] },
+  { de: 50, ate: 59, A: [25, 29, 38, 49, 67], B: [55, 75, 98, 135, 177] },
+  { de: 60, ate: 69, A: [29, 35, 48, 67, 104], B: [64, 89, 119, 172, 282] },
+  { de: 70, ate: 200, A: [38, 54, 80, 105, 168], B: [79, 132, 196, 292, 450] }
+];
+
+/* Percentil pelo tempo: o maior percentil cujo tempo de corte não foi ultrapassado
+   (ex.: 60 a 69 anos, forma A, 30" -> 75). Mais lento que o percentil 10 -> "< 10".
+   Sem idade (ou abaixo de 20 anos) ou sem tempo, não calcula. */
+function percentilTrilhas(idade, forma, tempo) {
+  if (idade === null || idade === undefined || tempo === null) return null;
+  const faixa = TRILHAS_TEMPOS.find(function (f) { return idade >= f.de && idade <= f.ate; });
+  if (!faixa) return null;
+  const i = faixa[forma].findIndex(function (corte) { return tempo <= corte; });
+  return i === -1 ? "< 10" : String(TRILHAS_PERCENTIS[i]);
+}
+
 function razao(a, b) {
   if (a === null || b === null || b === 0) return null;
   return Math.round((a / b) * 100) / 100;
@@ -928,12 +951,18 @@ const DEFINICOES = [
         colunas: [
           { rotulo: "Erros", tipo: "numero" },
           { rotulo: "Tempo (segundos)", tipo: "numero", tempo: true },
-          { rotulo: "Percentil", tipo: "numero" }
+          /* Calculado pela idade do paciente e pelo tempo (veja percentilTrilhas). */
+          { rotulo: "Percentil", tipo: "calculo" }
         ],
         linhas: [
-          { rotulo: "Forma A" },
-          { rotulo: "Forma B" }
+          { rotulo: "Forma A", calculos: { 2: function (t) { return percentilTrilhas(t.paciente().idade, "A", t.num("1", 1)); } } },
+          { rotulo: "Forma B", calculos: { 2: function (t) { return percentilTrilhas(t.paciente().idade, "B", t.num("2", 1)); } } }
         ]
+      },
+      {
+        tipo: "nota",
+        soTela: true,
+        texto: "O percentil é calculado pela idade do paciente e pelo tempo em segundos (Davies, 1968). Faixas: 20 a 39, 40 a 49, 50 a 59, 60 a 69 e 70 a 79 anos; acima de 79 anos usa a faixa de 70 a 79. Mais lento que o percentil 10 aparece como \"< 10\". Sem a idade do paciente, o percentil não é calculado."
       },
       { tipo: "subtitulo", texto: "Atenção" },
       {

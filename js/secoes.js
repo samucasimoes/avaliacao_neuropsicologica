@@ -390,6 +390,10 @@ const Secoes = (function () {
         const valor = valorDe(nome(linha, coluna));
         if (acimaDoMaximo(valor, linha.maximo)) return null;
         return numero(valor);
+      },
+      /* Idade e sexo do paciente (ex.: percentil do Teste das Trilhas). */
+      paciente: function () {
+        return contexto.paciente();
       }
     };
 
@@ -468,7 +472,8 @@ const Secoes = (function () {
       if (puxado(linha, coluna)) return valorPuxado(linha, coluna);
       if (calculado(linha, coluna)) {
         const v = linha.calculos[coluna](acesso);
-        return v === null ? "" : formatarNumero(v);
+        /* Um cálculo pode devolver texto (ex.: percentil "< 10"). */
+        return v === null ? "" : typeof v === "string" ? v : formatarNumero(v);
       }
       if (tipo === "fixo") return linha.fixos ? linha.fixos[coluna] || "" : "";
       if (tipo === "calculo") return "";

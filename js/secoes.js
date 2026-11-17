@@ -649,7 +649,8 @@ const Secoes = (function () {
         });
         if (!corpo.length) return [];
         const blocos = [];
-        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.titulo, menor: true });
+        /* tamanhoTitulo: título da tabela menor na impressão (ex.: Teste das Trilhas). */
+        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.titulo, menor: true, tamanho: b.tamanhoTitulo });
         blocos.push({
           tipo: "tabela",
           cabecalho: [b.colunaRotulo || ""].concat(impressas.map(function (c) { return b.colunas[c].rotulo; })),

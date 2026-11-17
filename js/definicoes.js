@@ -922,6 +922,8 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "formas",
         titulo: "Teste das Trilhas",
+        /* Fica dentro de Trilhas: na impressão, letra 12 (os outros subtítulos têm 13). */
+        tamanhoTitulo: 12,
         colunaRotulo: "Forma",
         colunas: [
           { rotulo: "Erros", tipo: "numero" },

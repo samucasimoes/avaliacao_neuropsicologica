@@ -395,11 +395,12 @@ const Relatorio = (function () {
     /* Subtítulo dentro da folha: centralizado, em caixa alta, negrito, letra 13.
        Tem uma folga fixa em cima (não encolhe nas folhas cheias), para ficar mais perto
        da própria tabela do que da tabela de cima. */
-    function subtitulo(texto, menor) {
+    function subtitulo(texto, menor, tamanho) {
       y += 2.5 + g(menor ? 1.5 : 3.5);
       garantirEspaco(e(16) + 6);
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(TAMANHO_SUBTITULO);
+      /* tamanho: subtítulo dentro de outro (ex.: Teste das Trilhas, dentro de Trilhas), letra 12. */
+      doc.setFontSize(tamanho || TAMANHO_SUBTITULO);
       cor(COR.escuro);
       y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);
       y += menor ? 4.2 : 5 + g(2);
@@ -535,12 +536,20 @@ const Relatorio = (function () {
           lineWidth: { bottom: 0.2 },
           valign: "middle"
         },
+        /* Linha cinza embaixo dos títulos das colunas e linha preta no fim da tabela,
+           separando uma escala da outra. */
         headStyles: {
           fontStyle: "bold",
           fontSize: e(TAMANHO_TEXTO),
           textColor: COR.suave,
           lineWidth: { bottom: 0.4 },
-          lineColor: COR.escuro
+          lineColor: COR.divisoria
+        },
+        didParseCell: function (data) {
+          if (data.section === "body" && data.row.index === corpo.length - 1) {
+            data.cell.styles.lineColor = COR.escuro;
+            data.cell.styles.lineWidth = { bottom: 0.4 };
+          }
         },
         columnStyles: bloco.estilos || {},
         didDrawPage: faixaTopo,
@@ -728,7 +737,7 @@ const Relatorio = (function () {
         case "imagem": imagem(bloco); break;
         case "assinaturas": assinaturas(bloco); break;
         case "subtitulo":
-          subtitulo(bloco.texto, bloco.menor);
+          subtitulo(bloco.texto, bloco.menor, bloco.tamanho);
           break;
         case "paragrafo":
           /* tamanho: letra menor (ex.: 10); cinza: texto explicativo em cinza. */

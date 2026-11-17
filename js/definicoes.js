@@ -206,7 +206,7 @@ const DEFINICOES = [
         tipo: "lista",
         id: "lista",
         preencherFolha: true,
-        introducao: "CERAD (*Consortium to Establish a Registry for Alzheimer's Disease*)",
+        introducao: "Foram aplicados protocolos fixos: CERAD (*Consortium to Establish a Registry for Alzheimer's Disease*) e testes complementares para todos os domínios cognitivos:",
         itens: [
           "Testes de Atenção",
           "Testes de Linguagem",

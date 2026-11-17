@@ -47,7 +47,8 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna
     Média do F-A-S é a mediana para a idade do paciente (60 a 69, 70 a 79, 80 ou mais) e o
     tempo de escolaridade escolhido acima da tabela (1 a 3, 4 a 7, 8 a 11, 12 anos ou mais;
-    tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade não é impresso. Na impressão
+    tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade e a média ficam só na
+    tela, para a profissional se basear: não saem na impressão. Na impressão
     sai antes do CERAD, e a explicação dos testes de fluência verbal tem letra 10.
 14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
@@ -64,7 +65,8 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares): a coluna
     Referência é o tempo médio da Versão Victoria para a idade do paciente (1ª cartela =
     cores de estímulos, 2ª = palavras sem interferência, 3ª = com interferência),
-    arredondado (tabela `STROOP_TEMPOS` em `js/definicoes.js`).
+    arredondado (tabela `STROOP_TEMPOS` em `js/definicoes.js`). A referência fica só na tela,
+    para a profissional se basear: não sai na impressão.
 20. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
     tabela (domínio e resultado).
 21. **Conclusão** – texto (até 3.000 caracteres, quase a folha toda) e assinaturas dos

@@ -795,9 +795,9 @@ const DEFINICOES = [
         titulo: "Fluência fonêmica",
         colunaRotulo: "Teste",
         colunas: [
-          /* Calculada pela idade e pelo tempo de escolaridade (veja mediaFas); sozinha não
-             faz a linha sair na impressão. */
-          { rotulo: "Média", tipo: "calculo", estreita: true, informativa: true },
+          /* Calculada pela idade e pelo tempo de escolaridade (veja mediaFas). Só na tela,
+             para a profissional se basear: não sai na impressão. */
+          { rotulo: "Média", tipo: "calculo", estreita: true, informativa: true, soTela: true },
           { rotulo: "F", tipo: "numero", estreita: true },
           { rotulo: "A", tipo: "numero", estreita: true },
           { rotulo: "S", tipo: "numero", estreita: true },
@@ -818,7 +818,7 @@ const DEFINICOES = [
       {
         tipo: "nota",
         soTela: true,
-        texto: "Média: mediana do F-A-S para a idade do paciente (60 a 69, 70 a 79 e 80 anos ou mais) e o tempo de escolaridade escolhido acima. Sem a idade, abaixo de 60 anos ou sem o tempo de escolaridade, a média não é calculada."
+        texto: "Média: mediana do F-A-S para a idade do paciente (60 a 69, 70 a 79 e 80 anos ou mais) e o tempo de escolaridade escolhido acima. Sem a idade, abaixo de 60 anos ou sem o tempo de escolaridade, a média não é calculada. A média fica só na tela: não sai na impressão."
       },
       {
         tipo: "tabela",
@@ -1189,9 +1189,9 @@ const DEFINICOES = [
         quebrarParenteses: true,
         colunas: [
           { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
-          /* Calculada pela idade do paciente (veja referenciaStroop); sozinha não faz a linha
-             sair na impressão. */
-          { rotulo: "Referência", tipo: "calculo", tempo: true, informativa: true },
+          /* Calculada pela idade do paciente (veja referenciaStroop). Só na tela, para a
+             profissional se basear: não sai na impressão. */
+          { rotulo: "Referência", tipo: "calculo", tempo: true, informativa: true, soTela: true },
           { rotulo: "Média", tipo: "texto", tempo: true },
           { rotulo: "Erros", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
@@ -1205,7 +1205,7 @@ const DEFINICOES = [
       {
         tipo: "nota",
         soTela: true,
-        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada."
+        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada. A referência fica só na tela: não sai na impressão."
       },
       { tipo: "subtitulo", texto: "Testes complementares" },
       {

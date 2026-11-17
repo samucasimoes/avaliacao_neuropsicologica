@@ -73,7 +73,7 @@ Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
 páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13 (o "Teste das
-Trilhas", que fica dentro de Trilhas, tem 12). Nas tabelas, a linha embaixo dos títulos das
+Trilhas", que fica dentro de Trilhas, tem 10). Nas tabelas, a linha embaixo dos títulos das
 colunas é cinza e a última linha é preta, separando uma escala da outra. As palavras em
 inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12), menos na folha do
 CERAD; nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o

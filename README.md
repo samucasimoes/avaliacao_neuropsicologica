@@ -54,7 +54,10 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     aparece, o texto explicativo tem letra 10 e o comentário sai sem o rótulo.
 15. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
     operacional (Digit Span), com classificação.
-16. **Trilhas** (com atenção sustentada, seletiva e alternada), 17. **Praxias**,
+16. **Trilhas** (com atenção sustentada, seletiva e alternada): o percentil do Teste das
+    Trilhas é calculado pela idade do paciente e pelo tempo em segundos, pela tabela de Davies
+    (1968) em `TRILHAS_TEMPOS` (`js/definicoes.js`); acima de 79 anos usa a faixa de 70 a 79 e,
+    mais lento que o percentil 10, sai "< 10". 17. **Praxias**,
     18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
 20. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
     tabela (domínio e resultado).

@@ -206,7 +206,7 @@ const DEFINICOES = [
         tipo: "lista",
         id: "lista",
         preencherFolha: true,
-        introducao: "Foram aplicados protocolos fixos: CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e testes complementares para todos os domínios cognitivos:",
+        introducao: "Foram aplicados protocolos fixos: CERAD (*Consortium to Establish a Registry for Alzheimer's Disease*) e testes complementares para todos os domínios cognitivos:",
         itens: [
           "Testes de Atenção",
           "Testes de Linguagem",
@@ -216,9 +216,9 @@ const DEFINICOES = [
           "Teste das Trilhas",
           "Labirintos",
           "Testes de leitura e compreensão",
-          "Stroop Test",
+          "*Stroop Test*",
           "Testes de Figuras Geométricas",
-          "Montreal Cognitive Assessment (MoCA)",
+          "*Montreal Cognitive Assessment* (MoCA)",
           "Fluência Verbal – Fonética e Semântica",
           "Teste Auditivo Verbal de Rey (RAVLT)",
           "Curva de Aprendizagem Verbal – RAVLT",
@@ -232,7 +232,7 @@ const DEFINICOES = [
           "Escala de Depressão Geriátrica (GDS)",
           "Escala de Atividades de Vida Diária (Katz)",
           "Questionário de Atividades Funcionais (PFEFFER)",
-          "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
+          "IQCODE (*Informant Questionnaire on Cognitive Decline in Elderly*)",
           "Escalas de Beck",
           "Escala Cornell para depressão"
         ]
@@ -442,7 +442,7 @@ const DEFINICOES = [
   {
     id: "gds",
     titulo: "Escala de Depressão Geriátrica (GDS)",
-    tituloImpressao: "Escala de Depressão Geriátrica (GDS) (Geriatric Depression Scale)",
+    tituloImpressao: "Escala de Depressão Geriátrica (GDS) *(Geriatric Depression Scale)*",
     impressao: { juntarCom: ["gai"] },
     descricao: "Digite o escore do paciente na Escala de Depressão Geriátrica (0 a 15).",
     blocos: [
@@ -464,7 +464,7 @@ const DEFINICOES = [
   {
     id: "bhs",
     titulo: "Escala de Desesperança de Beck (BHS)",
-    tituloImpressao: "Escala de Desesperança de Beck (Beck Hopelessness Scale)",
+    tituloImpressao: "Escala de Desesperança de Beck *(Beck Hopelessness Scale)*",
     impressao: { juntarCom: ["gai", "gds"] },
     descricao: "Digite o escore do paciente na Escala de Desesperança de Beck (0 a 20).",
     blocos: [
@@ -487,7 +487,7 @@ const DEFINICOES = [
   {
     id: "iqcode-escore",
     titulo: "IQCODE",
-    tituloImpressao: "IQCODE – Questionário do Declínio (Informant Questionnaire on Cognitive Decline in the Elderly)",
+    tituloImpressao: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*",
     impressao: { juntarCom: ["gai", "gds", "bhs"] },
     descricao: "Digite o escore do paciente no IQCODE – Questionário do Declínio (média de 1 a 5).",
     blocos: [
@@ -597,9 +597,11 @@ const DEFINICOES = [
   {
     id: "moca",
     titulo: "Montreal Cognitive Assessment (MoCA)",
+    /* Em inglês: na impressão, em itálico e letra 12. */
+    tituloImpressao: "*Montreal Cognitive Assessment (MoCA)*",
     /* Na impressão a tabela sai mais espaçada para ocupar melhor a folha
        (sem exagero: ainda cabe o comentário sobre o Relógio de Shulman). */
-    impressao: { espacamento: 2 },
+    impressao: { espacamento: 1.6 },
     descricao: "Digite o escore do paciente em cada domínio. O total é calculado automaticamente.",
     blocos: [
       {
@@ -637,6 +639,11 @@ const DEFINICOES = [
       },
       {
         tipo: "texto",
+        id: "comentario-escore",
+        rotulo: "Comentários Sobre o Escore Obtido no MoCA"
+      },
+      {
+        tipo: "texto",
         id: "comentario",
         rotulo: "Comentários Sobre o Teste do Relógio de Shulman",
         alto: true
@@ -652,7 +659,6 @@ const DEFINICOES = [
     id: "cerad",
     titulo: "Bateria do CERAD e Funções executivas",
     tituloImpressao: "Consortium to Establish a Registry for Alzheimer's Disease",
-    subtituloImpressao: "Bateria do CERAD e Funções Executivas",
     descricao: "CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e Bateria de Avaliação Frontal (FAB).",
     blocos: [
       {
@@ -661,15 +667,16 @@ const DEFINICOES = [
         titulo: "Bateria do CERAD",
         colunaRotulo: "Teste",
         colunas: [
-          { rotulo: "Escore obtido", tipo: "texto" },
+          { rotulo: "Escore obtido", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
         ],
         linhas: [
           /* "puxar": o escore vem de outra aba ([aba, bloco, linha, coluna]) e não é digitado aqui.
-             Praxia construtiva e Evocação tardia da praxia não têm escore em outra aba. */
+             Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia não têm escore em
+             outra aba (na Linguagem, a Nomeação de Boston é um texto) e são digitadas aqui. */
           { rotulo: "Fluência verbal: Animais", puxar: { 0: ["linguagem", "semantica", "1", 0] } },
           { rotulo: "Fluência verbal: Frutas", puxar: { 0: ["linguagem", "semantica", "2", 0] } },
-          { rotulo: "Nomeação de Boston", puxar: { 0: ["linguagem", "boston"] } },
+          { rotulo: "Nomeação de Boston" },
           { rotulo: "MoCA (Montreal Cognitive Assessment)", puxar: { 0: ["moca", "dominios", "total", 0] } },
           { rotulo: "Memória verbal (fixação)", puxar: { 0: ["ravlt", "tabela", "total", 0] } },
           { rotulo: "Praxia construtiva" },
@@ -681,7 +688,7 @@ const DEFINICOES = [
       { tipo: "subtitulo", texto: "Funções executivas" },
       {
         tipo: "paragrafo",
-        texto: "Conjunto de habilidades e princípios de organização necessários para lidar com situações visando adoção de conduta apropriada, responsável e efetiva. Incluem formulação de objetivos e de conceitos, motivação, planejamento, autorregulação, “insight”, abstração, análise, manipulação de conhecimentos adquiridos e flexibilidade mental. (Testes analisados: Stroop Test, Trilhas A e B, Semelhanças, Labirintos, Teste de Controle Mental, Teste de Fluência Verbal por categoria semântica e fonêmica, Teste do Relógio de Shulman, Teste dos Sinos, Interpretação de Provérbios.)"
+        texto: "Conjunto de habilidades e princípios de organização necessários para lidar com situações visando adoção de conduta apropriada, responsável e efetiva. Incluem formulação de objetivos e de conceitos, motivação, planejamento, autorregulação, “insight”, abstração, análise, manipulação de conhecimentos adquiridos e flexibilidade mental. (Testes analisados: __Stroop Test, Trilhas A e B, Semelhanças, Labirintos, Teste de Controle Mental, Teste de Fluência Verbal por categoria semântica e fonêmica, Teste do Relógio de Shulman, Teste dos Sinos, Interpretação de Provérbios__.)"
       },
       {
         tipo: "tabela",
@@ -692,10 +699,10 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
         ],
         linhas: [
-          { rotulo: "Controle inibitório" },
+          { rotulo: "Controle inibitório (Go/No-Go)" },
           { rotulo: "Fluência verbal" },
           { rotulo: "Similaridades" },
-          { rotulo: "Sequências motoras (palma, punho, lado)" },
+          { rotulo: "Séries motoras (sequência motora de Luria)" },
           { rotulo: "Instruções conflitantes (sensibilidade à interferência)" },
           { rotulo: "Preensão" }
         ]
@@ -746,6 +753,7 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
+        tamanho: 10,
         texto: "Testes de fluência verbal: o teste de fluência semântica avalia a produção e a fluência da linguagem semântica por categoria, atenção sustentada, organização, memória semântica (que contém a representação permanente de nossos conhecimentos sobre objetos, fatos e conceitos), estratégia e perseveração. O teste de fluência fonêmica avalia linguagem, planejamento, organização, julgamento e atenção."
       },
       { tipo: "texto", id: "expressao", rotulo: "Expressão" },
@@ -793,7 +801,7 @@ const DEFINICOES = [
               }
             }
           },
-          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1, dp: RAVLT_DP.b1 },
+          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1, dp: RAVLT_DP.b1, soTela: true },
           { rotulo: "A6", chave: "a6", referencia: RAVLT_REFERENCIA.a6, dp: RAVLT_DP.a6 },
           { rotulo: "A7", chave: "a7", referencia: RAVLT_REFERENCIA.a7, dp: RAVLT_DP.a7 },
           {
@@ -821,6 +829,8 @@ const DEFINICOES = [
         tipo: "paragrafo",
         texto: "RAVLT – Teste de aprendizagem verbal que permite estabelecer uma curva de uma lista de palavras ao longo de 5 tentativas. A pontuação corresponde ao número de itens evocados. Permite avaliar ainda a repercussão da introdução de distratores (lista B), a evocação tardia após 30 minutos à exposição da lista A e a capacidade de reconhecimento na reapresentação das palavras da lista A. Estrutura da tarefa: A1 leitura da lista A seguida de recuperação imediata pelo paciente (A2, A3, A4, A5 – idem) / Leitura da lista B (um distrator) seguida da recuperação imediata pelo paciente / A6 – recuperação livre da lista A sem leitura do examinador. A7 (recuperação tardia) após 30 min da recuperação de A6. Reconhecimento tardio das palavras constantes da lista A que foi repetida e recuperada 5 vezes anteriormente."
       },
+      /* Na impressão, a curva de aprendizagem e o comentário vão para outra folha. */
+      { tipo: "quebra" },
       {
         tipo: "grafico",
         id: "grafico",
@@ -833,6 +843,7 @@ const DEFINICOES = [
         tipo: "texto",
         id: "comentarios",
         rotulo: "Comentários",
+        semRotuloNaImpressao: true,
         alto: true,
         placeholder: "Descreva o desempenho: memória de curto e longo prazo, interferências, reconhecimento, velocidade de esquecimento..."
       }
@@ -860,10 +871,16 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor e em cinza. */
+        tamanho: 10,
+        cinza: true,
         texto: "Memória lógica: recuperação de 2 histórias lógicas imediatamente após sua leitura (resgate imediato: memória lógica I) e após 30 min (resgate tardio: memória lógica II). Teste que avalia armazenamento e recuperação de informações."
       },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor e em cinza. */
+        tamanho: 10,
+        cinza: true,
         texto: "Memória visual: apresentação de figuras geométricas que devem ser reproduzidas de imediato (memória visual de curto prazo) e após aproximadamente 25 min (memória visual tardia)."
       },
       /* Na impressão sai acima de Atenção (Trilhas vem logo depois, na mesma folha). */
@@ -877,13 +894,16 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Teste Digit Span" },
+          { rotulo: "Teste Digit Span", rotuloImpressao: "Teste *Digit Span*" },
           { rotulo: "Ordem Direta (Memória imediata)" },
           { rotulo: "Ordem Inversa (Memória Operacional)" }
         ]
       },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor e em cinza. */
+        tamanho: 10,
+        cinza: true,
         texto: "Teste que consiste na repetição seriada de números. Espera-se que o(a) paciente seja capaz de repetir até 7 dígitos (7 ± 2) na ordem direta e 4 dígitos na ordem inversa."
       }
     ]
@@ -898,6 +918,9 @@ const DEFINICOES = [
     blocos: [
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor e em cinza. */
+        tamanho: 10,
+        cinza: true,
         texto: "Estes testes se referem à capacidade atentiva, destreza visuomotora, rapidez de processamento, capacidade de alternar continuamente conceitos distintos, flexibilidade cognitiva, resistência à interferência e rapidez na tomada de decisão."
       },
       {
@@ -907,7 +930,7 @@ const DEFINICOES = [
         colunaRotulo: "Forma",
         colunas: [
           { rotulo: "Erros", tipo: "numero" },
-          { rotulo: "Tempo (segundos)", tipo: "numero" },
+          { rotulo: "Tempo (segundos)", tipo: "numero", tempo: true },
           { rotulo: "Percentil", tipo: "numero" }
         ],
         linhas: [
@@ -918,6 +941,9 @@ const DEFINICOES = [
       { tipo: "subtitulo", texto: "Atenção" },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor e em cinza. */
+        tamanho: 10,
+        cinza: true,
         texto: "Avaliada através de testes que aferem a capacidade de manter-se atento de forma continuada (atenção concentrada), de atentar seletivamente para informações relevantes a despeito de estímulos distratores (atenção seletiva), de ser capaz de ora manter o foco de atenção num estímulo ora em outro (atenção alternada / flexibilidade mental). Foram avaliados todos os aspectos da atenção: sustentação, seletividade e alternância."
       },
       {
@@ -958,8 +984,8 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
         ],
         linhas: [
-          { rotulo: "Trilha B" },
-          { rotulo: "Teste Stroop" }
+          /* O tempo vem da Forma B do Teste das Trilhas (não é digitado de novo). */
+          { rotulo: "Trilha B", puxar: { 0: ["trilhas", "formas", "2", 1] }, tempo: true }
         ]
       }
     ]
@@ -978,6 +1004,8 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "tipos",
         colunaRotulo: "Praxias",
+        /* Na impressão, os resultados sempre em letra 12. */
+        valores12: true,
         colunas: [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
@@ -1002,6 +1030,8 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "subtestes",
         colunaRotulo: "Subteste",
+        /* Na impressão, os resultados sempre em letra 12. */
+        valores12: true,
         colunas: [
           { rotulo: "Escore", tipo: "texto" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
@@ -1014,8 +1044,9 @@ const DEFINICOES = [
           { rotulo: "5 - Cubos" },
           { rotulo: "6 - Códigos" },
           { rotulo: "7 - Procurar Símbolos" },
-          { rotulo: "8 - Dígitos (Ordem direta)" },
-          { rotulo: "8.1 - Dígitos (Ordem inversa)" }
+          /* Os escores dos Dígitos vêm da Memória verbal e visual (Digit Span). */
+          { rotulo: "8 - Dígitos (Ordem direta)", puxar: { 0: ["memoria", "digit-span", "2", 0] } },
+          { rotulo: "8.1 - Dígitos (Ordem inversa)", puxar: { 0: ["memoria", "digit-span", "3", 0] } }
         ]
       },
       {
@@ -1056,6 +1087,8 @@ const DEFINICOES = [
   {
     id: "stroop",
     titulo: "Stroop Test",
+    /* Em inglês: na impressão, em itálico e letra 12. */
+    tituloImpressao: "*Stroop Test*",
     descricao: "Stroop Test e testes complementares (provérbios, cinco pontos, sinos, corte de linhas e labirintos).",
     blocos: [
       {
@@ -1066,9 +1099,11 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "fases",
         colunaRotulo: "Fases",
+        /* Na impressão, o que está entre parênteses vai para a linha de baixo. */
+        quebrarParenteses: true,
         colunas: [
-          { rotulo: "Tempo do paciente", tipo: "texto" },
-          { rotulo: "Média", tipo: "texto" },
+          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
+          { rotulo: "Média", tipo: "texto", tempo: true },
           { rotulo: "Erros", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
@@ -1089,7 +1124,8 @@ const DEFINICOES = [
         linhas: [
           { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento" },
           { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora" },
-          { rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda" },
+          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
+          { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda" },
           { rotulo: "Teste dos Labirintos: envolve planejamento e previsão" }
         ]

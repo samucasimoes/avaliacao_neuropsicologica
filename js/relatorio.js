@@ -30,12 +30,34 @@ const Relatorio = (function () {
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
 
-  /* A fonte padrão do PDF não tem alguns símbolos. */
-  function textoPdf(texto) {
-    return String(texto === null || texto === undefined ? "" : texto)
-      .replace(/≥/g, ">=")
+  /* A fonte padrão do PDF não tem alguns símbolos. Com manterMaiorIgual, o "≥" fica
+     para ser desenhado à parte (texto com marcas, abaixo). */
+  function textoPdf(texto, manterMaiorIgual) {
+    const t = String(texto === null || texto === undefined ? "" : texto)
       .replace(/≤/g, "<=")
       .replace(/▪/g, "•");
+    return manterMaiorIgual ? t : t.replace(/≥/g, ">=");
+  }
+
+  /* Marcas nos textos da impressão (em definicoes.js):
+     *texto* = palavras em inglês, em itálico; __texto__ = sublinhado.
+     O "≥" também passa por aqui, porque é desenhado (a fonte do PDF não tem o sinal). */
+  const MARCAS = /(\*[^*]+\*|__[^_]+__)/;
+
+  function temMarcas(texto) {
+    return /\*[^*]+\*|__[^_]+__|≥/.test(String(texto));
+  }
+
+  function semMarcas(texto) {
+    return String(texto).replace(/\*([^*]+)\*/g, "$1").replace(/__([^_]+)__/g, "$1");
+  }
+
+  function segmentos(texto) {
+    return String(texto).split(MARCAS).filter(Boolean).map(function (parte) {
+      if (/^\*[^*]+\*$/.test(parte)) return { t: parte.slice(1, -1), italico: true };
+      if (/^__[^_]+__$/.test(parte)) return { t: parte.slice(2, -2), sublinhado: true };
+      return { t: parte };
+    });
   }
 
   /* Linha de tabela: array simples ou { celulas, destaque, suave } ou { grupo }. */
@@ -54,9 +76,13 @@ const Relatorio = (function () {
     divisoria: [120, 120, 120]
   };
 
-  /* Tamanhos da letra na impressão: títulos 14, subtítulo da aba 13 e o restante 12. */
+  /* Tamanhos da letra na impressão: títulos 14, subtítulos 13 e o restante 12.
+     O subtítulo logo abaixo do título da aba (ex.: Pfeffer) tem 2 a menos que o título, em itálico. */
   const TAMANHO_TITULO = 14;
   const TAMANHO_SUBTITULO = 13;
+  const TAMANHO_SUBTITULO_ABA = TAMANHO_TITULO - 2;
+  /* Textos menores (ex.: explicação da fluência verbal, textos da Memória verbal e visual). */
+  const TAMANHO_MENOR = 10;
   const TAMANHO_TEXTO = 12;
   /* Referência bibliográfica no fim da folha (Escala de Katz). */
   const TAMANHO_REFERENCIA = 9;
@@ -175,11 +201,106 @@ const Relatorio = (function () {
       else doc.setTextColor(rgb[0], rgb[1], rgb[2]);
     }
 
-    /* Letra do texto: 12, ou um pouco menor numa folha que precisou encolher. */
-    function fonte(estilo, rgb) {
+    /* Letra do texto: 12 (ou "tamanho"), um pouco menor numa folha que precisou encolher. */
+    function fonte(estilo, rgb, tamanho) {
       doc.setFont("helvetica", estilo || "normal");
-      doc.setFontSize(TAMANHO_TEXTO * k);
+      doc.setFontSize((tamanho || TAMANHO_TEXTO) * k);
       cor(rgb || COR.tinta);
+    }
+
+    /* ---------- Texto com marcas (inglês em itálico, sublinhado e o sinal ≥) ---------- */
+
+    function estiloFonte(base, italico) {
+      if (!italico) return base || "normal";
+      return base === "bold" ? "bolditalic" : "italic";
+    }
+
+    function emMm(tamanho) {
+      return tamanho / doc.internal.scaleFactor;
+    }
+
+    /* O "≥" desenhado com traços: o ">" em cima e o traço logo abaixo. */
+    function larguraMaiorIgual(tamanho) {
+      return emMm(tamanho) * 0.62;
+    }
+
+    function desenharMaiorIgual(x, yBase, tamanho, negrito) {
+      const em = emMm(tamanho);
+      const x0 = x + em * 0.05;
+      const w = em * 0.5;
+      doc.setLineWidth(em * (negrito ? 0.085 : 0.06));
+      doc.lines([[w, em * 0.2], [-w, em * 0.2]], x0, yBase - em * 0.62, [1, 1], "S", false);
+      doc.line(x0, yBase - em * 0.06, x0 + w, yBase - em * 0.06);
+    }
+
+    /* Quebra o texto com marcas em linhas; cada linha é uma lista de pedaços com largura. */
+    function linhasRicas(texto, larguraMax, base, tamanho) {
+      const pedacos = [];
+      segmentos(textoPdf(texto, true)).forEach(function (seg) {
+        seg.t.split(/( +|\n)/).forEach(function (parte) {
+          if (!parte) return;
+          if (parte === "\n") pedacos.push({ quebra: true });
+          else if (!parte.trim()) pedacos.push({ espaco: true, italico: seg.italico, sublinhado: seg.sublinhado });
+          else pedacos.push({ t: parte === "≥" ? parte : parte.replace(/≥/g, ">="), italico: seg.italico, sublinhado: seg.sublinhado });
+        });
+      });
+      const linhasTexto = [[]];
+      let usada = 0;
+      function aparar(linha) {
+        while (linha.length && linha[linha.length - 1].espaco) usada -= linha.pop().w;
+      }
+      pedacos.forEach(function (pedaco) {
+        if (pedaco.quebra) {
+          aparar(linhasTexto[linhasTexto.length - 1]);
+          linhasTexto.push([]);
+          usada = 0;
+          return;
+        }
+        doc.setFont("helvetica", estiloFonte(base, pedaco.italico));
+        doc.setFontSize(tamanho);
+        const w = pedaco.t === "≥" ? larguraMaiorIgual(tamanho) : doc.getTextWidth(pedaco.espaco ? " " : pedaco.t);
+        let linha = linhasTexto[linhasTexto.length - 1];
+        if (pedaco.espaco) {
+          if (linha.length) {
+            linha.push(Object.assign({ w: w }, pedaco));
+            usada += w;
+          }
+          return;
+        }
+        if (usada + w > larguraMax && linha.some(function (p) { return !p.espaco; })) {
+          aparar(linha);
+          linha = [];
+          linhasTexto.push(linha);
+          usada = 0;
+        }
+        linha.push(Object.assign({ w: w }, pedaco));
+        usada += w;
+      });
+      linhasTexto.forEach(function (linha) {
+        while (linha.length && linha[linha.length - 1].espaco) linha.pop();
+      });
+      return linhasTexto;
+    }
+
+    function larguraLinhaRica(linha) {
+      return linha.reduce(function (total, p) { return total + p.w; }, 0);
+    }
+
+    function desenharLinhaRica(linha, x, yBase, base, tamanho, rgb) {
+      let cx = x;
+      linha.forEach(function (p) {
+        doc.setFont("helvetica", estiloFonte(base, p.italico));
+        doc.setFontSize(tamanho);
+        cor(rgb);
+        cor(rgb, "draw");
+        if (p.t === "≥") desenharMaiorIgual(cx, yBase, tamanho, base === "bold");
+        else if (!p.espaco) doc.text(p.t, cx, yBase);
+        if (p.sublinhado) {
+          doc.setLineWidth(emMm(tamanho) * 0.05);
+          doc.line(cx, yBase + emMm(tamanho) * 0.14, cx + p.w, yBase + emMm(tamanho) * 0.14);
+        }
+        cx += p.w;
+      });
     }
 
     function faixaTopo() {
@@ -237,34 +358,68 @@ const Relatorio = (function () {
       /* No meio da folha, uma folga fixa para o título (que não diminui) não encostar
          no bloco de cima quando a letra e os espaços da folha encolhem. */
       if (y > 16) y += 3.5;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(TAMANHO_TITULO);
+      /* A parte em inglês (*...*) sai numa linha abaixo, em itálico e letra 12
+         (ex.: GDS e, embaixo, "(Geriatric Depression Scale)"). */
+      const bruto = String(texto);
+      const portugues = bruto.replace(/\*[^*]+\*/g, " ").replace(/\s+/g, " ").trim();
+      const ingles = (bruto.match(/\*[^*]+\*/g) || []).map(function (m) { return m.slice(1, -1); }).join(" ");
+      const maiusculo = function (t) { return textoPdf(t).toUpperCase().replace(/\bMOCA\b/g, "MoCA"); };
       cor(COR.escuro);
-      const espacoLetras = 0.3;
-      const titulo = textoPdf(texto).toUpperCase().replace(/\bMOCA\b/g, "MoCA");
-      y += textoCentralizado(quebrarLinhas(titulo, util, espacoLetras), 6.4, espacoLetras);
+      if (portugues) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(TAMANHO_TITULO);
+        y += textoCentralizado(quebrarLinhas(maiusculo(portugues), util, 0.3), 6.4, 0.3);
+      }
+      if (ingles) {
+        if (portugues) y += 5.8;
+        doc.setFont("helvetica", "bolditalic");
+        doc.setFontSize(TAMANHO_TEXTO);
+        y += textoCentralizado(quebrarLinhas(maiusculo(ingles), util, 0.2), 5.4, 0.2);
+      }
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
       doc.line(margem, y + 3, margem + util, y + 3);
       y += 10.5;
     }
 
-    /* Subtítulo logo abaixo do título da aba (ex.: Questionário de Atividades Funcionais), letra 13. */
+    /* Subtítulo logo abaixo do título da aba (ex.: Questionário de Atividades Funcionais):
+       2 a menos que o título, em itálico. */
     function subtituloSecao(texto) {
+      doc.setFont("helvetica", "bolditalic");
+      doc.setFontSize(TAMANHO_SUBTITULO_ABA);
+      cor(COR.escuro);
+      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 5.6, 0);
+      y += 8.5;
+    }
+
+    /* Subtítulo dentro da folha: centralizado, em caixa alta, negrito, letra 13. */
+    function subtitulo(texto, menor) {
+      y += g(menor ? 1.5 : 3.5);
+      garantirEspaco(e(16) + 6);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(TAMANHO_SUBTITULO);
       cor(COR.escuro);
       y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);
-      y += 9;
+      y += menor ? 4.2 : 5 + g(2);
     }
 
-    function paragrafo(texto, estilo, rgb) {
-      fonte(estilo, rgb);
+    function paragrafo(texto, estilo, rgb, tamanho) {
+      const tamanhoFonte = (tamanho || TAMANHO_TEXTO) * k;
+      const passoTexto = e((tamanho || TAMANHO_TEXTO) * 0.47);
+      if (temMarcas(texto)) {
+        linhasRicas(texto, util, estilo, tamanhoFonte).forEach(function (linha) {
+          garantirEspaco(passoTexto + 1);
+          desenharLinhaRica(linha, margem, y, estilo, tamanhoFonte, rgb || COR.tinta);
+          y += passoTexto;
+        });
+        return;
+      }
+      fonte(estilo, rgb, tamanho);
       const linhasTexto = doc.splitTextToSize(textoPdf(texto), util);
       linhasTexto.forEach(function (linhaTexto) {
-        garantirEspaco(passo() + 1);
+        garantirEspaco(passoTexto + 1);
         doc.text(linhaTexto, margem, y);
-        y += passo();
+        y += passoTexto;
       });
     }
 
@@ -275,9 +430,12 @@ const Relatorio = (function () {
       const texto = doc.splitTextToSize(textoPdf(valor || "Não informado"), util);
 
       garantirEspaco(e(compacto ? 14 : 18));
-      fonte("bold", COR.escuro);
-      doc.text(textoPdf(rotulo), margem, y);
-      y += e(compacto ? 5.6 : 6.2);
+      /* Sem rótulo (ex.: comentário do RAVLT), só o texto. */
+      if (rotulo) {
+        fonte("bold", COR.escuro);
+        doc.text(textoPdf(rotulo), margem, y);
+        y += e(compacto ? 5.6 : 6.2);
+      }
 
       let inicio = 0;
       while (inicio < texto.length) {
@@ -346,6 +504,9 @@ const Relatorio = (function () {
         const estilo = linha.destaque ? { fontStyle: "bold" }
           : linha.suave ? { fontStyle: "italic", textColor: COR.suave } : null;
         return celulasDe(linha).map(function (valor) {
+          /* Com marcas (inglês, sublinhado, ≥): a tabela mede o texto simples e o texto
+             com as marcas é desenhado por cima (didDrawCell). */
+          if (temMarcas(valor)) return { content: textoPdf(semMarcas(valor)), rico: String(valor), styles: estilo || {} };
           const texto = textoPdf(valor);
           return estilo ? { content: texto, styles: estilo } : texto;
         });
@@ -380,7 +541,29 @@ const Relatorio = (function () {
           lineColor: COR.escuro
         },
         columnStyles: bloco.estilos || {},
-        didDrawPage: faixaTopo
+        didDrawPage: faixaTopo,
+        willDrawCell: function (data) {
+          if (data.cell.raw && data.cell.raw.rico) data.cell.text = [""];
+        },
+        didDrawCell: function (data) {
+          const cell = data.cell;
+          if (!cell.raw || !cell.raw.rico) return;
+          const tamanho = cell.styles.fontSize;
+          const base = cell.styles.fontStyle;
+          const rgb = Array.isArray(cell.styles.textColor) ? cell.styles.textColor
+            : [cell.styles.textColor, cell.styles.textColor, cell.styles.textColor];
+          const linhasCelula = linhasRicas(cell.raw.rico, cell.width - cell.padding("left") - cell.padding("right"), base, tamanho);
+          /* Mesma posição que a tabela usaria para o texto (centro vertical da célula). */
+          const pos = cell.getTextPos();
+          const l = emMm(tamanho);
+          const a = l * doc.getLineHeightFactor();
+          const topo = pos.y + l * (2 - 1.15) - linhasCelula.length / 2 * a;
+          linhasCelula.forEach(function (linha, i) {
+            const w = larguraLinhaRica(linha);
+            const x = cell.styles.halign === "center" ? pos.x - w / 2 : cell.styles.halign === "right" ? pos.x - w : pos.x;
+            desenharLinhaRica(linha, x, topo + i * a, base, tamanho, rgb);
+          });
+        }
       });
       y = doc.lastAutoTable.finalY + depoisDeBloco();
     }
@@ -388,7 +571,11 @@ const Relatorio = (function () {
     /* Lista em tópicos. Com preencherFolha, os itens se espalham para ocupar a folha toda. */
     function lista(itens, preencherFolha) {
       fonte("normal");
-      const quebras = itens.map(function (item) { return doc.splitTextToSize(textoPdf(item), util - 6); });
+      const quebras = itens.map(function (item) {
+        if (temMarcas(item)) return { ricas: linhasRicas(item, util - 6, "normal", TAMANHO_TEXTO * k), length: 0 };
+        return doc.splitTextToSize(textoPdf(item), util - 6);
+      });
+      quebras.forEach(function (q) { if (q.ricas) q.length = q.ricas.length; });
       const linhasTotal = quebras.reduce(function (t, l) { return t + l.length; }, 0);
       let folga = e(0.8);
       if (preencherFolha) {
@@ -401,7 +588,13 @@ const Relatorio = (function () {
         fonte("normal");
         garantirEspaco(linhasItem.length * passo() + 1);
         doc.text("•", margem + 1, y);
-        doc.text(linhasItem, margem + 6, y, { lineHeightFactor: 1.32 });
+        if (linhasItem.ricas) {
+          linhasItem.ricas.forEach(function (linha, i) {
+            desenharLinhaRica(linha, margem + 6, y + i * passo(), "normal", TAMANHO_TEXTO * k, COR.tinta);
+          });
+        } else {
+          doc.text(linhasItem, margem + 6, y, { lineHeightFactor: 1.32 });
+        }
         y += linhasItem.length * passo() + folga;
       });
       y += g(4);
@@ -475,11 +668,14 @@ const Relatorio = (function () {
       /* Com a letra maior, a imagem não passa da largura da folha. */
       const w = Math.min(util, e(bloco.largura));
       const h = w * bloco.altura / bloco.largura;
-      garantirEspaco(h + (bloco.titulo ? e(8) : 0) + e(4));
+      garantirEspaco(h + (bloco.titulo ? 10 : 0) + e(4));
       if (bloco.titulo) {
-        fonte("bold", COR.escuro);
-        doc.text(textoPdf(bloco.titulo), meio, y, { align: "center" });
-        y += e(4.5);
+        /* Título do gráfico (ex.: Curva de Aprendizagem): como os subtítulos. */
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(TAMANHO_SUBTITULO);
+        cor(COR.escuro);
+        doc.text(textoPdf(bloco.titulo).toUpperCase(), meio, y, { align: "center" });
+        y += 5;
       }
       const x = margem + (util - w) / 2;
       doc.addImage(bloco.imagem, "PNG", x, y, w, h);
@@ -529,19 +725,13 @@ const Relatorio = (function () {
         case "escore": escore(bloco); break;
         case "imagem": imagem(bloco); break;
         case "assinaturas": assinaturas(bloco); break;
-        case "subtitulo": {
-          /* Subtítulos centralizados, em negrito. */
-          y += g(bloco.menor ? 1 : 3);
-          garantirEspaco(e(18));
-          fonte("bold", COR.escuro);
-          const linhasSubtitulo = doc.splitTextToSize(textoPdf(bloco.texto), util);
-          y += textoCentralizado(linhasSubtitulo, passo(), 0);
-          y += bloco.menor ? e(3.5) : e(4.5) + g(2);
+        case "subtitulo":
+          subtitulo(bloco.texto, bloco.menor);
           break;
-        }
         case "paragrafo":
-          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", COR.tinta);
-          y += g(4);
+          /* tamanho: letra menor (ex.: 10); cinza: texto explicativo em cinza. */
+          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho);
+          y += g(bloco.tamanho ? 3 : 4);
           break;
         case "nota":
           paragrafo(bloco.texto, "normal", COR.suave);
@@ -581,18 +771,24 @@ const Relatorio = (function () {
 
     /* Primeira folha: cabeçalho, paciente, identificação e informações clínicas. */
     function folhaDados() {
-      /* Cabeçalho centralizado: título (14) e, abaixo, a data da avaliação */
+      /* Cabeçalho: título centralizado (14) e, pequena no canto superior direito,
+         a data da avaliação (o rótulo em cima e a data embaixo). */
       doc.setFont("helvetica", "bold");
       doc.setFontSize(TAMANHO_TITULO);
       cor(COR.escuro);
       y = 15;
       textoCentralizado([TITULO.toUpperCase()], 0, 0.3);
-      fonte("normal", COR.suave);
-      doc.text("Relatório da Avaliação   •   Data da Avaliação: " + (dados["Data da Avaliação"] || "—"),
-        meio, 21.5, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      cor(COR.suave);
+      doc.text("Data da Avaliação", largura - margem, 10, { align: "right" });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      cor(COR.escuro);
+      doc.text(dados["Data da Avaliação"] || "—", largura - margem, 14.2, { align: "right" });
 
       /* Paciente numa linha só: nome, idade e nascimento */
-      y = 28;
+      y = 21;
       const alturaCartao = e(12);
       borda(margem, y, util, alturaCartao);
       fonte("normal", COR.suave);
@@ -701,16 +897,29 @@ const Relatorio = (function () {
        (ex.: Resumo junto com os dados do paciente; Trilhas junto com Memória verbal e visual). */
     const folhas = [{ ids: ["dados"], partes: [{ dados: true }] }];
     (secoes || []).forEach(function (secao) {
+      /* Um bloco "quebraFolha" leva o resto da aba para outra folha, sem repetir o título
+         (ex.: a curva de aprendizagem do RAVLT). Pedaços vazios são ignorados. */
+      const pedacos = [[]];
+      secao.blocos.forEach(function (bloco) {
+        if (bloco.tipo === "quebraFolha") pedacos.push([]);
+        else pedacos[pedacos.length - 1].push(bloco);
+      });
+      const cheios = pedacos.filter(function (p) { return p.length; });
+      if (!cheios.length) return;
+
       const anterior = folhas[folhas.length - 1];
       /* juntarCom: uma aba ou uma lista (ex.: GDS junta com a GAI; se a GAI não sair, a GDS
          abre a folha e as seguintes juntam com ela). */
       const juntar = [].concat(secao.juntarCom || []);
       if (juntar.some(function (id) { return anterior.ids.indexOf(id) !== -1; })) {
         anterior.ids.push(secao.id);
-        anterior.partes.push({ secao: secao, junto: true });
+        anterior.partes.push({ secao: secao, blocos: cheios[0], junto: true });
       } else {
-        folhas.push({ ids: [secao.id], partes: [{ secao: secao, junto: false }] });
+        folhas.push({ ids: [secao.id], partes: [{ secao: secao, blocos: cheios[0], junto: false }] });
       }
+      cheios.slice(1).forEach(function (blocos) {
+        folhas.push({ ids: [secao.id], partes: [{ secao: secao, blocos: blocos, continuacao: true }] });
+      });
     });
 
     folhas.forEach(function (folha) {
@@ -721,14 +930,14 @@ const Relatorio = (function () {
             return;
           }
           /* Junto de outra etapa, a Trilhas sai sem o título próprio (os subtítulos bastam). */
-          const comSubtitulos = parte.secao.blocos.some(function (b) { return b.soJunto; });
+          const comSubtitulos = parte.blocos.some(function (b) { return b.soJunto; });
           espacamento = parte.secao.espacamento || 1;
           if (parte.junto) y += g(4);
-          if (!parte.junto || !comSubtitulos) {
+          if (!parte.continuacao && (!parte.junto || !comSubtitulos)) {
             tituloSecao(parte.secao.titulo);
             if (parte.secao.subtitulo) subtituloSecao(parte.secao.subtitulo);
           }
-          parte.secao.blocos.forEach(function (bloco) {
+          parte.blocos.forEach(function (bloco) {
             if (bloco.soJunto && !parte.junto) return;
             desenharBloco(bloco);
           });

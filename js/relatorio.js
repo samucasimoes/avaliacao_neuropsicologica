@@ -399,7 +399,7 @@ const Relatorio = (function () {
       y += 2.5 + g(menor ? 1.5 : 3.5);
       garantirEspaco(e(16) + 6);
       doc.setFont("helvetica", "bold");
-      /* tamanho: subtítulo dentro de outro (ex.: Teste das Trilhas, dentro de Trilhas), letra 12. */
+      /* tamanho: subtítulo dentro de outro (ex.: Teste das Trilhas, dentro de Trilhas), letra 10. */
       doc.setFontSize(tamanho || TAMANHO_SUBTITULO);
       cor(COR.escuro);
       y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);

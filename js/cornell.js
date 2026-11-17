@@ -200,16 +200,16 @@ const Cornell = (function () {
           tipo: "tabela",
           cabecalho: ["Nº", "Sinal avaliado", "Avaliação", "Pontos"],
           linhas: linhas,
-          estilos: { 0: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 46 }, 3: { cellWidth: 21, halign: "right" } }
+          estilos: { 0: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 46 }, 3: { cellWidth: 21, halign: "center" } }
         },
         /* O escore sai no fim da folha, depois das respostas, e logo abaixo a legenda.
            A interpretação e os itens respondidos aparecem só na tela. */
         { tipo: "escore", rotulo: "Escore do paciente", valor: String(r.total) },
         {
           tipo: "tabela",
-          cabecalho: ["Interpretação", "Escore"],
-          linhas: LEGENDA.map(function (linha) { return [linha[1], linha[0]]; }),
-          estilos: { 1: { cellWidth: 34, fontStyle: "bold", halign: "right" } }
+          cabecalho: ["Escore", "Interpretação"],
+          linhas: LEGENDA,
+          estilos: { 0: { cellWidth: 34, fontStyle: "bold" } }
         }
       ]
     };

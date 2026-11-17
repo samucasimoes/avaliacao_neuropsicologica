@@ -31,9 +31,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
    IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Na impressão
    sai só o quadro; a legenda de cada escala sai na folha dela.
 
-Em todas as escalas, a legenda tem duas colunas: a interpretação à esquerda e o escore à
-direita. Na impressão, todos os valores (pontos, "ESCORE DO PACIENTE" e faixas de escore das
-legendas) ficam alinhados no lado direito da folha.
+Em todas as escalas, a legenda tem duas colunas: o escore à esquerda e a interpretação à
+direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da folha.
 10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
     e não entra no total até ser corrigido. Os comentários sobre o Teste do Relógio de Shulman
     saem na mesma folha da tabela.

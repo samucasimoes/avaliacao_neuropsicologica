@@ -39,6 +39,27 @@ function percentilTrilhas(idade, forma, tempo) {
   return i === -1 ? "< 10" : String(TRILHAS_PERCENTIS[i]);
 }
 
+/* Stroop Test, Versão Victoria: tempo médio (segundos) de cada cartela por faixa de idade.
+   1ª cartela = nomear cores de estímulos; 2ª = cores de palavras sem interferência;
+   3ª = cores de palavras com interferência. */
+const STROOP_TEMPOS = [
+  { de: 17, ate: 29, cartelas: [11.79, 13.46, 21.28] },
+  { de: 30, ate: 39, cartelas: [11.14, 13.81, 25.08] },
+  { de: 40, ate: 49, cartelas: [12.16, 14.82, 27.20] },
+  { de: 50, ate: 59, cartelas: [12.84, 15.96, 28.48] },
+  { de: 60, ate: 69, cartelas: [12.56, 16.16, 31.32] },
+  { de: 70, ate: 79, cartelas: [14.98, 19.11, 39.59] },
+  { de: 80, ate: 200, cartelas: [19.31, 23.91, 56.98] }
+];
+
+/* Referência da cartela (0, 1 ou 2) para a idade, arredondada para o inteiro mais
+   próximo (ex.: 12,84 -> 13). Sem idade ou abaixo de 17 anos, não calcula. */
+function referenciaStroop(idade, cartela) {
+  if (idade === null || idade === undefined) return null;
+  const faixa = STROOP_TEMPOS.find(function (f) { return idade >= f.de && idade <= f.ate; });
+  return faixa ? Math.round(faixa.cartelas[cartela]) : null;
+}
+
 function razao(a, b) {
   if (a === null || b === null || b === 0) return null;
   return Math.round((a / b) * 100) / 100;
@@ -1129,15 +1150,23 @@ const DEFINICOES = [
         quebrarParenteses: true,
         colunas: [
           { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
+          /* Calculada pela idade do paciente (veja referenciaStroop); sozinha não faz a linha
+             sair na impressão. */
+          { rotulo: "Referência", tipo: "calculo", tempo: true, informativa: true },
           { rotulo: "Média", tipo: "texto", tempo: true },
           { rotulo: "Erros", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Nomear cores de estímulos" },
-          { rotulo: "Nomear cores de palavras (sem interferência)" },
-          { rotulo: "Nomear cores de palavras (com interferência)" }
+          { rotulo: "Nomear cores de estímulos", calculos: { 1: function (t) { return referenciaStroop(t.paciente().idade, 0); } } },
+          { rotulo: "Nomear cores de palavras (sem interferência)", calculos: { 1: function (t) { return referenciaStroop(t.paciente().idade, 1); } } },
+          { rotulo: "Nomear cores de palavras (com interferência)", calculos: { 1: function (t) { return referenciaStroop(t.paciente().idade, 2); } } }
         ]
+      },
+      {
+        tipo: "nota",
+        soTela: true,
+        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada."
       },
       { tipo: "subtitulo", texto: "Testes complementares" },
       {

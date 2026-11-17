@@ -252,7 +252,7 @@
 
   /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
      campos, suba a versão e converta os nomes antigos em migrarCampos. */
-  const VERSAO_CAMPOS = 4;
+  const VERSAO_CAMPOS = 5;
 
   /* Converte campos salvos antes da versão 3:
      - Encaminhador virou Médico solicitante;
@@ -260,7 +260,9 @@
      - saíram "Traumatismo craniano" (Resumo, item 14) e o TMR (Memória, linha 5);
      - a lista de Funções avaliadas mudou: volta ao padrão (tudo marcado).
      Antes da versão 4, GAI, GDS e BHS eram digitados em Humor e comportamento
-     (linhas 4, 5 e 7); agora cada escala tem a própria aba. */
+     (linhas 4, 5 e 7); agora cada escala tem a própria aba.
+     Na versão 5, o Stroop ganhou a coluna Referência (a 2ª): Média, Erros e Classificação
+     passaram da coluna 2, 3 e 4 para 3, 4 e 5. */
   function migrarCampos(campos) {
     const versao = Number(campos.versaoCampos) || 2;
     if (versao >= VERSAO_CAMPOS) return campos;
@@ -269,7 +271,9 @@
     Object.keys(campos).forEach(function (nome) {
       let novo = nome;
       let m;
-      if (HUMOR_ANTIGO[nome]) {
+      if (versao < 5 && (m = /^stroop-fases-(\d+)-(\d+)$/.exec(nome)) && Number(m[2]) >= 2) {
+        novo = "stroop-fases-" + m[1] + "-" + (Number(m[2]) + 1);
+      } else if (versao < 4 && HUMOR_ANTIGO[nome]) {
         novo = HUMOR_ANTIGO[nome];
       } else if (versao >= 3) {
         /* Já está com os nomes da versão 3. */

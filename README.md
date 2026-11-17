@@ -58,7 +58,10 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     Trilhas é calculado pela idade do paciente e pelo tempo em segundos, pela tabela de Davies
     (1968) em `TRILHAS_TEMPOS` (`js/definicoes.js`); acima de 79 anos usa a faixa de 70 a 79 e,
     mais lento que o percentil 10, sai "< 10". 17. **Praxias**,
-    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares).
+    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares): a coluna
+    Referência é o tempo médio da Versão Victoria para a idade do paciente (1ª cartela =
+    cores de estímulos, 2ª = palavras sem interferência, 3ª = com interferência),
+    arredondado (tabela `STROOP_TEMPOS` em `js/definicoes.js`).
 20. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
     tabela (domínio e resultado).
 21. **Conclusão** – texto (até 3.000 caracteres, quase a folha toda) e assinaturas dos

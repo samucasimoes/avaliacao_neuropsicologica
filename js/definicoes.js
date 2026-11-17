@@ -60,6 +60,29 @@ function referenciaStroop(idade, cartela) {
   return faixa ? Math.round(faixa.cartelas[cartela]) : null;
 }
 
+/* Fluência fonêmica (F-A-S): mediana por idade e tempo de escolaridade (anos de estudo). */
+const FAS_ESCOLARIDADE = [
+  { valor: "1-3", rotulo: "1 a 3 anos" },
+  { valor: "4-7", rotulo: "4 a 7 anos" },
+  { valor: "8-11", rotulo: "8 a 11 anos" },
+  { valor: "12+", rotulo: "12 anos ou mais" }
+];
+const FAS_MEDIANAS = [
+  { de: 60, ate: 69, valores: [16.5, 28, 31.5, 36.5] },
+  { de: 70, ate: 79, valores: [16, 26, 28, 32] },
+  { de: 80, ate: 200, valores: [18.5, 26.5, 28, 37] }
+];
+
+/* Média esperada no F-A-S para a idade e a escolaridade (ex.: 65 anos, 1 a 3 anos -> 16,50).
+   Sem idade, abaixo de 60 anos ou sem escolaridade, não calcula. */
+function mediaFas(idade, escolaridade) {
+  if (idade === null || idade === undefined) return null;
+  const i = FAS_ESCOLARIDADE.findIndex(function (o) { return o.valor === escolaridade; });
+  const faixa = FAS_MEDIANAS.find(function (f) { return idade >= f.de && idade <= f.ate; });
+  if (i === -1 || !faixa) return null;
+  return faixa.valores[i].toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function razao(a, b) {
   if (a === null || b === null || b === 0) return null;
   return Math.round((a / b) * 100) / 100;
@@ -759,12 +782,22 @@ const DEFINICOES = [
     titulo: "Linguagem",
     descricao: "Fluência verbal fonêmica e semântica, expressão, nomeação, leitura, escrita e compreensão.",
     blocos: [
+      /* Só na tela: escolhe a linha da tabela de medianas do F-A-S (coluna Média). */
+      {
+        tipo: "selecao",
+        id: "escolaridade",
+        rotulo: "Tempo de escolaridade",
+        opcoes: FAS_ESCOLARIDADE
+      },
       {
         tipo: "tabela",
         id: "fonemica",
         titulo: "Fluência fonêmica",
         colunaRotulo: "Teste",
         colunas: [
+          /* Calculada pela idade e pelo tempo de escolaridade (veja mediaFas); sozinha não
+             faz a linha sair na impressão. */
+          { rotulo: "Média", tipo: "calculo", estreita: true, informativa: true },
           { rotulo: "F", tipo: "numero", estreita: true },
           { rotulo: "A", tipo: "numero", estreita: true },
           { rotulo: "S", tipo: "numero", estreita: true },
@@ -776,10 +809,16 @@ const DEFINICOES = [
             rotulo: "Fluência fonêmica (F-A-S)",
             chave: "fas",
             calculos: {
-              3: function (t) { return somaPreenchidos([t.num("fas", 0), t.num("fas", 1), t.num("fas", 2)]); }
+              0: function (t) { return mediaFas(t.paciente().idade, t.bloco("escolaridade").valor()); },
+              4: function (t) { return somaPreenchidos([t.num("fas", 1), t.num("fas", 2), t.num("fas", 3)]); }
             }
           }
         ]
+      },
+      {
+        tipo: "nota",
+        soTela: true,
+        texto: "Média: mediana do F-A-S para a idade do paciente (60 a 69, 70 a 79 e 80 anos ou mais) e o tempo de escolaridade escolhido acima. Sem a idade, abaixo de 60 anos ou sem o tempo de escolaridade, a média não é calculada."
       },
       {
         tipo: "tabela",

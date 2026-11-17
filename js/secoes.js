@@ -394,6 +394,10 @@ const Secoes = (function () {
       /* Idade e sexo do paciente (ex.: percentil do Teste das Trilhas). */
       paciente: function () {
         return contexto.paciente();
+      },
+      /* Outro bloco da mesma aba (ex.: tempo de escolaridade da Linguagem). */
+      bloco: function (id) {
+        return secao.bloco(id);
       }
     };
 
@@ -811,6 +815,42 @@ const Secoes = (function () {
     };
   }
 
+  /* Lista de opções de uma escolha só, usada nos cálculos da aba e não impressa
+     (ex.: tempo de escolaridade na Linguagem). */
+  function blocoSelecao(secao, b) {
+    const nome = secao.id + "-" + b.id;
+    return {
+      montar: function (container) {
+        const campo = criar("div", "field campo-escore");
+        const label = criar("label", "label", b.rotulo + ":");
+        label.htmlFor = nome;
+        const select = criar("select", "input select input-selecao");
+        select.id = nome;
+        select.name = nome;
+        select.title = b.rotulo;
+        select.appendChild(new Option("Selecione", ""));
+        b.opcoes.forEach(function (o) { select.appendChild(new Option(o.rotulo, o.valor)); });
+        const marcarVazio = function () { select.classList.toggle("empty", !select.value); };
+        select.addEventListener("change", marcarVazio);
+        form.addEventListener("reset", function () { setTimeout(marcarVazio); });
+        marcarVazio();
+        campo.appendChild(label);
+        campo.appendChild(select);
+        container.appendChild(campo);
+      },
+      atualizar: function () {
+        const select = form.elements.namedItem(nome);
+        if (select) select.classList.toggle("empty", !select.value);
+      },
+      valor: function () {
+        return valorDe(nome);
+      },
+      preenchido: function () { return false; },
+      completo: function () { return valorDe(nome) !== ""; },
+      relatorio: function () { return []; }
+    };
+  }
+
   /* Campos de uma linha com rótulo (domínios da Interpretação dos resultados). */
   function blocoCampos(secao, b) {
     function nome(n) {
@@ -1192,6 +1232,7 @@ const Secoes = (function () {
     grafico: blocoGrafico,
     resultados: blocoResultados,
     escore: blocoEscore,
+    selecao: blocoSelecao,
     faixas: blocoFaixas,
     quebra: blocoQuebra,
     assinaturas: blocoAssinaturas

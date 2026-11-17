@@ -1328,3 +1328,12 @@ td.estreita .input-tabela {
   white-space: nowrap;
   font-weight: 600;
 }
+
+/* Escolha de uma opção usada nos cálculos da aba (ex.: tempo de escolaridade na Linguagem). */
+.input-selecao {
+  width: 220px;
+}
+
+.campo-escore .label {
+  white-space: nowrap;
+}

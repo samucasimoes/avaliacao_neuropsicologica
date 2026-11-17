@@ -782,7 +782,7 @@ const DEFINICOES = [
     titulo: "Linguagem",
     descricao: "Fluência verbal fonêmica e semântica, expressão, nomeação, leitura, escrita e compreensão.",
     blocos: [
-      /* Escolhe a linha da tabela de medianas do F-A-S (coluna Média); sai na impressão. */
+      /* Só na tela: escolhe a linha da tabela de medianas do F-A-S (coluna Média). */
       {
         tipo: "selecao",
         id: "escolaridade",

@@ -1083,8 +1083,9 @@ const DEFINICOES = [
   {
     id: "stroop",
     titulo: "Stroop Test",
-    /* Em inglês: na impressão, em itálico e letra 12. */
+    /* Em inglês: na impressão, em itálico, com letra 14 como os outros títulos. */
     tituloImpressao: "*Stroop Test*",
+    tamanhoTituloIngles: 14,
     descricao: "Stroop Test e testes complementares (provérbios, cinco pontos, sinos, corte de linhas e labirintos).",
     blocos: [
       {

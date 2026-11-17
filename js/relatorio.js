@@ -353,7 +353,8 @@ const Relatorio = (function () {
 
     /* Os títulos ficam centralizados e têm sempre o mesmo tamanho (14), mesmo quando
        a folha é refeita com letra menor para caber. */
-    function tituloSecao(texto) {
+    /* tamanhoIngles: letra da parte em inglês (12; o Stroop Test, só em inglês, usa 14). */
+    function tituloSecao(texto, tamanhoIngles) {
       garantirEspaco(26);
       /* No meio da folha, uma folga fixa para o título (que não diminui) não encostar
          no bloco de cima quando a letra e os espaços da folha encolhem. */
@@ -373,8 +374,8 @@ const Relatorio = (function () {
       if (ingles) {
         if (portugues) y += 5.8;
         doc.setFont("helvetica", "bolditalic");
-        doc.setFontSize(TAMANHO_TEXTO);
-        y += textoCentralizado(quebrarLinhas(maiusculo(ingles), util, 0.2), 5.4, 0.2);
+        doc.setFontSize(tamanhoIngles || TAMANHO_TEXTO);
+        y += textoCentralizado(quebrarLinhas(maiusculo(ingles), util, 0.2), (tamanhoIngles || TAMANHO_TEXTO) * 0.45, 0.2);
       }
       cor(COR.linha, "draw");
       doc.setLineWidth(0.3);
@@ -546,7 +547,9 @@ const Relatorio = (function () {
           lineColor: COR.divisoria
         },
         didParseCell: function (data) {
-          if (data.section === "body" && data.row.index === corpo.length - 1) {
+          /* Na última tabela da aba (ex.: Resumo, legenda do Pfeffer) não há escala depois:
+             o fim fica com a linha cinza-clara das outras linhas. */
+          if (data.section === "body" && data.row.index === corpo.length - 1 && !bloco.ultimoDaAba) {
             data.cell.styles.lineColor = COR.escuro;
             data.cell.styles.lineWidth = { bottom: 0.4 };
           }
@@ -945,11 +948,12 @@ const Relatorio = (function () {
           espacamento = parte.secao.espacamento || 1;
           if (parte.junto) y += g(4);
           if (!parte.continuacao && (!parte.junto || !comSubtitulos)) {
-            tituloSecao(parte.secao.titulo);
+            tituloSecao(parte.secao.titulo, parte.secao.tamanhoTituloIngles);
             if (parte.secao.subtitulo) subtituloSecao(parte.secao.subtitulo);
           }
-          parte.blocos.forEach(function (bloco) {
+          parte.blocos.forEach(function (bloco, i) {
             if (bloco.soJunto && !parte.junto) return;
+            if (bloco.tipo === "tabela" && i === parte.blocos.length - 1) bloco = Object.assign({}, bloco, { ultimoDaAba: true });
             desenharBloco(bloco);
           });
           espacamento = 1;

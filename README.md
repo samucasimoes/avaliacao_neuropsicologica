@@ -74,8 +74,10 @@ Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
 páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13 (o "Teste das
 Trilhas", que fica dentro de Trilhas, tem 10). Nas tabelas, a linha embaixo dos títulos das
-colunas é cinza e a última linha é preta, separando uma escala da outra. As palavras em
-inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12), menos na folha do
+colunas é cinza e a última linha é preta, separando uma escala da outra (na última tabela da
+aba, como o Resumo e as legendas no fim da folha, ela fica cinza-clara como as outras). As palavras em
+inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12; o título "Stroop Test",
+todo em inglês, tem 14), menos na folha do
 CERAD; nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
 sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").
 Um valor digitado numa aba não é digitado de novo: os Dígitos da Wechsler vêm do Digit Span

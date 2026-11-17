@@ -16,6 +16,73 @@ function formatarNumero(n) {
   return n.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 }
 
+/* Teste das Trilhas: tempo (segundos) que marca cada percentil, por faixa de idade
+   (Davies, 1968: Trail Making Test, controles normais). Quanto menor o tempo, maior o percentil.
+   Acima de 79 anos usa a faixa de 70 a 79 (a última da tabela). */
+const TRILHAS_PERCENTIS = [90, 75, 50, 25, 10];
+const TRILHAS_TEMPOS = [
+  { de: 20, ate: 39, A: [21, 26, 32, 42, 50], B: [45, 55, 69, 94, 129] },
+  { de: 40, ate: 49, A: [22, 28, 34, 45, 59], B: [49, 57, 78, 100, 151] },
+  { de: 50, ate: 59, A: [25, 29, 38, 49, 67], B: [55, 75, 98, 135, 177] },
+  { de: 60, ate: 69, A: [29, 35, 48, 67, 104], B: [64, 89, 119, 172, 282] },
+  { de: 70, ate: 200, A: [38, 54, 80, 105, 168], B: [79, 132, 196, 292, 450] }
+];
+
+/* Percentil pelo tempo: o maior percentil cujo tempo de corte não foi ultrapassado
+   (ex.: 60 a 69 anos, forma A, 30" -> 75). Mais lento que o percentil 10 -> "< 10".
+   Sem idade (ou abaixo de 20 anos) ou sem tempo, não calcula. */
+function percentilTrilhas(idade, forma, tempo) {
+  if (idade === null || idade === undefined || tempo === null) return null;
+  const faixa = TRILHAS_TEMPOS.find(function (f) { return idade >= f.de && idade <= f.ate; });
+  if (!faixa) return null;
+  const i = faixa[forma].findIndex(function (corte) { return tempo <= corte; });
+  return i === -1 ? "< 10" : String(TRILHAS_PERCENTIS[i]);
+}
+
+/* Stroop Test, Versão Victoria: tempo médio (segundos) de cada cartela por faixa de idade.
+   1ª cartela = nomear cores de estímulos; 2ª = cores de palavras sem interferência;
+   3ª = cores de palavras com interferência. */
+const STROOP_TEMPOS = [
+  { de: 17, ate: 29, cartelas: [11.79, 13.46, 21.28] },
+  { de: 30, ate: 39, cartelas: [11.14, 13.81, 25.08] },
+  { de: 40, ate: 49, cartelas: [12.16, 14.82, 27.20] },
+  { de: 50, ate: 59, cartelas: [12.84, 15.96, 28.48] },
+  { de: 60, ate: 69, cartelas: [12.56, 16.16, 31.32] },
+  { de: 70, ate: 79, cartelas: [14.98, 19.11, 39.59] },
+  { de: 80, ate: 200, cartelas: [19.31, 23.91, 56.98] }
+];
+
+/* Referência da cartela (0, 1 ou 2) para a idade, arredondada para o inteiro mais
+   próximo (ex.: 12,84 -> 13). Sem idade ou abaixo de 17 anos, não calcula. */
+function referenciaStroop(idade, cartela) {
+  if (idade === null || idade === undefined) return null;
+  const faixa = STROOP_TEMPOS.find(function (f) { return idade >= f.de && idade <= f.ate; });
+  return faixa ? Math.round(faixa.cartelas[cartela]) : null;
+}
+
+/* Fluência fonêmica (F-A-S): mediana por idade e tempo de escolaridade (anos de estudo). */
+const FAS_ESCOLARIDADE = [
+  { valor: "1-3", rotulo: "1 a 3 anos" },
+  { valor: "4-7", rotulo: "4 a 7 anos" },
+  { valor: "8-11", rotulo: "8 a 11 anos" },
+  { valor: "12+", rotulo: "12 anos ou mais" }
+];
+const FAS_MEDIANAS = [
+  { de: 60, ate: 69, valores: [16.5, 28, 31.5, 36.5] },
+  { de: 70, ate: 79, valores: [16, 26, 28, 32] },
+  { de: 80, ate: 200, valores: [18.5, 26.5, 28, 37] }
+];
+
+/* Média esperada no F-A-S para a idade e a escolaridade (ex.: 65 anos, 1 a 3 anos -> 16,50).
+   Sem idade, abaixo de 60 anos ou sem escolaridade, não calcula. */
+function mediaFas(idade, escolaridade) {
+  if (idade === null || idade === undefined) return null;
+  const i = FAS_ESCOLARIDADE.findIndex(function (o) { return o.valor === escolaridade; });
+  const faixa = FAS_MEDIANAS.find(function (f) { return idade >= f.de && idade <= f.ate; });
+  if (i === -1 || !faixa) return null;
+  return faixa.valores[i].toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function razao(a, b) {
   if (a === null || b === null || b === 0) return null;
   return Math.round((a / b) * 100) / 100;
@@ -86,15 +153,33 @@ const PFEFFER_OPCOES = [
   { valor: "3", rotulo: "Não é capaz", pontos: 3 }
 ];
 
+/* GAI: ponto de corte 8/9 (9 ou mais) para sintomas relevantes; 13 ou mais sugere TAG. */
 function interpretarGai(n) {
-  return n >= 10 ? { texto: "Sugere presença de ansiedade em nível significativo", nivel: "alto" }
-    : { texto: "", nivel: "" };
+  if (n >= 13) return { texto: "Transtorno de ansiedade generalizada (TAG)", nivel: "alto" };
+  if (n >= 9) return { texto: "Sintomas de ansiedade clinicamente relevantes", nivel: "medio" };
+  return { texto: "", nivel: "" };
 }
 
 function interpretarGds(n) {
   if (n > 10) return { texto: "Sintomas depressivos em nível grave", nivel: "alto" };
-  if (n >= 5) return { texto: "Pode sugerir sintomas depressivos leves a moderados", nivel: "medio" };
+  if (n >= 5) return { texto: "Sintomas depressivos em níveis leve a moderado", nivel: "medio" };
   return { texto: "Normal", nivel: "baixo" };
+}
+
+/* Escore digitado nas abas de uma escala só (GAI, GDS, BHS, IQCODE). */
+function resultadoDigitado(interpretar) {
+  return function (s) {
+    const n = s.bloco("escore").valor();
+    if (n === null) return null;
+    const r = interpretar ? interpretar(n) : { texto: "", nivel: "" };
+    return { valor: formatarNumero(n), texto: r.texto, nivel: r.nivel };
+  };
+}
+
+/* Na tela, a interpretação do escore digitado. */
+function resumoDigitado(s) {
+  const r = this.resultado(s);
+  return [{ rotulo: "Interpretação", selo: r ? r.texto || "—" : "Digite o escore do paciente", nivel: r ? r.nivel : "", soTela: true }];
 }
 
 function interpretarBhs(n) {
@@ -188,7 +273,7 @@ const DEFINICOES = [
         tipo: "lista",
         id: "lista",
         preencherFolha: true,
-        introducao: "Foram aplicados protocolos fixos: CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e testes complementares para todos os domínios cognitivos:",
+        introducao: "Foram aplicados protocolos fixos: CERAD (*Consortium to Establish a Registry for Alzheimer's Disease*) e testes complementares para todos os domínios cognitivos:",
         itens: [
           "Testes de Atenção",
           "Testes de Linguagem",
@@ -198,9 +283,9 @@ const DEFINICOES = [
           "Teste das Trilhas",
           "Labirintos",
           "Testes de leitura e compreensão",
-          "Stroop Test",
+          "*Stroop Test*",
           "Testes de Figuras Geométricas",
-          "Montreal Cognitive Assessment (MoCA)",
+          "*Montreal Cognitive Assessment* (MoCA)",
           "Fluência Verbal – Fonética e Semântica",
           "Teste Auditivo Verbal de Rey (RAVLT)",
           "Curva de Aprendizagem Verbal – RAVLT",
@@ -214,7 +299,7 @@ const DEFINICOES = [
           "Escala de Depressão Geriátrica (GDS)",
           "Escala de Atividades de Vida Diária (Katz)",
           "Questionário de Atividades Funcionais (PFEFFER)",
-          "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
+          "IQCODE (*Informant Questionnaire on Cognitive Decline in Elderly*)",
           "Escalas de Beck",
           "Escala Cornell para depressão"
         ]
@@ -225,6 +310,7 @@ const DEFINICOES = [
   {
     id: "katz",
     titulo: "Escala de Katz",
+    tituloImpressao: "Escala de Katz (Escala de Independência para as Atividades de Alterações de Vida Diária)",
     descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
     blocos: [
       {
@@ -295,23 +381,33 @@ const DEFINICOES = [
       },
       {
         tipo: "nota",
-        soTela: true,
-        texto: "Pontuação: 0 independente em todas as seis funções; 1 independente em cinco e dependente em uma; 2 independente em quatro e dependente em duas; 3 independente em três e dependente em três; 4 independente em duas e dependente em quatro; 5 independente em uma e dependente em cinco; 6 dependente em todas as seis funções."
+        /* Logo abaixo das questões e acima do escore; na impressão, letra 9 em negrito. */
+        referencia: true,
+        texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 23(x): 1-10, xxx, 2007. – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
       },
+      /* Digitado pelo profissional; em branco, a impressão usa o total calculado. */
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 6, calculado: function (s) {
+        const r = s.bloco("itens").pontuacao();
+        return r.respondidos ? r.total : null;
+      } },
       {
-        tipo: "nota",
-        texto: "Adaptação Transcultural da Escala de Independência em Atividades da Vida Diária (Escala de Katz). Cad. Saúde Pública, Rio de Janeiro, 2007 – Valéria Teresa Saraiva Lino, Silvia Regina Mendes Pereira, Luiz Antônio Bastos Camacho, Sérgio Telles, Salo Buksman."
+        tipo: "faixas",
+        id: "legenda",
+        linhas: KATZ_INTERPRETACAO.map(function (texto, i) { return [String(i), texto]; })
       }
     ],
+    /* O escore digitado, quando houver, vale no lugar do total calculado. */
     resultado: function (s) {
       const r = s.bloco("itens").pontuacao();
-      if (!r.respondidos) return null;
-      const parcial = r.respondidos < r.totalItens;
+      const digitado = s.bloco("escore").valor();
+      if (!r.respondidos && digitado === null) return null;
+      const total = digitado === null ? r.total : digitado;
+      const parcial = digitado === null && r.respondidos < r.totalItens;
       return {
-        valor: String(r.total),
+        valor: String(total),
         texto: parcial ? "Parcial: " + r.respondidos + " de " + r.totalItens + " áreas avaliadas"
-          : KATZ_INTERPRETACAO[r.total],
-        nivel: parcial ? "" : r.total === 0 ? "baixo" : r.total <= 2 ? "medio" : "alto"
+          : KATZ_INTERPRETACAO[total] || "",
+        nivel: parcial ? "" : total === 0 ? "baixo" : total <= 2 ? "medio" : "alto"
       };
     },
     /* soTela: a caixa aparece só na tela, não na impressão. */
@@ -329,6 +425,8 @@ const DEFINICOES = [
   {
     id: "pfeffer",
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
+    tituloImpressao: "Escalas, Inventários e Questionários",
+    subtituloImpressao: "Questionário de Atividades Funcionais (Pfeffer)",
     descricao: "Pergunte ao informante sobre a capacidade do paciente em cada atividade.",
     blocos: [
       {
@@ -358,7 +456,13 @@ const DEFINICOES = [
             ]
           }
         ]
-      }
+      },
+      /* Calculado (sem campo na tela): sai no fim da folha, depois das respostas. */
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", entrada: false, calculado: function (s) {
+        const r = s.bloco("itens").pontuacao();
+        return r.respondidos ? r.total : null;
+      } },
+      { tipo: "faixas", id: "legenda", linhas: [["> 5", "Comprometimento funcional significativo"]] }
     ],
     resultado: function (s) {
       const r = s.bloco("itens").pontuacao();
@@ -375,10 +479,88 @@ const DEFINICOES = [
     resumo: function (s) {
       const r = s.bloco("itens").pontuacao();
       return [
-        { rotulo: "Escore do paciente", valor: r.total, de: "30" },
+        { rotulo: "Escore do paciente", valor: r.total, de: "30", soTela: true },
         { rotulo: "Respondidos", valor: r.respondidos, de: String(r.totalItens), soTela: true }
       ];
     }
+  },
+
+  /* GAI, GDS, BHS e IQCODE: só o escore digitado e a legenda. Na impressão saem
+     juntas numa folha, depois do Pfeffer. */
+  {
+    id: "gai",
+    titulo: "Inventário de Ansiedade Geriátrica (GAI)",
+    descricao: "Digite o escore do paciente no Inventário de Ansiedade Geriátrica (0 a 20).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 20 },
+      {
+        tipo: "faixas",
+        id: "legenda",
+        linhas: [
+          ["8/9", "Presença de sintomas de ansiedade clinicamente relevantes"],
+          ["≥ 13", "Transtorno de ansiedade generalizada (TAG)"]
+        ]
+      }
+    ],
+    resultado: resultadoDigitado(interpretarGai),
+    resumo: resumoDigitado
+  },
+
+  {
+    id: "gds",
+    titulo: "Escala de Depressão Geriátrica (GDS)",
+    tituloImpressao: "Escala de Depressão Geriátrica (GDS) *(Geriatric Depression Scale)*",
+    impressao: { juntarCom: ["gai"] },
+    descricao: "Digite o escore do paciente na Escala de Depressão Geriátrica (0 a 15).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 15 },
+      {
+        tipo: "faixas",
+        id: "legenda",
+        linhas: [
+          ["0 a 4", "Normal"],
+          ["5 a 10", "Sintomas depressivos em níveis leve a moderado"],
+          ["Maior que 10", "Sintomas depressivos em nível grave"]
+        ]
+      }
+    ],
+    resultado: resultadoDigitado(interpretarGds),
+    resumo: resumoDigitado
+  },
+
+  {
+    id: "bhs",
+    titulo: "Escala de Desesperança de Beck (BHS)",
+    tituloImpressao: "Escala de Desesperança de Beck *(Beck Hopelessness Scale)*",
+    impressao: { juntarCom: ["gai", "gds"] },
+    descricao: "Digite o escore do paciente na Escala de Desesperança de Beck (0 a 20).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 20 },
+      {
+        tipo: "faixas",
+        id: "legenda",
+        linhas: [
+          ["0 a 4", "Desesperança mínima"],
+          ["5 a 8", "Desesperança leve"],
+          ["9 a 13", "Desesperança moderada"],
+          ["14 a 20", "Desesperança grave"]
+        ]
+      }
+    ],
+    resultado: resultadoDigitado(interpretarBhs),
+    resumo: resumoDigitado
+  },
+
+  {
+    id: "iqcode-escore",
+    titulo: "IQCODE",
+    tituloImpressao: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*",
+    impressao: { juntarCom: ["gai", "gds", "bhs"] },
+    descricao: "Digite o escore do paciente no IQCODE – Questionário do Declínio (média de 1 a 5).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 5, decimal: true }
+    ],
+    resultado: resultadoDigitado(null)
   },
 
   {
@@ -461,7 +643,7 @@ const DEFINICOES = [
   {
     id: "humor",
     titulo: "Humor e comportamento",
-    descricao: "Escalas, inventários e questionários. Katz, Pfeffer e Cornell vêm das próprias abas; GAI, GDS e BHS são digitados aqui.",
+    descricao: "Escalas, inventários e questionários: os resultados vêm das próprias abas (Katz, Pfeffer, GAI, GDS, BHS, IQCODE e Cornell). As legendas saem na folha de cada escala.",
     blocos: [
       {
         tipo: "resultados",
@@ -469,53 +651,12 @@ const DEFINICOES = [
         itens: [
           { rotulo: "Escala de independência para as atividades de vida diária (Katz)", origem: "katz" },
           { rotulo: "Questionário de atividades funcionais (Pfeffer)", origem: "pfeffer" },
-          /* IQCODE fora de uso por enquanto: linha escondida e fora da impressão. */
-          { rotulo: "IQCODE (investigação de declínio cognitivo)", origem: "iqcode", oculto: true },
-          { rotulo: "GAI (inventário de ansiedade) autorrelato", maximo: 20, interpretar: interpretarGai },
-          { rotulo: "GDS (Yesavage escala de depressão) autorrelato", maximo: 15, interpretar: interpretarGds },
-          { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" },
-          { rotulo: "BHS (escala de desesperança) autorrelato", maximo: 20, interpretar: interpretarBhs }
+          { rotulo: "GAI (inventário de ansiedade) autorrelato", origem: "gai" },
+          { rotulo: "GDS (Yesavage escala de depressão) autorrelato", origem: "gds" },
+          { rotulo: "BHS (escala de desesperança) autorrelato", origem: "bhs" },
+          { rotulo: "IQCODE (questionário do declínio)", origem: "iqcode-escore" },
+          { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" }
         ]
-      },
-      {
-        tipo: "nota",
-        legenda: true,
-        texto: [
-          "ESCALA KATZ:",
-          "0: independente em todas as seis funções;",
-          "1: independente em cinco funções e dependente em uma função;",
-          "2: independente em quatro funções e dependente em duas funções;",
-          "3: independente em três funções e dependente em três funções;",
-          "4: independente em duas funções e dependente em quatro funções;",
-          "5: independente em uma função e dependente em cinco funções;",
-          "6: dependente em todas as seis funções.",
-          "",
-          "ESCALA DE PFEFFER:",
-          "> 5 = comprometimento funcional significativo.",
-          "",
-          "GAI:",
-          ">= 10 sugerem presença de ansiedade em nível significativo.",
-          "",
-          "GDS (Yesavage):",
-          "0-4 normal;",
-          "5-10 pode sugerir sintomas depressivos em níveis leve a moderado;",
-          "> 10 sintomas depressivos em nível grave.",
-          "",
-          "CORNELL:",
-          "0-8 ausência de depressão;",
-          "9-11 depressão leve;",
-          "12 ou + depressão moderada a grave.",
-          "",
-          /* IQCODE fora de uso por enquanto:
-          "IQCODE:",
-          "escores maiores ou iguais a 3,5 sugerem a presença de declínio cognitivo frente ao nível pré-mórbido.",
-          "", */
-          "BHS:",
-          "0-4 desesperança mínima;",
-          "5-8 desesperança leve;",
-          "9-13 desesperança moderada;",
-          "14-20 desesperança grave."
-        ].join("\n")
       }
     ]
   },
@@ -523,9 +664,11 @@ const DEFINICOES = [
   {
     id: "moca",
     titulo: "Montreal Cognitive Assessment (MoCA)",
+    /* Em inglês: na impressão, em itálico e letra 12. */
+    tituloImpressao: "*Montreal Cognitive Assessment (MoCA)*",
     /* Na impressão a tabela sai mais espaçada para ocupar melhor a folha
        (sem exagero: ainda cabe o comentário sobre o Relógio de Shulman). */
-    impressao: { espacamento: 2 },
+    impressao: { espacamento: 1.6 },
     descricao: "Digite o escore do paciente em cada domínio. O total é calculado automaticamente.",
     blocos: [
       {
@@ -563,8 +706,13 @@ const DEFINICOES = [
       },
       {
         tipo: "texto",
+        id: "comentario-escore",
+        rotulo: "Comentários Sobre o Escore Obtido no MoCA"
+      },
+      {
+        tipo: "texto",
         id: "comentario",
-        rotulo: "Comentários Sobre o Relógio de Shulman",
+        rotulo: "Comentários Sobre o Teste do Relógio de Shulman",
         alto: true
       }
     ],
@@ -577,6 +725,7 @@ const DEFINICOES = [
   {
     id: "cerad",
     titulo: "Bateria do CERAD e Funções executivas",
+    tituloImpressao: "Consortium to Establish a Registry for Alzheimer's Disease",
     descricao: "CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e Bateria de Avaliação Frontal (FAB).",
     blocos: [
       {
@@ -585,25 +734,28 @@ const DEFINICOES = [
         titulo: "Bateria do CERAD",
         colunaRotulo: "Teste",
         colunas: [
-          { rotulo: "Escore obtido", tipo: "texto" },
+          { rotulo: "Escore obtido", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
         ],
         linhas: [
-          { rotulo: "Fluência verbal: Animais" },
-          { rotulo: "Fluência verbal: Frutas" },
+          /* "puxar": o escore vem de outra aba ([aba, bloco, linha, coluna]) e não é digitado aqui.
+             Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia não têm escore em
+             outra aba (na Linguagem, a Nomeação de Boston é um texto) e são digitadas aqui. */
+          { rotulo: "Fluência verbal: Animais", puxar: { 0: ["linguagem", "semantica", "1", 0] } },
+          { rotulo: "Fluência verbal: Frutas", puxar: { 0: ["linguagem", "semantica", "2", 0] } },
           { rotulo: "Nomeação de Boston" },
-          { rotulo: "MoCA (Montreal Cognitive Assessment)" },
-          { rotulo: "Memória verbal (fixação)" },
+          { rotulo: "MoCA (Montreal Cognitive Assessment)", puxar: { 0: ["moca", "dominios", "total", 0] } },
+          { rotulo: "Memória verbal (fixação)", puxar: { 0: ["ravlt", "tabela", "total", 0] } },
           { rotulo: "Praxia construtiva" },
-          { rotulo: "Memória verbal (evocação)" },
-          { rotulo: "Memória verbal (reconhecimento)" },
+          { rotulo: "Memória verbal (evocação)", puxar: { 0: ["ravlt", "tabela", "a7", 0] } },
+          { rotulo: "Memória verbal (reconhecimento)", puxar: { 0: ["ravlt", "tabela", "reconhecimento", 0] } },
           { rotulo: "Evocação tardia da praxia" }
         ]
       },
       { tipo: "subtitulo", texto: "Funções executivas" },
       {
         tipo: "paragrafo",
-        texto: "Conjunto de habilidades e princípios de organização necessários para lidar com situações visando adoção de conduta apropriada, responsável e efetiva. Incluem formulação de objetivos e de conceitos, motivação, planejamento, autorregulação, “insight”, abstração, análise, manipulação de conhecimentos adquiridos e flexibilidade mental. (Testes analisados: Stroop Test, Trilhas A e B, Semelhanças, Labirintos, Teste de Controle Mental, Teste de Fluência Verbal por categoria semântica e fonêmica, Teste do Relógio de Shulman, Teste dos Sinos, Interpretação de Provérbios.)"
+        texto: "Conjunto de habilidades e princípios de organização necessários para lidar com situações visando adoção de conduta apropriada, responsável e efetiva. Incluem formulação de objetivos e de conceitos, motivação, planejamento, autorregulação, “insight”, abstração, análise, manipulação de conhecimentos adquiridos e flexibilidade mental. (Testes analisados: __Stroop Test, Trilhas A e B, Semelhanças, Labirintos, Teste de Controle Mental, Teste de Fluência Verbal por categoria semântica e fonêmica, Teste do Relógio de Shulman, Teste dos Sinos, Interpretação de Provérbios__.)"
       },
       {
         tipo: "tabela",
@@ -614,10 +766,10 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
         ],
         linhas: [
-          { rotulo: "Controle inibitório" },
+          { rotulo: "Controle inibitório (Go/No-Go)" },
           { rotulo: "Fluência verbal" },
           { rotulo: "Similaridades" },
-          { rotulo: "Sequências motoras (palma, punho, lado)" },
+          { rotulo: "Séries motoras (sequência motora de Luria)" },
           { rotulo: "Instruções conflitantes (sensibilidade à interferência)" },
           { rotulo: "Preensão" }
         ]
@@ -630,12 +782,22 @@ const DEFINICOES = [
     titulo: "Linguagem",
     descricao: "Fluência verbal fonêmica e semântica, expressão, nomeação, leitura, escrita e compreensão.",
     blocos: [
+      /* Só na tela: escolhe a linha da tabela de medianas do F-A-S (coluna Média). */
+      {
+        tipo: "selecao",
+        id: "escolaridade",
+        rotulo: "Tempo de escolaridade",
+        opcoes: FAS_ESCOLARIDADE
+      },
       {
         tipo: "tabela",
         id: "fonemica",
         titulo: "Fluência fonêmica",
         colunaRotulo: "Teste",
         colunas: [
+          /* Calculada pela idade e pelo tempo de escolaridade (veja mediaFas); sozinha não
+             faz a linha sair na impressão. */
+          { rotulo: "Média", tipo: "calculo", estreita: true, informativa: true },
           { rotulo: "F", tipo: "numero", estreita: true },
           { rotulo: "A", tipo: "numero", estreita: true },
           { rotulo: "S", tipo: "numero", estreita: true },
@@ -647,10 +809,16 @@ const DEFINICOES = [
             rotulo: "Fluência fonêmica (F-A-S)",
             chave: "fas",
             calculos: {
-              3: function (t) { return somaPreenchidos([t.num("fas", 0), t.num("fas", 1), t.num("fas", 2)]); }
+              0: function (t) { return mediaFas(t.paciente().idade, t.bloco("escolaridade").valor()); },
+              4: function (t) { return somaPreenchidos([t.num("fas", 1), t.num("fas", 2), t.num("fas", 3)]); }
             }
           }
         ]
+      },
+      {
+        tipo: "nota",
+        soTela: true,
+        texto: "Média: mediana do F-A-S para a idade do paciente (60 a 69, 70 a 79 e 80 anos ou mais) e o tempo de escolaridade escolhido acima. Sem a idade, abaixo de 60 anos ou sem o tempo de escolaridade, a média não é calculada."
       },
       {
         tipo: "tabela",
@@ -668,6 +836,7 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
+        tamanho: 10,
         texto: "Testes de fluência verbal: o teste de fluência semântica avalia a produção e a fluência da linguagem semântica por categoria, atenção sustentada, organização, memória semântica (que contém a representação permanente de nossos conhecimentos sobre objetos, fatos e conceitos), estratégia e perseveração. O teste de fluência fonêmica avalia linguagem, planejamento, organização, julgamento e atenção."
       },
       { tipo: "texto", id: "expressao", rotulo: "Expressão" },
@@ -715,7 +884,7 @@ const DEFINICOES = [
               }
             }
           },
-          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1, dp: RAVLT_DP.b1 },
+          { rotulo: "B1", chave: "b1", referencia: RAVLT_REFERENCIA.b1, dp: RAVLT_DP.b1, soTela: true },
           { rotulo: "A6", chave: "a6", referencia: RAVLT_REFERENCIA.a6, dp: RAVLT_DP.a6 },
           { rotulo: "A7", chave: "a7", referencia: RAVLT_REFERENCIA.a7, dp: RAVLT_DP.a7 },
           {
@@ -741,6 +910,7 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
+        tamanho: 10,
         texto: "RAVLT – Teste de aprendizagem verbal que permite estabelecer uma curva de uma lista de palavras ao longo de 5 tentativas. A pontuação corresponde ao número de itens evocados. Permite avaliar ainda a repercussão da introdução de distratores (lista B), a evocação tardia após 30 minutos à exposição da lista A e a capacidade de reconhecimento na reapresentação das palavras da lista A. Estrutura da tarefa: A1 leitura da lista A seguida de recuperação imediata pelo paciente (A2, A3, A4, A5 – idem) / Leitura da lista B (um distrator) seguida da recuperação imediata pelo paciente / A6 – recuperação livre da lista A sem leitura do examinador. A7 (recuperação tardia) após 30 min da recuperação de A6. Reconhecimento tardio das palavras constantes da lista A que foi repetida e recuperada 5 vezes anteriormente."
       },
       {
@@ -755,6 +925,7 @@ const DEFINICOES = [
         tipo: "texto",
         id: "comentarios",
         rotulo: "Comentários",
+        semRotuloNaImpressao: true,
         alto: true,
         placeholder: "Descreva o desempenho: memória de curto e longo prazo, interferências, reconhecimento, velocidade de esquecimento..."
       }
@@ -782,10 +953,14 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor (letra 10). */
+        tamanho: 10,
         texto: "Memória lógica: recuperação de 2 histórias lógicas imediatamente após sua leitura (resgate imediato: memória lógica I) e após 30 min (resgate tardio: memória lógica II). Teste que avalia armazenamento e recuperação de informações."
       },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor (letra 10). */
+        tamanho: 10,
         texto: "Memória visual: apresentação de figuras geométricas que devem ser reproduzidas de imediato (memória visual de curto prazo) e após aproximadamente 25 min (memória visual tardia)."
       },
       /* Na impressão sai acima de Atenção (Trilhas vem logo depois, na mesma folha). */
@@ -799,13 +974,15 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Teste Digit Span" },
+          { rotulo: "Teste Digit Span", rotuloImpressao: "Teste *Digit Span*" },
           { rotulo: "Ordem Direta (Memória imediata)" },
           { rotulo: "Ordem Inversa (Memória Operacional)" }
         ]
       },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor (letra 10). */
+        tamanho: 10,
         texto: "Teste que consiste na repetição seriada de números. Espera-se que o(a) paciente seja capaz de repetir até 7 dígitos (7 ± 2) na ordem direta e 4 dígitos na ordem inversa."
       }
     ]
@@ -820,26 +997,38 @@ const DEFINICOES = [
     blocos: [
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor (letra 10). */
+        tamanho: 10,
         texto: "Estes testes se referem à capacidade atentiva, destreza visuomotora, rapidez de processamento, capacidade de alternar continuamente conceitos distintos, flexibilidade cognitiva, resistência à interferência e rapidez na tomada de decisão."
       },
       {
         tipo: "tabela",
         id: "formas",
         titulo: "Teste das Trilhas",
+        /* Fica dentro de Trilhas: na impressão, letra 10 (os outros subtítulos têm 13). */
+        tamanhoTitulo: 10,
         colunaRotulo: "Forma",
         colunas: [
           { rotulo: "Erros", tipo: "numero" },
-          { rotulo: "Tempo (segundos)", tipo: "numero" },
-          { rotulo: "Percentil", tipo: "numero" }
+          { rotulo: "Tempo (segundos)", tipo: "numero", tempo: true },
+          /* Calculado pela idade do paciente e pelo tempo (veja percentilTrilhas). */
+          { rotulo: "Percentil", tipo: "calculo" }
         ],
         linhas: [
-          { rotulo: "Forma A" },
-          { rotulo: "Forma B" }
+          { rotulo: "Forma A", calculos: { 2: function (t) { return percentilTrilhas(t.paciente().idade, "A", t.num("1", 1)); } } },
+          { rotulo: "Forma B", calculos: { 2: function (t) { return percentilTrilhas(t.paciente().idade, "B", t.num("2", 1)); } } }
         ]
+      },
+      {
+        tipo: "nota",
+        soTela: true,
+        texto: "O percentil é calculado pela idade do paciente e pelo tempo em segundos (Davies, 1968). Faixas: 20 a 39, 40 a 49, 50 a 59, 60 a 69 e 70 a 79 anos; acima de 79 anos usa a faixa de 70 a 79. Mais lento que o percentil 10 aparece como \"< 10\". Sem a idade do paciente, o percentil não é calculado."
       },
       { tipo: "subtitulo", texto: "Atenção" },
       {
         tipo: "paragrafo",
+        /* Na impressão: texto explicativo menor (letra 10). */
+        tamanho: 10,
         texto: "Avaliada através de testes que aferem a capacidade de manter-se atento de forma continuada (atenção concentrada), de atentar seletivamente para informações relevantes a despeito de estímulos distratores (atenção seletiva), de ser capaz de ora manter o foco de atenção num estímulo ora em outro (atenção alternada / flexibilidade mental). Foram avaliados todos os aspectos da atenção: sustentação, seletividade e alternância."
       },
       {
@@ -880,8 +1069,8 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2 }
         ],
         linhas: [
-          { rotulo: "Trilha B" },
-          { rotulo: "Teste Stroop" }
+          /* O tempo vem da Forma B do Teste das Trilhas (não é digitado de novo). */
+          { rotulo: "Trilha B", puxar: { 0: ["trilhas", "formas", "2", 1] }, tempo: true }
         ]
       }
     ]
@@ -900,6 +1089,8 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "tipos",
         colunaRotulo: "Praxias",
+        /* Na impressão, os resultados sempre em letra 12. */
+        valores12: true,
         colunas: [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
@@ -924,6 +1115,8 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "subtestes",
         colunaRotulo: "Subteste",
+        /* Na impressão, os resultados sempre em letra 12. */
+        valores12: true,
         colunas: [
           { rotulo: "Escore", tipo: "texto" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
@@ -936,8 +1129,9 @@ const DEFINICOES = [
           { rotulo: "5 - Cubos" },
           { rotulo: "6 - Códigos" },
           { rotulo: "7 - Procurar Símbolos" },
-          { rotulo: "8 - Dígitos (Ordem direta)" },
-          { rotulo: "8.1 - Dígitos (Ordem inversa)" }
+          /* Os escores dos Dígitos vêm da Memória verbal e visual (Digit Span). */
+          { rotulo: "8 - Dígitos (Ordem direta)", puxar: { 0: ["memoria", "digit-span", "2", 0] } },
+          { rotulo: "8.1 - Dígitos (Ordem inversa)", puxar: { 0: ["memoria", "digit-span", "3", 0] } }
         ]
       },
       {
@@ -966,7 +1160,7 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
-        texto: "7 - Procurar Símbolos: o examinando analisa, visualmente, 2 grupos de símbolos, 1 grupo modelo (composto de 2 símbolos) e um grupo de procura (composto de 5 símbolos) e indica se um dos símbolos do grupo modelo também faz parte do grupo de procura. Ele deve responder ao maior número de itens possíveis, dentro de um tempo limite de 120 segundos."
+        texto: "7 - Procurar Símbolos: o examinando analisa, visualmente, 2 grupos de símbolos, 1 grupo modelo (composto de 2 símbolos) e um grupo de procura (composto de 5 símbolos) e indica se um dos símbolos do grupo modelo também faz parte do grupo de procura. Ele deve responder ao maior número de itens possíveis, dentro de um tempo limite de 120 segundos. (Avalia velocidade de processamento, flexibilidade cognitiva, memória visual, concentração)"
       },
       {
         tipo: "paragrafo",
@@ -978,27 +1172,40 @@ const DEFINICOES = [
   {
     id: "stroop",
     titulo: "Stroop Test",
+    /* Em inglês: na impressão, em itálico, com letra 14 como os outros títulos. */
+    tituloImpressao: "*Stroop Test*",
+    tamanhoTituloIngles: 14,
     descricao: "Stroop Test e testes complementares (provérbios, cinco pontos, sinos, corte de linhas e labirintos).",
     blocos: [
       {
         tipo: "paragrafo",
-        texto: "Teste que avalia atenção, resistência à interferência, impulsividade e flexibilidade de pensamento."
+        texto: "Teste que avalia atenção, controle inibitório, impulsividade, flexibilidade cognitiva e velocidade de processamento."
       },
       {
         tipo: "tabela",
         id: "fases",
         colunaRotulo: "Fases",
+        /* Na impressão, o que está entre parênteses vai para a linha de baixo. */
+        quebrarParenteses: true,
         colunas: [
-          { rotulo: "Tempo do paciente", tipo: "texto" },
-          { rotulo: "Média", tipo: "texto" },
+          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
+          /* Calculada pela idade do paciente (veja referenciaStroop); sozinha não faz a linha
+             sair na impressão. */
+          { rotulo: "Referência", tipo: "calculo", tempo: true, informativa: true },
+          { rotulo: "Média", tipo: "texto", tempo: true },
           { rotulo: "Erros", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Nomear cores de estímulos" },
-          { rotulo: "Nomear cores de palavras (sem interferência)" },
-          { rotulo: "Nomear cores de palavras (com interferência)" }
+          { rotulo: "Nomear cores de estímulos", calculos: { 1: function (t) { return referenciaStroop(t.paciente().idade, 0); } } },
+          { rotulo: "Nomear cores de palavras (sem interferência)", calculos: { 1: function (t) { return referenciaStroop(t.paciente().idade, 1); } } },
+          { rotulo: "Nomear cores de palavras (com interferência)", calculos: { 1: function (t) { return referenciaStroop(t.paciente().idade, 2); } } }
         ]
+      },
+      {
+        tipo: "nota",
+        soTela: true,
+        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada."
       },
       { tipo: "subtitulo", texto: "Testes complementares" },
       {
@@ -1011,7 +1218,8 @@ const DEFINICOES = [
         linhas: [
           { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento" },
           { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora" },
-          { rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda" },
+          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
+          { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda" },
           { rotulo: "Teste dos Labirintos: envolve planejamento e previsão" }
         ]
@@ -1062,8 +1270,7 @@ const DEFINICOES = [
           "Praxias",
           "Funções executivas"
         ]
-      },
-      { tipo: "texto", id: "observacoes", rotulo: "Observações", placeholder: "Considerações adicionais sobre os resultados..." }
+      }
     ]
   },
 
@@ -1073,10 +1280,12 @@ const DEFINICOES = [
     descricao: "Conclusão da avaliação e assinatura dos profissionais.",
     sempreImprimir: true,
     blocos: [
-      { tipo: "texto", id: "texto", rotulo: "Conclusão", alto: true, placeholder: "Escreva a conclusão da avaliação..." },
+      { tipo: "texto", id: "texto", rotulo: "Conclusão", alto: true, folha: true, limite: 3000, placeholder: "Escreva a conclusão da avaliação..." },
       {
         tipo: "assinaturas",
         id: "assinaturas",
+        /* Na impressão: local com espaço para o dia, o mês e o ano, e as assinaturas no fim da folha. */
+        local: "Rio de Janeiro",
         pessoas: [
           { nome: "Vania Buksman", registro: "CRP 05/43969" },
           { nome: "Lelia Galvis", registro: "CRP 05/43970" }

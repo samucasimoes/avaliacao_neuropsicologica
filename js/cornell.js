@@ -58,6 +58,12 @@ const Cornell = (function () {
   const TOTAL_ITENS = 19;
   const PONTUACAO_MAXIMA = 38;
   const REFERENCIA = "0 a 8: ausência de depressão; 9 a 11: depressão leve; 12 ou mais: depressão moderada a grave.";
+  /* Legenda da impressão: faixa de escore numa coluna e interpretação na outra. */
+  const LEGENDA = [
+    ["0 a 8", "Ausência de depressão"],
+    ["9 a 11", "Depressão leve"],
+    ["12 ou mais", "Depressão moderada a grave"]
+  ];
   /* Orientação ao avaliador: aparece na tela e abaixo do título na impressão. */
   const INSTRUCAO = "Com base no comportamento, marque a intensidade dos sinais e sintomas que ocorreram na semana anterior a essa avaliação neuropsicológica.";
 
@@ -185,22 +191,25 @@ const Cornell = (function () {
           : [item.numero, item.texto, item.resposta, item.pontos]);
       });
     });
-    linhas.push({ celulas: ["", "Escore do paciente", "", r.total], destaque: true });
 
     return {
       titulo: "Escala Cornell para Depressão",
       blocos: [
         { tipo: "paragrafo", texto: INSTRUCAO, negrito: true },
         {
-          tipo: "caixas",
-          /* A interpretação e os itens respondidos aparecem só na tela, nunca na impressão. */
-          caixas: [["Escore do paciente", r.total + " / " + r.pontuacaoMaxima]]
-        },
-        {
           tipo: "tabela",
           cabecalho: ["Nº", "Sinal avaliado", "Avaliação", "Pontos"],
           linhas: linhas,
-          estilos: { 0: { cellWidth: 10, halign: "center" }, 2: { cellWidth: 42 }, 3: { cellWidth: 16, halign: "center" } }
+          estilos: { 0: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 46 }, 3: { cellWidth: 21, halign: "center" } }
+        },
+        /* O escore sai no fim da folha, depois das respostas, e logo abaixo a legenda.
+           A interpretação e os itens respondidos aparecem só na tela. */
+        { tipo: "escore", rotulo: "Escore do paciente", valor: String(r.total) },
+        {
+          tipo: "tabela",
+          cabecalho: ["Escore", "Interpretação"],
+          linhas: LEGENDA,
+          estilos: { 0: { cellWidth: 34, fontStyle: "bold" } }
         }
       ]
     };

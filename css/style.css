@@ -1618,6 +1618,28 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 160px;
 }
 
+/* Texto que ocupa quase a folha toda na impressão (Conclusão). */
+.textarea.folha {
+  height: 420px;
+}
+
+/* Escore do paciente digitado no fim das questões (Escala de Katz). */
+.campo-escore {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.campo-escore .label {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.input-escore {
+  width: 140px;
+}
+
 /* Escala de Katz: uma descrição por área (classes com o nome da aba, montadas em secoes.js) */
 .katz-item {
   display: flex;
@@ -1790,6 +1812,12 @@ td.estreita .input-tabela {
   min-width: 48px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+/* Escore que vem de outra aba (ex.: CERAD): não é digitado aqui. */
+.calc.puxado {
+  color: var(--ink-soft);
+  cursor: help;
 }
 
 .fixo {
@@ -2276,4 +2304,23 @@ td.estreita .input-tabela {
     font-size: 16px;
     color: #000;
   }
+}
+
+/* Legenda das escalas (escore e interpretação), montada em secoes.js */
+.tabela-faixas {
+  max-width: 640px;
+}
+
+.tabela-faixas th[scope="row"] {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* Escolha de uma opção usada nos cálculos da aba (ex.: tempo de escolaridade na Linguagem). */
+.input-selecao {
+  width: 220px;
+}
+
+.campo-escore .label {
+  white-space: nowrap;
 }

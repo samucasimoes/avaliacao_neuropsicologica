@@ -251,15 +251,26 @@
     }
   }
 
+  /* Só na tela, fora da impressão: o Relógio de Shulman e Humor e comportamento
+     (os resultados de cada escala já saem na folha dela). */
+  const FORA_DA_IMPRESSAO = ["dados", "shulman", "humor"];
+  /* Na impressão, uma etapa pode sair antes de outra (a Linguagem antes do CERAD). */
+  const ANTES_NA_IMPRESSAO = { linguagem: "cerad" };
+
   /* Etapas na ordem dos números do menu, para o relatório. */
   function secoesDoRelatorio() {
-    return linksSecao
+    const etapas = linksSecao
       .map(function (link) {
         return { id: link.dataset.secao, numero: Number(link.querySelector(".step-num").textContent) };
       })
-      /* O Relógio de Shulman fica só na tela: não sai na impressão. */
-      .filter(function (etapa) { return etapa.id !== "dados" && etapa.id !== "shulman"; })
-      .sort(function (a, b) { return a.numero - b.numero; })
+      .filter(function (etapa) { return FORA_DA_IMPRESSAO.indexOf(etapa.id) === -1; })
+      .sort(function (a, b) { return a.numero - b.numero; });
+    Object.keys(ANTES_NA_IMPRESSAO).forEach(function (id) {
+      const de = etapas.findIndex(function (etapa) { return etapa.id === id; });
+      const para = etapas.findIndex(function (etapa) { return etapa.id === ANTES_NA_IMPRESSAO[id]; });
+      if (de > para && para !== -1) etapas.splice(para, 0, etapas.splice(de, 1)[0]);
+    });
+    return etapas
       .map(function (etapa) {
         const conteudo = etapa.id === "cornell" ? Cornell.relatorio()
           : Secoes.relatorio(etapa.id);
@@ -297,20 +308,37 @@
 
   /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
      campos, suba a versão e converta os nomes antigos em migrarCampos. */
-  const VERSAO_CAMPOS = 3;
+  const VERSAO_CAMPOS = 7;
 
   /* Converte campos salvos antes da versão 3:
      - Encaminhador virou Médico solicitante;
      - a aba Curva de aprendizagem virou RAVLT (com a coluna DP antes da Classificação);
      - saíram "Traumatismo craniano" (Resumo, item 14) e o TMR (Memória, linha 5);
-     - a lista de Funções avaliadas mudou: volta ao padrão (tudo marcado). */
+     - a lista de Funções avaliadas mudou: volta ao padrão (tudo marcado).
+     Antes da versão 4, GAI, GDS e BHS eram digitados em Humor e comportamento
+     (linhas 4, 5 e 7); agora cada escala tem a própria aba.
+     Na versão 5, o Stroop ganhou a coluna Referência (a 2ª): Média, Erros e Classificação
+     passaram da coluna 2, 3 e 4 para 3, 4 e 5.
+     Na versão 6, a escolaridade "Pós-graduação" virou "Pós-graduação / MBA".
+     Na versão 7, a Fluência fonêmica ganhou a coluna Média (a 1ª): F, A, S e Classificação
+     passaram uma coluna para a direita. */
   function migrarCampos(campos) {
-    if ((Number(campos.versaoCampos) || 2) >= VERSAO_CAMPOS) return campos;
+    const versao = Number(campos.versaoCampos) || 2;
+    if (versao >= VERSAO_CAMPOS) return campos;
+    const HUMOR_ANTIGO = { "humor-escalas-4": "gai-escore", "humor-escalas-5": "gds-escore", "humor-escalas-7": "bhs-escore" };
     const novos = {};
     Object.keys(campos).forEach(function (nome) {
       let novo = nome;
       let m;
-      if (nome === "encaminhador") {
+      if (versao < 7 && (m = /^linguagem-fonemica-(\d+)-(\d+)$/.exec(nome))) {
+        novo = "linguagem-fonemica-" + m[1] + "-" + (Number(m[2]) + 1);
+      } else if (versao < 5 && (m = /^stroop-fases-(\d+)-(\d+)$/.exec(nome)) && Number(m[2]) >= 2) {
+        novo = "stroop-fases-" + m[1] + "-" + (Number(m[2]) + 1);
+      } else if (versao < 4 && HUMOR_ANTIGO[nome]) {
+        novo = HUMOR_ANTIGO[nome];
+      } else if (versao >= 3) {
+        /* Já está com os nomes da versão 3. */
+      } else if (nome === "encaminhador") {
         novo = "medicoSolicitante";
       } else if (nome === "curva-analise") {
         novo = "ravlt-comentarios";
@@ -323,7 +351,8 @@
       } else if (/^funcoes-lista-\d+$/.test(nome) || /^memoria-testes-5-/.test(nome)) {
         return;
       }
-      novos[novo] = campos[nome];
+      novos[novo] = versao < 6 && nome === "escolaridade" && campos[nome] === "Pós-graduação"
+        ? "Pós-graduação / MBA" : campos[nome];
     });
     return novos;
   }
@@ -525,6 +554,17 @@
     } finally {
       botoesImprimir.forEach(function (botao) { botao.disabled = false; });
     }
+  });
+
+  /* ENTER não baixa o relatório: só o clique em Imprimir Avaliação gera o PDF.
+     Nos textos longos o ENTER continua quebrando a linha, e nos outros botões
+     (Próxima, Anterior...) continua funcionando. */
+  form.addEventListener("keydown", function (evento) {
+    if (evento.key !== "Enter") return;
+    const alvo = evento.target;
+    if (alvo.tagName === "TEXTAREA") return;
+    if (alvo.tagName === "BUTTON" && alvo.type !== "submit") return;
+    evento.preventDefault();
   });
 
   /* Gerar Arquivo: baixa só o .json, que depois volta pelo botão Carregar arquivo. */

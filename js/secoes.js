@@ -460,9 +460,10 @@ const Secoes = (function () {
       return estilos;
     }
 
-    /* Colunas que não são digitadas nem contam como preenchimento. */
+    /* Colunas que não são digitadas nem contam como preenchimento
+       (informativa: ex.: Referência do Stroop, calculada só pela idade). */
     function informativa(coluna) {
-      return coluna.tipo === "fixo" || coluna.tipo === "referencia";
+      return coluna.tipo === "fixo" || coluna.tipo === "referencia" || !!coluna.informativa;
     }
 
     /* Valor de uma célula como texto (vazio se não preenchida). */

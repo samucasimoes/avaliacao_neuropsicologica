@@ -737,6 +737,19 @@ const Relatorio = (function () {
         case "lista": lista(bloco.itens, bloco.preencherFolha); break;
         case "escolhas": escolhas(bloco); break;
         case "escore": escore(bloco); break;
+        case "campo": {
+          /* "Tempo de escolaridade: 1 a 3 anos": rótulo em negrito e a resposta ao lado. */
+          garantirEspaco(passo() + 2);
+          y += g(1);
+          fonte("bold", COR.escuro);
+          const rotulo = textoPdf(bloco.rotulo) + ": ";
+          doc.text(rotulo, margem, y);
+          const xTexto = margem + doc.getTextWidth(rotulo);
+          fonte("normal");
+          doc.text(textoPdf(bloco.texto), xTexto, y);
+          y += passo() + g(1);
+          break;
+        }
         case "imagem": imagem(bloco); break;
         case "assinaturas": assinaturas(bloco); break;
         case "subtitulo":

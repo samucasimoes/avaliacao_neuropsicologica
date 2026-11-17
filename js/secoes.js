@@ -54,6 +54,17 @@ const Secoes = (function () {
     return label;
   }
 
+  /* Os textos da impressão podem ter marcas (*inglês* em itálico, __sublinhado__);
+     na tela elas não aparecem. */
+  function semMarcas(texto) {
+    return String(texto).replace(/\*([^*]+)\*/g, "$1").replace(/__([^_]+)__/g, "$1");
+  }
+
+  /* Tempo na impressão com aspas duplas no fim (ex.: 10"). */
+  function comAspas(valor) {
+    return /^\d+([.,]\d+)?$/.test(String(valor).trim()) ? String(valor).trim() + '"' : valor;
+  }
+
   function selo(el, texto, nivel) {
     el.textContent = texto;
     el.hidden = !texto;
@@ -320,9 +331,9 @@ const Secoes = (function () {
   function blocoLista(secao, b) {
     return {
       montar: function (container) {
-        if (b.introducao) container.appendChild(criar("p", "paragrafo", b.introducao));
+        if (b.introducao) container.appendChild(criar("p", "paragrafo", semMarcas(b.introducao)));
         const ul = criar("ul", "lista-fixa");
-        b.itens.forEach(function (item) { ul.appendChild(criar("li", "", item)); });
+        b.itens.forEach(function (item) { ul.appendChild(criar("li", "", semMarcas(item))); });
         container.appendChild(ul);
       },
       preenchido: function () { return false; },
@@ -421,6 +432,27 @@ const Secoes = (function () {
     }
 
     let avisoReferencia = null;
+
+    /* Colunas da impressão: os valores (escores, tempos) centralizados. Nas tabelas com um
+       valor e a classificação, as colunas têm sempre a mesma largura, para os escores e as
+       classificações ficarem alinhados de uma tabela para a outra na mesma folha.
+       Com valores12, os resultados ficam sempre em letra 12 (ex.: Praxias e Wechsler). */
+    function estilosImpressao(impressas) {
+      const estilos = {};
+      const valores = impressas.filter(function (c) { return b.colunas[c].tipo !== "classe"; });
+      const temClasse = valores.length < impressas.length;
+      impressas.forEach(function (c, i) {
+        const estilo = {};
+        if (b.colunas[c].tipo !== "classe") estilo.halign = "center";
+        if (b.valores12) estilo.fontSize = 12;
+        estilos[i + 1] = estilo;
+      });
+      if (temClasse && valores.length <= 1) {
+        estilos[0] = { cellWidth: valores.length ? 80 : 115 };
+        if (valores.length) estilos[1].cellWidth = 35;
+      }
+      return estilos;
+    }
 
     /* Colunas que não são digitadas nem contam como preenchimento. */
     function informativa(coluna) {
@@ -538,7 +570,12 @@ const Secoes = (function () {
                   input.step = "1";
                   limitarMaximo(input, linha.maximo, linha.rotulo);
                 } else {
+                  /* Só números (com vírgula ou ponto para decimais). */
                   input.type = "text";
+                  input.addEventListener("input", function () {
+                    const limpo = input.value.replace(/[^\d.,]/g, "");
+                    if (limpo !== input.value) input.value = limpo;
+                  });
                 }
               } else {
                 input.type = "text";
@@ -590,13 +627,21 @@ const Secoes = (function () {
       completo: function () {
         return linhas.every(linhaCompleta);
       },
-      /* Colunas com soTela (ex.: Referência e DP do RAVLT) não saem na impressão. */
+      /* Colunas com soTela (ex.: Referência e DP do RAVLT) e linhas com soTela (ex.: B1 do
+         RAVLT) não saem na impressão. rotuloImpressao: rótulo com marcas (ex.: inglês em itálico).
+         Tempo (coluna.tempo, ou linha.tempo nos valores da linha) sai com aspas: 10". Com
+         quebrarParenteses, o que está entre parênteses no rótulo vai para a linha de baixo. */
       relatorio: function () {
         const impressas = [];
         b.colunas.forEach(function (coluna, c) { if (!coluna.soTela) impressas.push(c); });
-        const corpo = linhas.filter(linhaPreenchida).map(function (linha) {
-          const celulas = [linha.rotulo].concat(impressas.map(function (c) {
-            return celula(linha, c) || "—";
+        const corpo = linhas.filter(function (linha) { return !linha.soTela && linhaPreenchida(linha); }).map(function (linha) {
+          let rotulo = linha.rotuloImpressao || linha.rotulo;
+          if (b.quebrarParenteses) rotulo = rotulo.replace(/ \(/g, "\n(");
+          const celulas = [rotulo].concat(impressas.map(function (c) {
+            const valor = celula(linha, c);
+            if (!valor) return "—";
+            const tempo = b.colunas[c].tempo || (linha.tempo && b.colunas[c].tipo !== "classe");
+            return tempo ? comAspas(valor) : valor;
           }));
           return linha.destaque ? { celulas: celulas, destaque: true } : celulas;
         });
@@ -606,7 +651,8 @@ const Secoes = (function () {
         blocos.push({
           tipo: "tabela",
           cabecalho: [b.colunaRotulo || ""].concat(impressas.map(function (c) { return b.colunas[c].rotulo; })),
-          linhas: corpo
+          linhas: corpo,
+          estilos: estilosImpressao(impressas)
         });
         return blocos;
       }
@@ -639,9 +685,10 @@ const Secoes = (function () {
       completo: function () {
         return valorDe(nome) !== "";
       },
+      /* semRotuloNaImpressao: sai só o texto digitado (ex.: comentários do RAVLT). */
       relatorio: function () {
         const texto = valorDe(nome);
-        return texto ? [{ tipo: "texto", rotulo: b.rotulo, texto: texto }] : [];
+        return texto ? [{ tipo: "texto", rotulo: b.semRotuloNaImpressao ? "" : b.rotulo, texto: texto }] : [];
       }
     };
   }
@@ -815,13 +862,19 @@ const Secoes = (function () {
     return function (secao, b) {
       return {
         montar: function (container) {
-          container.appendChild(criar(tipoRelatorio === "subtitulo" ? "h3" : "p", classe, b.texto));
+          container.appendChild(criar(tipoRelatorio === "subtitulo" ? "h3" : "p", classe, semMarcas(b.texto)));
         },
         preenchido: function () { return false; },
       completo: function () { return true; },
         relatorio: function (grupoPreenchido) {
           if (!grupoPreenchido || b.soTela) return [];
-          return [{ tipo: b.referencia ? "referencia" : b.legenda ? "legenda" : tipoRelatorio, texto: b.texto }];
+          /* tamanho e cinza: parágrafos com letra menor e/ou em cinza na impressão. */
+          return [{
+            tipo: b.referencia ? "referencia" : b.legenda ? "legenda" : tipoRelatorio,
+            texto: b.texto,
+            tamanho: b.tamanho,
+            cinza: !!b.cinza
+          }];
         }
       };
     };
@@ -1105,6 +1158,16 @@ const Secoes = (function () {
     };
   }
 
+  /* Leva o resto da aba para outra folha na impressão (ex.: curva de aprendizagem do RAVLT). */
+  function blocoQuebra() {
+    return {
+      montar: function () {},
+      preenchido: function () { return false; },
+      completo: function () { return true; },
+      relatorio: function () { return [{ tipo: "quebraFolha" }]; }
+    };
+  }
+
   const TIPOS = {
     opcoes: blocoOpcoes,
     escolhas: blocoEscolhas,
@@ -1121,6 +1184,7 @@ const Secoes = (function () {
     resultados: blocoResultados,
     escore: blocoEscore,
     faixas: blocoFaixas,
+    quebra: blocoQuebra,
     assinaturas: blocoAssinaturas
   };
 

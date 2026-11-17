@@ -21,15 +21,15 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
    aparece como dica no campo) e a legenda.
 6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30. Na
    impressão o título é "Escalas, Inventários e Questionários", com o nome do questionário
-   logo abaixo (letra 13); o escore e a legenda saem no fim da folha.
+   logo abaixo (letra 10, em itálico); o escore e a legenda saem no fim da folha.
 7. **GAI**, **GDS**, **Escala de Desesperança de Beck (BHS)** e **IQCODE** – uma aba para
    cada, só com o campo Escore do paciente (o IQCODE aceita decimal, ex.: 3,6) e a legenda
    (o IQCODE não tem legenda). Na impressão saem juntas numa folha, depois do Pfeffer.
 8. **Escala Cornell** – escore e interpretação automáticos. Opções: Impossibilitado de
    avaliar, Ausente, Leve e Intenso. Na impressão o escore e a legenda saem no fim da folha.
 9. **Humor e comportamento** – quadro com os resultados de Katz, Pfeffer, GAI, GDS, BHS,
-   IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Na impressão
-   sai só o quadro; a legenda de cada escala sai na folha dela.
+   IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Fica só na
+   tela: não sai na impressão (o resultado e a legenda de cada escala saem na folha dela).
 
 Em todas as escalas, a legenda tem duas colunas: o escore à esquerda e a interpretação à
 direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da folha.
@@ -39,17 +39,19 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
 12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
-    do CERAD vêm das abas já preenchidas (fluência Animais e Frutas e Nomeação de Boston da
-    Linguagem, total do MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o
-    Reconhecimento); só Praxia construtiva e Evocação tardia da praxia são digitadas. Na
-    impressão o título é "Consortium to Establish a Registry for Alzheimer's Disease", com
-    "Bateria do CERAD e Funções Executivas" logo abaixo.
-13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos.
+    do CERAD vêm das abas já preenchidas (fluência Animais e Frutas da Linguagem, total do
+    MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o Reconhecimento);
+    Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia são digitadas aqui
+    (só números). Na impressão o título é "Consortium to Establish a Registry for Alzheimer's
+    Disease", e os testes analisados das Funções executivas saem sublinhados.
+13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. Na impressão
+    sai antes do CERAD, e a explicação dos testes de fluência verbal tem letra 10.
 14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
     e ficam só na tela (tabelas `RAVLT_REFERENCIA` e `RAVLT_DP` em `js/definicoes.js`). Na impressão o título é "Teste de Aprendizagem Auditivo-Verbal
-    de Rey - (RAVLT)". A idade aparece ao lado do título, só na tela.
+    de Rey - (RAVLT)". A idade aparece ao lado do título, só na tela. Na impressão o B1 não
+    aparece, e a curva de aprendizagem e o comentário (sem o rótulo) saem em outra folha.
 15. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
     operacional (Digit Span), com classificação.
 16. **Trilhas** (com atenção sustentada, seletiva e alternada), 17. **Praxias**,
@@ -70,7 +72,14 @@ Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resu
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
-páginas não são numeradas. No cabeçalho da primeira folha os rótulos ficam com a primeira
+páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13, e o texto logo
+abaixo do título da folha (ex.: Praxias, Stroop Test) sai centralizado. As palavras em
+inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12), menos na folha do
+CERAD; nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
+sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").
+Um valor digitado numa aba não é digitado de novo: os Dígitos da Wechsler vêm do Digit Span
+(Memória), a Trilha B da Atenção alternada vem do tempo da Forma B, e o Teste dos Sinos do
+Stroop vem da Atenção seletiva. No cabeçalho da primeira folha os rótulos ficam com a primeira
 letra de cada palavra em maiúscula (ex.: "Paciente", "Médico Solicitante").
 Os dados do paciente podem ser digitados em minúsculo: na impressão, nome, profissão, médico
 solicitante e endereço saem com a primeira letra de cada palavra em maiúscula, e os textos

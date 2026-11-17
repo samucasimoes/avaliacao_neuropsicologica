@@ -51,7 +51,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
     e ficam só na tela (tabelas `RAVLT_REFERENCIA` e `RAVLT_DP` em `js/definicoes.js`). Na impressão o título é "Teste de Aprendizagem Auditivo-Verbal
     de Rey - (RAVLT)". A idade aparece ao lado do título, só na tela. Na impressão o B1 não
-    aparece, e a curva de aprendizagem e o comentário (sem o rótulo) saem em outra folha.
+    aparece, o texto explicativo tem letra 10 e o comentário sai sem o rótulo.
 15. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
     operacional (Digit Span), com classificação.
 16. **Trilhas** (com atenção sustentada, seletiva e alternada), 17. **Praxias**,

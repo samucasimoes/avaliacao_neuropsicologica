@@ -392,9 +392,11 @@ const Relatorio = (function () {
       y += 7.5;
     }
 
-    /* Subtítulo dentro da folha: centralizado, em caixa alta, negrito, letra 13. */
+    /* Subtítulo dentro da folha: centralizado, em caixa alta, negrito, letra 13.
+       Tem uma folga fixa em cima (não encolhe nas folhas cheias), para ficar mais perto
+       da própria tabela do que da tabela de cima. */
     function subtitulo(texto, menor) {
-      y += g(menor ? 1.5 : 3.5);
+      y += 2.5 + g(menor ? 1.5 : 3.5);
       garantirEspaco(e(16) + 6);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(TAMANHO_SUBTITULO);

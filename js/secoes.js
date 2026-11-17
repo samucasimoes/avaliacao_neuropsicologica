@@ -1335,6 +1335,7 @@ const Secoes = (function () {
     if (!blocos.length) return null;
     return {
       titulo: secao.def.tituloImpressao || secao.def.titulo,
+      tamanhoTituloIngles: secao.def.tamanhoTituloIngles || null,
       subtitulo: secao.def.subtituloImpressao || "",
       blocos: blocos,
       juntarCom: impressao.juntarCom || null,

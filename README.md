@@ -47,7 +47,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna
     Média do F-A-S é a mediana para a idade do paciente (60 a 69, 70 a 79, 80 ou mais) e o
     tempo de escolaridade escolhido acima da tabela (1 a 3, 4 a 7, 8 a 11, 12 anos ou mais;
-    tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade também sai na impressão. Na impressão
+    tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade não é impresso. Na impressão
     sai antes do CERAD, e a explicação dos testes de fluência verbal tem letra 10.
 14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o

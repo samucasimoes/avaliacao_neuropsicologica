@@ -815,8 +815,8 @@ const Secoes = (function () {
     };
   }
 
-  /* Lista de opções de uma escolha só, usada nos cálculos da aba
-     (ex.: tempo de escolaridade na Linguagem). Na impressão: "Rótulo: opção escolhida". */
+  /* Lista de opções de uma escolha só, usada nos cálculos da aba e não impressa
+     (ex.: tempo de escolaridade na Linguagem). */
   function blocoSelecao(secao, b) {
     const nome = secao.id + "-" + b.id;
     return {
@@ -847,10 +847,7 @@ const Secoes = (function () {
       },
       preenchido: function () { return false; },
       completo: function () { return valorDe(nome) !== ""; },
-      relatorio: function (grupoPreenchido) {
-        const opcao = b.opcoes.find(function (o) { return o.valor === valorDe(nome); });
-        return grupoPreenchido && opcao ? [{ tipo: "campo", rotulo: b.rotulo, texto: opcao.rotulo }] : [];
-      }
+      relatorio: function () { return []; }
     };
   }
 

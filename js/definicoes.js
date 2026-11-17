@@ -827,10 +827,9 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
+        tamanho: 10,
         texto: "RAVLT – Teste de aprendizagem verbal que permite estabelecer uma curva de uma lista de palavras ao longo de 5 tentativas. A pontuação corresponde ao número de itens evocados. Permite avaliar ainda a repercussão da introdução de distratores (lista B), a evocação tardia após 30 minutos à exposição da lista A e a capacidade de reconhecimento na reapresentação das palavras da lista A. Estrutura da tarefa: A1 leitura da lista A seguida de recuperação imediata pelo paciente (A2, A3, A4, A5 – idem) / Leitura da lista B (um distrator) seguida da recuperação imediata pelo paciente / A6 – recuperação livre da lista A sem leitura do examinador. A7 (recuperação tardia) após 30 min da recuperação de A6. Reconhecimento tardio das palavras constantes da lista A que foi repetida e recuperada 5 vezes anteriormente."
       },
-      /* Na impressão, a curva de aprendizagem e o comentário vão para outra folha. */
-      { tipo: "quebra" },
       {
         tipo: "grafico",
         id: "grafico",
@@ -871,16 +870,14 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor e em cinza. */
+        /* Na impressão: texto explicativo menor (letra 10). */
         tamanho: 10,
-        cinza: true,
         texto: "Memória lógica: recuperação de 2 histórias lógicas imediatamente após sua leitura (resgate imediato: memória lógica I) e após 30 min (resgate tardio: memória lógica II). Teste que avalia armazenamento e recuperação de informações."
       },
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor e em cinza. */
+        /* Na impressão: texto explicativo menor (letra 10). */
         tamanho: 10,
-        cinza: true,
         texto: "Memória visual: apresentação de figuras geométricas que devem ser reproduzidas de imediato (memória visual de curto prazo) e após aproximadamente 25 min (memória visual tardia)."
       },
       /* Na impressão sai acima de Atenção (Trilhas vem logo depois, na mesma folha). */
@@ -901,9 +898,8 @@ const DEFINICOES = [
       },
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor e em cinza. */
+        /* Na impressão: texto explicativo menor (letra 10). */
         tamanho: 10,
-        cinza: true,
         texto: "Teste que consiste na repetição seriada de números. Espera-se que o(a) paciente seja capaz de repetir até 7 dígitos (7 ± 2) na ordem direta e 4 dígitos na ordem inversa."
       }
     ]
@@ -918,15 +914,16 @@ const DEFINICOES = [
     blocos: [
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor e em cinza. */
+        /* Na impressão: texto explicativo menor (letra 10). */
         tamanho: 10,
-        cinza: true,
         texto: "Estes testes se referem à capacidade atentiva, destreza visuomotora, rapidez de processamento, capacidade de alternar continuamente conceitos distintos, flexibilidade cognitiva, resistência à interferência e rapidez na tomada de decisão."
       },
       {
         tipo: "tabela",
         id: "formas",
         titulo: "Teste das Trilhas",
+        /* Fica dentro de Trilhas: na impressão, letra 12 (os outros subtítulos têm 13). */
+        tamanhoTitulo: 12,
         colunaRotulo: "Forma",
         colunas: [
           { rotulo: "Erros", tipo: "numero" },
@@ -941,9 +938,8 @@ const DEFINICOES = [
       { tipo: "subtitulo", texto: "Atenção" },
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor e em cinza. */
+        /* Na impressão: texto explicativo menor (letra 10). */
         tamanho: 10,
-        cinza: true,
         texto: "Avaliada através de testes que aferem a capacidade de manter-se atento de forma continuada (atenção concentrada), de atentar seletivamente para informações relevantes a despeito de estímulos distratores (atenção seletiva), de ser capaz de ora manter o foco de atenção num estímulo ora em outro (atenção alternada / flexibilidade mental). Foram avaliados todos os aspectos da atenção: sustentação, seletividade e alternância."
       },
       {

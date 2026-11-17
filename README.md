@@ -51,7 +51,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
     e ficam só na tela (tabelas `RAVLT_REFERENCIA` e `RAVLT_DP` em `js/definicoes.js`). Na impressão o título é "Teste de Aprendizagem Auditivo-Verbal
     de Rey - (RAVLT)". A idade aparece ao lado do título, só na tela. Na impressão o B1 não
-    aparece, e a curva de aprendizagem e o comentário (sem o rótulo) saem em outra folha.
+    aparece, o texto explicativo tem letra 10 e o comentário sai sem o rótulo.
 15. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
     operacional (Digit Span), com classificação.
 16. **Trilhas** (com atenção sustentada, seletiva e alternada), 17. **Praxias**,
@@ -72,7 +72,9 @@ Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resu
 Memória verbal e visual + Trilhas (com Atenção) e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
-páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13. As palavras em
+páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13 (o "Teste das
+Trilhas", que fica dentro de Trilhas, tem 12). Nas tabelas, a linha embaixo dos títulos das
+colunas é cinza e a última linha é preta, separando uma escala da outra. As palavras em
 inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12), menos na folha do
 CERAD; nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
 sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").

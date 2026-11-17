@@ -892,8 +892,6 @@ const DEFINICOES = [
   {
     id: "trilhas",
     titulo: "Trilhas",
-    /* Título quando sai numa folha própria (a folha começa pela Atenção). */
-    tituloImpressao: "Atenção e Trilhas",
     descricao: "Teste das Trilhas (formas A e B) e testes de atenção.",
     /* Na impressão sai na folha de Memória verbal e visual: primeiro Atenção, depois Trilhas. */
     impressao: { juntarCom: "memoria", ordemGrupos: [1, 0], tituloGrupos: { 0: "Trilhas" } },

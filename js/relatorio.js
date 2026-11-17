@@ -403,15 +403,13 @@ const Relatorio = (function () {
       y += menor ? 4.2 : 5 + g(2);
     }
 
-    /* centralizar: o texto logo abaixo do título da folha (ex.: Praxias, Stroop Test). */
-    function paragrafo(texto, estilo, rgb, tamanho, centralizar) {
+    function paragrafo(texto, estilo, rgb, tamanho) {
       const tamanhoFonte = (tamanho || TAMANHO_TEXTO) * k;
       const passoTexto = e((tamanho || TAMANHO_TEXTO) * 0.47);
       if (temMarcas(texto)) {
         linhasRicas(texto, util, estilo, tamanhoFonte).forEach(function (linha) {
           garantirEspaco(passoTexto + 1);
-          const x = centralizar ? meio - larguraLinhaRica(linha) / 2 : margem;
-          desenharLinhaRica(linha, x, y, estilo, tamanhoFonte, rgb || COR.tinta);
+          desenharLinhaRica(linha, margem, y, estilo, tamanhoFonte, rgb || COR.tinta);
           y += passoTexto;
         });
         return;
@@ -420,8 +418,7 @@ const Relatorio = (function () {
       const linhasTexto = doc.splitTextToSize(textoPdf(texto), util);
       linhasTexto.forEach(function (linhaTexto) {
         garantirEspaco(passoTexto + 1);
-        if (centralizar) doc.text(linhaTexto, meio, y, { align: "center" });
-        else doc.text(linhaTexto, margem, y);
+        doc.text(linhaTexto, margem, y);
         y += passoTexto;
       });
     }
@@ -733,8 +730,7 @@ const Relatorio = (function () {
           break;
         case "paragrafo":
           /* tamanho: letra menor (ex.: 10); cinza: texto explicativo em cinza. */
-          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho,
-            bloco.centralizado);
+          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho);
           y += g(bloco.tamanho ? 3 : 4);
           break;
         case "nota":
@@ -941,9 +937,7 @@ const Relatorio = (function () {
             tituloSecao(parte.secao.titulo);
             if (parte.secao.subtitulo) subtituloSecao(parte.secao.subtitulo);
           }
-          parte.blocos.forEach(function (bloco, i) {
-            /* O texto logo abaixo do título da folha sai centralizado. */
-            if (i === 0 && bloco.tipo === "paragrafo" && !parte.continuacao) bloco = Object.assign({}, bloco, { centralizado: true });
+          parte.blocos.forEach(function (bloco) {
             if (bloco.soJunto && !parte.junto) return;
             desenharBloco(bloco);
           });

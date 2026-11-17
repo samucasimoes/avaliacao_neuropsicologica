@@ -252,7 +252,7 @@
 
   /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
      campos, suba a versão e converta os nomes antigos em migrarCampos. */
-  const VERSAO_CAMPOS = 5;
+  const VERSAO_CAMPOS = 6;
 
   /* Converte campos salvos antes da versão 3:
      - Encaminhador virou Médico solicitante;
@@ -262,7 +262,8 @@
      Antes da versão 4, GAI, GDS e BHS eram digitados em Humor e comportamento
      (linhas 4, 5 e 7); agora cada escala tem a própria aba.
      Na versão 5, o Stroop ganhou a coluna Referência (a 2ª): Média, Erros e Classificação
-     passaram da coluna 2, 3 e 4 para 3, 4 e 5. */
+     passaram da coluna 2, 3 e 4 para 3, 4 e 5.
+     Na versão 6, a escolaridade "Pós-graduação" virou "Pós-graduação / MBA". */
   function migrarCampos(campos) {
     const versao = Number(campos.versaoCampos) || 2;
     if (versao >= VERSAO_CAMPOS) return campos;
@@ -290,7 +291,8 @@
       } else if (/^funcoes-lista-\d+$/.test(nome) || /^memoria-testes-5-/.test(nome)) {
         return;
       }
-      novos[novo] = campos[nome];
+      novos[novo] = versao < 6 && nome === "escolaridade" && campos[nome] === "Pós-graduação"
+        ? "Pós-graduação / MBA" : campos[nome];
     });
     return novos;
   }

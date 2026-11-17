@@ -1,9 +1,9 @@
 :root {
-  --brand: #5533b1;
-  --brand-dark: #44279a;
-  --ink: #1e1a3d;
-  --ink-soft: #5b5675;
-  --line: #dcd7ea;
+  --brand: #13877c;
+  --brand-dark: #0e6c63;
+  --ink: #0f2f45;
+  --ink-soft: #4a6273;
+  --line: #d3e3e5;
   --danger: #b4443d;
   --font: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
@@ -25,7 +25,7 @@ body {
   min-height: 100vh;
   padding: 32px 16px;
   overflow-x: hidden;
-  background: linear-gradient(160deg, #ecebfd 0%, #f4f2fd 45%, #e9e4fb 100%);
+  background: linear-gradient(160deg, #e4f1f1 0%, #f2f8f8 45%, #d9eeeb 100%);
   color: var(--ink);
   font-family: var(--font);
   font-size: 15px;
@@ -64,11 +64,11 @@ input {
 }
 
 .onda-1 {
-  fill: #d9d1f8;
+  fill: #cbe7e3;
 }
 
 .onda-2 {
-  fill: #bfb2f1;
+  fill: #a3d5ce;
   opacity: 0.75;
 }
 
@@ -81,7 +81,7 @@ input {
   padding: 32px 38px 26px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 20px 60px rgba(60, 40, 140, 0.14), 0 2px 6px rgba(60, 40, 140, 0.05);
+  box-shadow: 0 20px 60px rgba(15, 60, 80, 0.14), 0 2px 6px rgba(15, 60, 80, 0.05);
   text-align: center;
 }
 
@@ -153,12 +153,12 @@ input {
 }
 
 .campo input::placeholder {
-  color: #8c88a4;
+  color: #7d929e;
 }
 
 .campo input:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(85, 51, 177, 0.12);
+  box-shadow: 0 0 0 3px rgba(19, 135, 124, 0.12);
 }
 
 .campo-icone {
@@ -167,7 +167,7 @@ input {
   width: 20px;
   height: 20px;
   fill: none;
-  stroke: #6c63a0;
+  stroke: #4f7d86;
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -192,14 +192,14 @@ input {
 }
 
 .campo-olho:hover {
-  background: #f1eefb;
+  background: #e5f3f1;
 }
 
 .campo-olho svg {
   width: 20px;
   height: 20px;
   fill: none;
-  stroke: #514c6e;
+  stroke: #4a6273;
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -297,7 +297,7 @@ input {
 .btn-entrar:focus-visible,
 .link:focus-visible,
 .campo-olho:focus-visible {
-  outline: 3px solid rgba(85, 51, 177, 0.4);
+  outline: 3px solid rgba(19, 135, 124, 0.4);
   outline-offset: 2px;
 }
 
@@ -310,7 +310,7 @@ input {
   gap: 12px;
   margin: 24px 0 0;
   padding-top: 18px;
-  border-top: 1px solid #ebe8f3;
+  border-top: 1px solid #e3eeef;
   color: var(--ink-soft);
   font-size: 13.5px;
   line-height: 1.4;
@@ -322,7 +322,7 @@ input {
   width: 24px;
   height: 24px;
   fill: none;
-  stroke: #514c6e;
+  stroke: #4a6273;
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;

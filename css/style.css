@@ -1,22 +1,22 @@
 :root {
-  --bg: #f6f4fc;
+  --bg: #f1f7f7;
   --surface: #ffffff;
-  --sidebar: #faf9fe;
-  --line: #e6e2f3;
-  --input-line: #d8d3ea;
-  --ink: #1e1a3d;
-  --ink-soft: #514c6e;
-  --muted: #8c88a4;
-  --brand: #5533b1;
-  --brand-dark: #44279a;
-  --brand-soft: #ede8fb;
-  --menu: #4a2a9f;
-  --menu-dark: #3a1f84;
+  --sidebar: #f6fbfb;
+  --line: #dde9ea;
+  --input-line: #c9dcde;
+  --ink: #0f2f45;
+  --ink-soft: #4a6273;
+  --muted: #7d929e;
+  --brand: #13877c;
+  --brand-dark: #0e6c63;
+  --brand-soft: #e0f2ef;
+  --menu: #0d3550;
+  --menu-dark: #0f6f6a;
   --green-ok: #3a9a6c;
-  --gray-soft: #f0eef7;
+  --gray-soft: #edf4f5;
   --danger: #c2524a;
   --radius: 8px;
-  --shadow: 0 1px 2px rgba(30, 26, 61, 0.04), 0 8px 24px rgba(30, 26, 61, 0.06);
+  --shadow: 0 1px 2px rgba(15, 47, 69, 0.04), 0 8px 24px rgba(15, 47, 69, 0.06);
   --font: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
@@ -180,7 +180,7 @@ body.aguardando-login .toast {
   background: rgba(255, 255, 255, 0.96);
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
-  box-shadow: 0 4px 18px rgba(30, 26, 61, 0.05);
+  box-shadow: 0 4px 18px rgba(15, 47, 69, 0.05);
 }
 
 .appbar-titulo {
@@ -281,7 +281,7 @@ body.aguardando-login .toast {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(160deg, #6a45d1, var(--brand-dark));
+  background: linear-gradient(160deg, #1aa394, var(--brand-dark));
 }
 
 .usuario-avatar svg {
@@ -307,7 +307,7 @@ body.aguardando-login .toast {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface);
-  box-shadow: 0 16px 40px rgba(30, 26, 61, 0.14);
+  box-shadow: 0 16px 40px rgba(15, 47, 69, 0.14);
 }
 
 .usuario-email {
@@ -377,7 +377,7 @@ body.aguardando-login .toast {
   padding: 16px 20px 18px;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: linear-gradient(135deg, #ffffff 0%, #f7f5fd 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f2f8f8 100%);
   box-shadow: var(--shadow);
 }
 
@@ -573,11 +573,11 @@ body.aguardando-login .toast {
 
 .linha-clicavel:hover td,
 .linha-clicavel:focus-visible td {
-  background: #faf8ff;
+  background: #f5fbfa;
 }
 
 .linha-clicavel:focus-visible {
-  outline: 2px solid rgba(85, 51, 177, 0.45);
+  outline: 2px solid rgba(19, 135, 124, 0.45);
   outline-offset: -2px;
 }
 
@@ -681,8 +681,8 @@ body.aguardando-login .toast {
 }
 
 .historico-item:hover {
-  border-color: #cfc6ee;
-  box-shadow: 0 6px 18px rgba(30, 26, 61, 0.06);
+  border-color: #b7dbd6;
+  box-shadow: 0 6px 18px rgba(15, 47, 69, 0.06);
 }
 
 .historico-item.abrindo {
@@ -1055,7 +1055,7 @@ a.step:not(.active):hover {
 
 .btn:focus-visible,
 .icon-btn:focus-visible {
-  outline: 3px solid rgba(85, 51, 177, 0.45);
+  outline: 3px solid rgba(19, 135, 124, 0.45);
   outline-offset: 2px;
 }
 
@@ -1248,13 +1248,13 @@ a.step:not(.active):hover {
 }
 
 .input:hover {
-  border-color: #c4bde0;
+  border-color: #b3d1d3;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(85, 51, 177, 0.12);
+  box-shadow: 0 0 0 3px rgba(19, 135, 124, 0.12);
 }
 
 .input.readonly {
@@ -1334,7 +1334,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--sidebar);
-  box-shadow: 0 6px 14px -12px rgba(30, 26, 61, 0.35);
+  box-shadow: 0 6px 14px -12px rgba(15, 47, 69, 0.35);
 }
 
 .resumo-dado {
@@ -1562,7 +1562,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .opcao:hover .opcao-caixa {
-  border-color: #c4bde0;
+  border-color: #b3d1d3;
   color: var(--ink);
 }
 
@@ -1578,7 +1578,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .opcao-radio:focus-visible + .opcao-caixa {
-  box-shadow: 0 0 0 3px rgba(85, 51, 177, 0.18);
+  box-shadow: 0 0 0 3px rgba(19, 135, 124, 0.18);
 }
 
 /* ---------- Etapas montadas por secoes.js ---------- */
@@ -1682,7 +1682,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .katz-opcao:hover .katz-opcao-caixa {
-  border-color: #c4bde0;
+  border-color: #b3d1d3;
   color: var(--ink);
 }
 
@@ -1694,7 +1694,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .opcao-radio:focus-visible + .katz-opcao-caixa {
-  box-shadow: 0 0 0 3px rgba(85, 51, 177, 0.18);
+  box-shadow: 0 0 0 3px rgba(19, 135, 124, 0.18);
 }
 
 /* Independente / Dependente: só na tela */
@@ -1734,7 +1734,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .check:hover {
-  border-color: #c4bde0;
+  border-color: #b3d1d3;
 }
 
 .check-caixa {
@@ -1954,12 +1954,12 @@ td.estreita .input-tabela {
   padding: 0;
   border: 0;
   border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(30, 26, 61, 0.18);
+  box-shadow: 0 24px 60px rgba(15, 47, 69, 0.18);
   color: var(--ink);
 }
 
 .modal::backdrop {
-  background: rgba(30, 26, 61, 0.35);
+  background: rgba(15, 47, 69, 0.35);
 }
 
 .modal-body {
@@ -1996,7 +1996,7 @@ td.estreita .input-tabela {
   background: var(--ink);
   color: #fff;
   font-size: 14px;
-  box-shadow: 0 10px 30px rgba(30, 26, 61, 0.2);
+  box-shadow: 0 10px 30px rgba(15, 47, 69, 0.2);
   animation: subir 0.2s ease-out;
 }
 

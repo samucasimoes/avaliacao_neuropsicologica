@@ -12,9 +12,10 @@ avaliações salvas no banco de dados (Firebase).
   abrir). *Ver todas* leva às Avaliações Pendentes.
 - **Nova Avaliação** – o formulário, sempre vazio ao entrar pelo menu (a avaliação anterior
   continua salva). Ao entrar nesta aba, o menu lateral troca (com animação) para as etapas da
-  avaliação, com **Início** no topo para voltar e, no pé, **Imprimir Avaliação** e
-  **+ Carregar arquivo** (traz uma avaliação de um backup .json). A barra do topo mostra o título
-  e a explicação da etapa aberta. As etapas podem ser abertas em qualquer ordem. No rodapé, à
+  avaliação, com **Início** no topo para voltar e, no pé, **+ Carregar arquivo** (traz uma
+  avaliação de um backup .json). A barra do topo mostra o título e a explicação da etapa aberta,
+  e o formulário tem **Imprimir Avaliação** no fim da barra do título, à direita: abre a impressão
+  com a opção de imprimir todas as páginas ou só as escolhidas. As etapas podem ser abertas em qualquer ordem. No rodapé, à
   esquerda do botão de continuar, ficam **Gerar PDF** e **Gerar Arquivo** (.json). Tudo é salvo
   sozinho no banco ("Salvo às …" ao lado do título).
 - **Avaliações Pendentes** – as avaliações em andamento, com pesquisa pelo nome do paciente,
@@ -174,7 +175,8 @@ Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na t
 conteúdo não couber, primeiro os espaços entre os blocos e nas linhas das tabelas encolhem e,
 só se ainda faltar lugar, a letra diminui naquela folha até caber, sem passar para outra
 página (os títulos mantêm o mesmo tamanho).
-O botão **Imprimir Avaliação** baixa o PDF completo direto, sem perguntas.
+O botão **Gerar PDF** baixa o PDF completo direto, sem perguntas. **Imprimir Avaliação** abre
+a impressão numa nova aba, com todas as páginas ou só as escolhidas.
 A tecla ENTER não baixa o relatório (nos textos longos ela só quebra a linha).
 Nenhum dado é salvo: tudo acontece no navegador.
 
@@ -191,7 +193,7 @@ entre com e-mail e senha. É preciso internet para o login e o banco de dados.
 
 ## Backup para editar depois
 
-O botão **Imprimir Avaliação** baixa o relatório em PDF e o botão
+O botão **Gerar PDF** baixa o relatório em PDF e o botão
 **Gerar Arquivo** baixa a avaliação em `.json`. Os arquivos saem com o nome do
 paciente, a data em que foram gerados e a situação: **Concluído** quando todas as etapas estão 100% preenchidas, senão **Pendente** (ex.: `Maria da Silva - 30-10-2026 - Pendente.pdf`). Para continuar ou
 corrigir uma avaliação, clique em **Carregar arquivo** (no menu lateral do formulário),

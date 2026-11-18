@@ -131,7 +131,6 @@
   const botaoAnterior = document.getElementById("btn-anterior");
   const botaoProxima = document.getElementById("btn-proxima");
   const botaoGerarPdf = document.getElementById("btn-gerar-pdf");
-  const botaoGerarSecundario = document.getElementById("btn-gerar-secundario");
   const ICONE_COMPLETA = '<svg class="step-ok" viewBox="0 0 24 24" aria-hidden="true">' +
     '<circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>';
   let secaoAtual = "dados";
@@ -540,9 +539,9 @@
     campoNome.focus({ preventScroll: true });
   });
 
-  const botoesImprimir = [botaoGerarPdf, botaoGerarSecundario];
+  const botoesImprimir = [botaoGerarPdf];
 
-  /* Gerar PDF (rodapé) e Imprimir Avaliação (menu lateral): baixam o PDF completo direto. */
+  /* Gerar PDF (rodapé): baixa o PDF completo direto. */
   form.addEventListener("submit", function (evento) {
     evento.preventDefault();
     toast.hidden = true;
@@ -971,6 +970,10 @@
             Relatorio.gerarBackup(coletarCampos(), nome, situacao);
           });
         });
+    },
+    /* Avaliação aberta no formulário (Imprimir Avaliação do topo). */
+    atual: function () {
+      return { paciente: valor("nome"), campos: coletarCampos() };
     },
     /* Páginas que saem no relatório desta avaliação (para escolher o que imprimir). */
     paginas: function (campos) {

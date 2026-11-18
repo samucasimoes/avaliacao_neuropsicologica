@@ -1,0 +1,34 @@
+rules_version = '2';
+
+// Regras do Firestore: cole no console do Firebase (Firestore Database > Regras > Publicar).
+// Só quem entrou com e-mail e senha lê e grava. Os acessos são criados em
+// Authentication > Usuários; não existe cadastro pela tela de login.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cada avaliação fica 30 dias depois da última alteração e então pode ser apagada
+    // (o sistema apaga sozinho ao entrar). Antes disso, só quem iniciou a avaliação
+    // (responsavelUid) pode excluir, pelo Histórico de Avaliações.
+    match /avaliacoes/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.responsavelUid == request.auth.uid;
+      // Qualquer profissional edita, mas ninguém troca o dono.
+      allow update: if request.auth != null
+        && request.resource.data.responsavelUid == resource.data.responsavelUid;
+      allow delete: if request.auth != null && (
+        resource.data.responsavelUid == request.auth.uid
+        || resource.data.atualizadoEm < request.time - duration.value(30, 'd'));
+    }
+
+    // Nome de quem entrou (saudação). Cada uma só grava o próprio.
+    match /profissionais/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /{documento=**} {
+      allow read, write: if false;
+    }
+  }
+}

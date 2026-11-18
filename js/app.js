@@ -162,6 +162,11 @@
     });
   }
 
+  /* Situação no nome do arquivo: Concluído só com todas as etapas 100% preenchidas. */
+  function situacaoArquivo() {
+    return ordem.every(etapaCompleta) ? "Concluído" : "Pendente";
+  }
+
   function atualizarNavegacao() {
     const posicao = ordem.indexOf(secaoAtual);
     const anterior = ordem[posicao - 1];
@@ -180,7 +185,7 @@
     }
   }
 
-  function mostrarSecao(nome) {
+  function mostrarSecao(nome, semRolar) {
     secaoAtual = nome;
     secoes.forEach(function (secao) {
       secao.hidden = secao.id !== "secao-" + nome;
@@ -192,7 +197,58 @@
       else link.removeAttribute("aria-current");
     });
     atualizarNavegacao();
-    window.scrollTo({ top: 0 });
+    rolarParaEtapa();
+    levarCabecalho();
+    if (!semRolar) window.scrollTo({ top: 0 });
+  }
+
+  /* ---------- Cabeçalho da etapa no topo da página ----------
+     Em Nova Avaliação, o card-head da etapa aberta (título e explicação) sai da seção
+     e vai para a barra do topo; ao trocar de etapa ou de tela, volta para o lugar. */
+
+  const slotEtapa = document.getElementById("appbar-etapa");
+  let cabecalhoVisivel = false;
+  let cabecalhoMovido = null;
+
+  function devolverCabecalho() {
+    if (!cabecalhoMovido) return;
+    cabecalhoMovido.secao.insertBefore(cabecalhoMovido.el, cabecalhoMovido.secao.firstChild);
+    cabecalhoMovido = null;
+  }
+
+  function levarCabecalho() {
+    devolverCabecalho();
+    slotEtapa.hidden = !cabecalhoVisivel;
+    if (!cabecalhoVisivel) return;
+    const secao = document.getElementById("secao-" + secaoAtual);
+    const cabecalho = secao && secao.querySelector(":scope > .card-head");
+    if (!cabecalho) return;
+    /* No notebook o subtítulo fica numa linha só: o texto completo vai na dica do mouse. */
+    const subtitulo = cabecalho.querySelector(".card-text");
+    if (subtitulo && !subtitulo.title) subtitulo.title = subtitulo.textContent.trim();
+    slotEtapa.appendChild(cabecalho);
+    cabecalhoMovido = { el: cabecalho, secao: secao };
+  }
+
+  /* As etapas ficam no menu lateral (no celular, numa faixa que rola de lado):
+     mantém a etapa aberta à vista. */
+  const barraEtapas = document.querySelector(".steps");
+
+  function rolarParaEtapa() {
+    const link = linksSecao[ordem.indexOf(secaoAtual)];
+    if (!link || !barraEtapas || !barraEtapas.clientHeight) return;
+    const caixa = barraEtapas.getBoundingClientRect();
+    const alvo = link.getBoundingClientRect();
+    const destino = {};
+    if (alvo.top < caixa.top || alvo.bottom > caixa.bottom) {
+      destino.top = alvo.top - caixa.top - (caixa.height - alvo.height) / 2;
+    }
+    if (alvo.left < caixa.left || alvo.right > caixa.right) {
+      destino.left = alvo.left - caixa.left - (caixa.width - alvo.width) / 2;
+    }
+    if ("top" in destino || "left" in destino) {
+      barraEtapas.scrollBy(Object.assign({ behavior: "smooth" }, destino));
+    }
   }
 
   /* Só na tela, fora da impressão: o Relógio de Shulman e Humor e comportamento
@@ -490,7 +546,7 @@
     toast.hidden = true;
     botoesImprimir.forEach(function (botao) { botao.disabled = true; });
     try {
-      Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio());
+      Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio(), { situacao: situacaoArquivo() });
       mostrarAviso("Avaliação em PDF baixada.");
     } catch (erro) {
       console.error(erro);
@@ -515,7 +571,7 @@
   document.getElementById("btn-gerar-arquivo").addEventListener("click", function () {
     toast.hidden = true;
     try {
-      Relatorio.gerarBackup(coletarCampos(), valor("nome"));
+      Relatorio.gerarBackup(coletarCampos(), valor("nome"), situacaoArquivo());
       mostrarAviso("Arquivo da avaliação (.json) baixado.");
     } catch (erro) {
       console.error(erro);
@@ -553,19 +609,32 @@
     modalLimpar.showModal();
   });
 
-  modalLimpar.addEventListener("close", function () {
-    if (modalLimpar.returnValue !== "confirmar") return;
+  /* Esvazia o formulário. A avaliação anterior continua salva no banco. */
+  function esvaziarFormulario() {
+    trocas++;
     form.reset();
     campoDataAvaliacao.value = hojeISO();
     selects.forEach(atualizarSelect);
     atualizarTitulo();
+    atualizarContadores();
     Cornell.atualizar();
     Cornell.limparPendentes();
     Secoes.atualizar();
     atualizarEtapas();
+    definirAvaliacao(null, "em_andamento");
+    alterado = false;
+    marcarStatusSalvo("");
     mostrarSecao("dados");
-    mostrarAviso("Campos limpos.");
-    campoNome.focus();
+  }
+
+  modalLimpar.addEventListener("close", function () {
+    if (modalLimpar.returnValue !== "confirmar") return;
+    terminarGravacao().then(function () {
+      esvaziarFormulario();
+      gravarRascunho();
+      mostrarAviso("Campos limpos.");
+      campoNome.focus();
+    }).catch(function () { /* cancelado */ });
   });
 
   const arquivoBackup = document.getElementById("arquivo-backup");
@@ -580,14 +649,23 @@
     if (!arquivo) return;
     const leitor = new FileReader();
     leitor.onload = function () {
+      let campos;
       try {
-        preencherCampos(Relatorio.lerBackup(leitor.result));
-        mostrarSecao("dados");
-        mostrarAviso("Documento carregado. Você já pode editar os campos.");
-        campoNome.focus();
+        campos = Relatorio.lerBackup(leitor.result);
       } catch (erro) {
         mostrarAviso(erro.message);
+        return;
       }
+      /* O arquivo vira uma avaliação nova no banco; a que estava aberta continua salva. */
+      terminarGravacao().then(function () {
+        trocas++;
+        preencherCampos(campos);
+        definirAvaliacao(null, "em_andamento");
+        mostrarSecao("dados");
+        marcarAlterado();
+        mostrarAviso("Arquivo carregado. Você já pode editar os campos.");
+        campoNome.focus();
+      }).catch(function () { /* cancelado */ });
     };
     leitor.onerror = function () {
       mostrarAviso("Não foi possível ler o arquivo.");
@@ -595,63 +673,270 @@
     leitor.readAsText(arquivo, "UTF-8");
   });
 
-  /* ---------- Rascunho automático (TEMPORÁRIO, só para testes) ----------
-     Salva os campos no navegador (localStorage) e preenche de novo ao voltar ao site.
-     Para remover: apague este bloco inteiro e a condição RASCUNHO_ATIVO no beforeunload abaixo. */
+  /* ---------- Banco de dados (Firestore) ----------
+     Cada avaliação é um documento em "avaliacoes". O formulário salva sozinho
+     pouco depois de cada alteração. O banco só é usado depois do login (painel.js). */
 
-  const RASCUNHO_ATIVO = true;
-  const CHAVE_RASCUNHO = "avaliacao-neuropsicologica-rascunho";
+  let bancoAtivo = false;
+  let avaliacaoId = null;
+  let statusAvaliacao = "em_andamento";
+  let responsavelNome = "";
+  let alterado = false;
+  let salvando = null;
+  /* Conta as trocas de avaliação no formulário (nova, abrir, carregar arquivo). Uma leitura
+     do banco que chega depois de uma troca é ignorada, para não preencher o formulário
+     novo com os dados da avaliação anterior. */
+  let trocas = 0;
+  let timerBanco = null;
+  const statusSalvo = document.getElementById("status-salvo");
 
-  if (RASCUNHO_ATIVO) {
-    let timerRascunho = null;
+  function marcarStatusSalvo(texto, erro) {
+    statusSalvo.textContent = texto;
+    statusSalvo.classList.toggle("erro", !!erro);
+  }
 
-    const gravarRascunho = function () {
-      clearTimeout(timerRascunho);
-      const secaoVisivel = document.querySelector(".secao:not([hidden])");
-      try {
-        localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({
-          campos: coletarCampos(),
-          secao: secaoVisivel ? secaoVisivel.id.replace("secao-", "") : "dados"
-        }));
-      } catch (erro) {
-        console.warn("Não foi possível salvar o rascunho.", erro);
+  function definirAvaliacao(id, status) {
+    avaliacaoId = id;
+    statusAvaliacao = status || "em_andamento";
+  }
+
+  function horaAgora() {
+    const d = new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  /* Grava o que mudou. Se já houver uma gravação em curso, espera e grava depois. */
+  function gravarNoBanco() {
+    clearTimeout(timerBanco);
+    if (!bancoAtivo) return Promise.resolve();
+    if (salvando) return salvando.then(gravarNoBanco);
+    if (!alterado) return Promise.resolve();
+    if (!avaliacaoId && !formularioPreenchido()) return Promise.resolve();
+    alterado = false;
+    const dados = { paciente: valor("nome"), campos: coletarCampos(), secao: secaoAtual };
+    marcarStatusSalvo("Salvando…");
+    salvando = Banco.salvarAvaliacao(avaliacaoId, dados, responsavelNome)
+      .then(function (id) {
+        if (!avaliacaoId) definirAvaliacao(id, "em_andamento");
+        marcarStatusSalvo("Salvo às " + horaAgora());
+      })
+      .catch(function (erro) {
+        console.error(erro);
+        alterado = true;
+        marcarStatusSalvo("Não salvo", true);
+        mostrarAviso("Não foi possível salvar no banco: " + Banco.mensagemErro(erro));
+      })
+      .then(function () {
+        salvando = null;
+        gravarRascunho();
+      });
+    return salvando;
+  }
+
+  function marcarAlterado() {
+    alterado = true;
+    if (!bancoAtivo) return;
+    clearTimeout(timerBanco);
+    timerBanco = setTimeout(gravarNoBanco, 1500);
+  }
+
+  /* Antes de trocar de avaliação: grava o que falta. Se não der, pergunta se descarta. */
+  function terminarGravacao() {
+    return gravarNoBanco().then(function () {
+      if (bancoAtivo && alterado && formularioPreenchido() &&
+          !window.confirm("As últimas alterações não foram salvas no banco. Continuar mesmo assim?")) {
+        return Promise.reject(new Error("cancelado"));
       }
-    };
-
-    const salvarRascunho = function () {
-      clearTimeout(timerRascunho);
-      timerRascunho = setTimeout(gravarRascunho, 400);
-    };
-
-    try {
-      const salvo = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO) || "null");
-      if (salvo && salvo.campos) {
-        preencherCampos(salvo.campos);
-        const secaoSalva = salvo.secao === "curva" ? "ravlt" : salvo.secao;
-        if (secaoSalva && ordem.indexOf(secaoSalva) !== -1) mostrarSecao(secaoSalva);
-      }
-    } catch (erro) {
-      console.warn("Não foi possível carregar o rascunho.", erro);
-    }
-
-    /* Cliques cobrem troca de etapa, limpar campos e carregar backup. */
-    ["input", "change"].forEach(function (tipo) { form.addEventListener(tipo, salvarRascunho); });
-    document.addEventListener("click", salvarRascunho);
-    modalLimpar.addEventListener("close", salvarRascunho);
-    /* Ao sair ou trocar de aba, grava na hora (cobre também o backup, que carrega depois do clique). */
-    window.addEventListener("pagehide", gravarRascunho);
-    document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "hidden") gravarRascunho();
     });
   }
 
-  /* ---------- Fim do rascunho automático ---------- */
+  ["input", "change"].forEach(function (tipo) { form.addEventListener(tipo, marcarAlterado); });
+  /* Botões das escalas (ex.: Marcar restantes como Ausente) e troca de etapa. */
+  form.addEventListener("click", function (evento) {
+    if (evento.target.closest("button")) setTimeout(marcarAlterado);
+  });
+  linksSecao.forEach(function (el) {
+    el.addEventListener("click", function () { if (avaliacaoId) marcarAlterado(); });
+  });
 
-  /* Os dados não são salvos: avisa antes de fechar a página com o formulário preenchido. */
+  /* ---------- Rascunho no navegador ----------
+     Guarda o formulário aberto (e o id dele no banco) no localStorage, para voltar
+     onde parou ao recarregar a página. É apagado ao sair do sistema. */
+
+  const CHAVE_RASCUNHO = "avaliacao-neuropsicologica-rascunho";
+  let timerRascunho = null;
+  let encerrado = false;
+
+  function gravarRascunho() {
+    clearTimeout(timerRascunho);
+    if (encerrado) return;
+    try {
+      localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify({
+        campos: coletarCampos(),
+        secao: secaoAtual,
+        avaliacaoId: avaliacaoId,
+        status: statusAvaliacao,
+        alterado: alterado
+      }));
+    } catch (erro) {
+      console.warn("Não foi possível salvar o rascunho.", erro);
+    }
+  }
+
+  function salvarRascunho() {
+    clearTimeout(timerRascunho);
+    timerRascunho = setTimeout(gravarRascunho, 400);
+  }
+
+  try {
+    const salvo = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO) || "null");
+    if (salvo && salvo.campos) {
+      preencherCampos(salvo.campos);
+      definirAvaliacao(salvo.avaliacaoId || null, salvo.status);
+      /* Rascunho antigo (de antes do banco) ou com alterações não enviadas: envia no login. */
+      alterado = salvo.alterado === true || (!salvo.avaliacaoId && formularioPreenchido());
+      const secaoSalva = salvo.secao === "curva" ? "ravlt" : salvo.secao;
+      if (secaoSalva && ordem.indexOf(secaoSalva) !== -1) mostrarSecao(secaoSalva);
+    }
+  } catch (erro) {
+    console.warn("Não foi possível carregar o rascunho.", erro);
+  }
+
+  ["input", "change"].forEach(function (tipo) { form.addEventListener(tipo, salvarRascunho); });
+  document.addEventListener("click", salvarRascunho);
+  modalLimpar.addEventListener("close", salvarRascunho);
+  /* Ao sair ou trocar de aba do navegador, grava na hora. */
+  window.addEventListener("pagehide", function () {
+    gravarRascunho();
+    gravarNoBanco();
+  });
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "hidden") return;
+    gravarRascunho();
+    gravarNoBanco();
+  });
+
+  /* Avisa antes de fechar a página se ainda houver algo para gravar no banco. */
   window.addEventListener("beforeunload", function (evento) {
-    if (!RASCUNHO_ATIVO && formularioPreenchido()) {
+    if (bancoAtivo && (salvando || (alterado && formularioPreenchido()))) {
+      gravarNoBanco();
       evento.preventDefault();
       evento.returnValue = "";
     }
   });
+
+  /* ---------- Ligação com o painel (painel.js) ---------- */
+
+  window.Formulario = {
+    /* Depois do login: liga o salvamento e atualiza o formulário aberto com o que está no banco. */
+    ativarBanco: function (nome) {
+      responsavelNome = nome || "";
+      bancoAtivo = true;
+      if (alterado) {
+        gravarNoBanco();
+      } else if (avaliacaoId) {
+        const troca = trocas;
+        const id = avaliacaoId;
+        const mesmaAvaliacao = function () {
+          return !alterado && troca === trocas && avaliacaoId === id;
+        };
+        Banco.abrirAvaliacao(id)
+          .then(function (dados) {
+            if (!mesmaAvaliacao()) return;
+            preencherCampos(dados.campos || {});
+            definirAvaliacao(dados.id, dados.status);
+            gravarRascunho();
+          })
+          .catch(function (erro) {
+            /* Apagada no banco: o que está na tela vira uma avaliação nova. */
+            if (erro && erro.code === "not-found" && mesmaAvaliacao()) {
+              definirAvaliacao(null, "em_andamento");
+              marcarAlterado();
+            }
+          });
+      }
+    },
+    definirResponsavel: function (nome) {
+      responsavelNome = nome || "";
+    },
+    idAtual: function () {
+      return avaliacaoId;
+    },
+    /* Grava agora o que ainda estiver esperando. */
+    salvar: function () {
+      return gravarNoBanco();
+    },
+    nova: function () {
+      return terminarGravacao().then(function () {
+        esvaziarFormulario();
+        gravarRascunho();
+      });
+    },
+    abrir: function (id) {
+      if (id === avaliacaoId) return Promise.resolve();
+      let troca;
+      return terminarGravacao()
+        .then(function () {
+          troca = ++trocas;
+          return Banco.abrirAvaliacao(id);
+        })
+        .then(function (dados) {
+          /* Outra ação trocou o formulário enquanto a avaliação carregava. */
+          if (troca !== trocas) throw new Error("cancelado");
+          preencherCampos(dados.campos || {});
+          definirAvaliacao(dados.id, dados.status);
+          alterado = false;
+          marcarStatusSalvo("");
+          mostrarSecao(ordem.indexOf(dados.secao) !== -1 ? dados.secao : "dados");
+          gravarRascunho();
+        });
+    },
+    /* Avaliação excluída pelo histórico: se estiver aberta no formulário, esvazia
+       (senão o salvamento automático a gravaria de novo). */
+    esquecer: function (id) {
+      if (id !== avaliacaoId) return;
+      clearTimeout(timerBanco);
+      esvaziarFormulario();
+      gravarRascunho();
+    },
+    /* Mostra (ou devolve) o cabeçalho da etapa na barra do topo. */
+    exibirCabecalho: function (visivel) {
+      cabecalhoVisivel = !!visivel;
+      levarCabecalho();
+    },
+    /* Histórico: baixa o PDF e o .json de uma avaliação salva sem trocar a que está aberta.
+       Coloca a avaliação no formulário só para gerar os arquivos e depois volta a anterior. */
+    baixarArquivos: function (id) {
+      return gravarNoBanco()
+        .then(function () { return Banco.abrirAvaliacao(id); })
+        .then(function (dados) {
+          const anterior = {
+            campos: coletarCampos(), id: avaliacaoId, status: statusAvaliacao,
+            secao: secaoAtual, alterado: alterado
+          };
+          try {
+            preencherCampos(dados.campos || {});
+            const situacao = situacaoArquivo();
+            const nome = valor("nome");
+            Relatorio.gerarPdf(coletarDados(), nome, secoesDoRelatorio(), { situacao: situacao });
+            Relatorio.gerarBackup(coletarCampos(), nome, situacao);
+          } finally {
+            preencherCampos(anterior.campos);
+            definirAvaliacao(anterior.id, anterior.status);
+            alterado = anterior.alterado;
+            mostrarSecao(anterior.secao, true);
+          }
+        });
+    },
+    /* Ao sair do sistema: grava o que falta e apaga o rascunho deste navegador. */
+    encerrar: function () {
+      return gravarNoBanco().then(function () {
+        bancoAtivo = false;
+        encerrado = true;
+        clearTimeout(timerRascunho);
+        try { localStorage.removeItem(CHAVE_RASCUNHO); } catch (erro) { /* sem acesso */ }
+      });
+    },
+    mostrarAviso: mostrarAviso
+  };
 })();

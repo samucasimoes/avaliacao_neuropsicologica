@@ -14,76 +14,186 @@
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="aguardando-login">
   <div class="app">
 
     <aside class="sidebar">
-      <div class="brand">
-        <img class="brand-icon" src="./assets/image.png" alt="imagem cerebro">
-        <!-- <svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
-          <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
-          <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
-          <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
-          <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
-          <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
-          <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
-          <path d="M6 18a4 4 0 0 1-1.967-.516"/>
-          <path d="M19.967 17.484A4 4 0 0 1 18 18"/>
-        </svg> -->
-        <span class="brand-name">Avaliação<br>Neuropsicológica</span>
+      <a class="sidebar-marca" href="#inicio" title="Ir para o Início">
+        <img class="sidebar-marca-icone" src="assets/cerebro-login.webp" alt="" width="640" height="478">
+        <span class="sidebar-marca-nome">Avaliação<br>Neuropsicológica</span>
+      </a>
+
+      <!-- O menu principal e o das etapas ocupam o mesmo lugar: ao abrir Avaliações,
+           as etapas entram no lugar do menu (painel.js liga a classe modo-avaliacao). -->
+      <div class="sidebar-paineis">
+        <nav class="menu" aria-label="Menu principal">
+          <a class="menu-item" href="#inicio" data-view="inicio">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg>
+            Início
+          </a>
+          <a class="menu-item" href="#avaliacoes" data-view="avaliacoes">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
+            Nova Avaliação
+          </a>
+          <a class="menu-item" href="#historico" data-view="historico">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3.5 2"/></svg>
+            Histórico de Avaliações
+          </a>
+          <a class="menu-item" href="#ajuda" data-view="ajuda">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9"/><path d="M12 17.2h.01"/></svg>
+            Ajuda
+          </a>
+        </nav>
+
+        <div class="menu-etapas">
+          <a class="menu-item menu-voltar" href="#inicio" data-view="inicio" title="Voltar para a tela inicial">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            Início
+          </a>
+          <p class="menu-etapas-titulo">Etapas da avaliação</p>
+          <nav class="steps" aria-label="Etapas da avaliação">
+            <ol class="steps-list">
+              <li><a class="step active" href="#dados" data-secao="dados" aria-current="step"><span class="step-num">1</span>Dados do paciente</a></li>
+              <li><a class="step" href="#resumo" data-secao="resumo"><span class="step-num">2</span>Resumo</a></li>
+              <li><a class="step" href="#funcoes" data-secao="funcoes"><span class="step-num">3</span>Funções avaliadas</a></li>
+              <li><a class="step" href="#protocolos" data-secao="protocolos"><span class="step-num">4</span>Foram aplicados protocolos fixos (somente impressão)</a></li>
+              <li><a class="step" href="#katz" data-secao="katz"><span class="step-num">5</span>Escala de Katz</a></li>
+              <li><a class="step" href="#pfeffer" data-secao="pfeffer"><span class="step-num">6</span>Pfeffer</a></li>
+              <li><a class="step" href="#gai" data-secao="gai"><span class="step-num">7</span>Ansiedade Geriátrica (GAI)</a></li>
+              <li><a class="step" href="#gds" data-secao="gds"><span class="step-num">8</span>Depressão Geriátrica (GDS)</a></li>
+              <li><a class="step" href="#bhs" data-secao="bhs"><span class="step-num">9</span>Desesperança de Beck (BHS)</a></li>
+              <li><a class="step" href="#iqcode-escore" data-secao="iqcode-escore"><span class="step-num">10</span>IQCODE</a></li>
+              <li><a class="step" href="#cornell" data-secao="cornell"><span class="step-num">7</span>Escala de Cornell</a></li>
+              <!-- Questionário completo do IQCODE fora de uso: escondido na tela e fora da impressão
+                   (o escore do IQCODE é digitado na aba IQCODE acima). -->
+              <li class="etapa-oculta" style="display: none"><a class="step" href="#iqcode" data-secao="iqcode"><span class="step-num">8</span>IQCODE</a></li>
+              <li><a class="step" href="#humor" data-secao="humor"><span class="step-num">9</span>Humor e comportamento</a></li>
+              <li><a class="step" href="#moca" data-secao="moca"><span class="step-num">10</span>Montreal (MoCA)</a></li>
+              <li class="etapa-oculta" style="display: none"><a class="step" href="#shulman" data-secao="shulman"><span class="step-num">11</span>Relógio de Shulman</a></li>
+              <li><a class="step" href="#cerad" data-secao="cerad"><span class="step-num">12</span>Bateria do CERAD/Funções executivas</a></li>
+              <li><a class="step" href="#linguagem" data-secao="linguagem"><span class="step-num">13</span>Linguagem</a></li>
+              <li><a class="step" href="#ravlt" data-secao="ravlt"><span class="step-num">14</span>RAVLT</a></li>
+              <li><a class="step" href="#memoria" data-secao="memoria"><span class="step-num">15</span>Memória verbal e visual</a></li>
+              <li><a class="step" href="#trilhas" data-secao="trilhas"><span class="step-num">16</span>Trilhas</a></li>
+              <li><a class="step" href="#praxias" data-secao="praxias"><span class="step-num">17</span>Praxias</a></li>
+              <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">18</span>Bateria Wechsler</a></li>
+              <li><a class="step" href="#stroop" data-secao="stroop"><span class="step-num">19</span>Stroop Test</a></li>
+              <li><a class="step" href="#interpretacao" data-secao="interpretacao"><span class="step-num">20</span>Interpretação dos resultados</a></li>
+              <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
+            </ol>
+          </nav>
+        </div>
       </div>
 
-      <nav class="steps" aria-label="Etapas da avaliação">
-        <ol class="steps-list">
-          <li><a class="step active" href="#dados" data-secao="dados" aria-current="step"><span class="step-num">1</span>Dados do paciente</a></li>
-          <li><a class="step" href="#resumo" data-secao="resumo"><span class="step-num">2</span>Resumo</a></li>
-          <li><a class="step" href="#funcoes" data-secao="funcoes"><span class="step-num">3</span>Funções avaliadas</a></li>
-          <li><a class="step" href="#protocolos" data-secao="protocolos"><span class="step-num">4</span>Foram aplicados protocolos fixos (somente impressão)</a></li>
-          <li><a class="step" href="#katz" data-secao="katz"><span class="step-num">5</span>Escala de Katz</a></li>
-          <li><a class="step" href="#pfeffer" data-secao="pfeffer"><span class="step-num">6</span>Pfeffer</a></li>
-          <li><a class="step" href="#gai" data-secao="gai"><span class="step-num">7</span>Ansiedade Geriátrica (GAI)</a></li>
-          <li><a class="step" href="#gds" data-secao="gds"><span class="step-num">8</span>Depressão Geriátrica (GDS)</a></li>
-          <li><a class="step" href="#bhs" data-secao="bhs"><span class="step-num">9</span>Desesperança de Beck (BHS)</a></li>
-          <li><a class="step" href="#iqcode-escore" data-secao="iqcode-escore"><span class="step-num">10</span>IQCODE</a></li>
-          <li><a class="step" href="#cornell" data-secao="cornell"><span class="step-num">7</span>Escala de Cornell</a></li>
-          <!-- Questionário completo do IQCODE fora de uso: escondido na tela e fora da impressão
-               (o escore do IQCODE é digitado na aba IQCODE acima). -->
-          <li class="etapa-oculta" style="display: none"><a class="step" href="#iqcode" data-secao="iqcode"><span class="step-num">8</span>IQCODE</a></li>
-          <li><a class="step" href="#humor" data-secao="humor"><span class="step-num">9</span>Humor e comportamento</a></li>
-          <li><a class="step" href="#moca" data-secao="moca"><span class="step-num">10</span>Montreal (MoCA)</a></li>
-          <li class="etapa-oculta" style="display: none"><a class="step" href="#shulman" data-secao="shulman"><span class="step-num">11</span>Relógio de Shulman</a></li>
-          <li><a class="step" href="#cerad" data-secao="cerad"><span class="step-num">12</span>Bateria do CERAD/Funções executivas</a></li>
-          <li><a class="step" href="#linguagem" data-secao="linguagem"><span class="step-num">13</span>Linguagem</a></li>
-          <li><a class="step" href="#ravlt" data-secao="ravlt"><span class="step-num">14</span>RAVLT</a></li>
-          <li><a class="step" href="#memoria" data-secao="memoria"><span class="step-num">15</span>Memória verbal e visual</a></li>
-          <li><a class="step" href="#trilhas" data-secao="trilhas"><span class="step-num">16</span>Trilhas</a></li>
-          <li><a class="step" href="#praxias" data-secao="praxias"><span class="step-num">17</span>Praxias</a></li>
-          <li><a class="step" href="#wechsler" data-secao="wechsler"><span class="step-num">18</span>Bateria Wechsler</a></li>
-          <li><a class="step" href="#stroop" data-secao="stroop"><span class="step-num">19</span>Stroop Test</a></li>
-          <li><a class="step" href="#interpretacao" data-secao="interpretacao"><span class="step-num">20</span>Interpretação dos resultados</a></li>
-          <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
-        </ol>
-      </nav>
-
-      <div class="sidebar-rodape">
-        <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Carregar um arquivo (.json) salvo pelo botão Gerar Arquivo para continuar ou corrigir a avaliação">
-          Carregar arquivo
-        </button>
-        <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
-      </div>
     </aside>
 
     <div class="main">
+      <header class="appbar">
+        <!-- Título da tela. Em Nova Avaliação, o cabeçalho (card-head) da etapa aberta vem para cá (app.js). -->
+        <div class="appbar-titulo">
+          <div class="appbar-view" id="appbar-view">
+            <h1 class="appbar-view-titulo" id="appbar-view-titulo"></h1>
+            <p class="appbar-view-texto" id="appbar-view-texto"></p>
+          </div>
+          <div class="appbar-etapa" id="appbar-etapa" hidden></div>
+        </div>
+        <div class="usuario">
+          <button class="usuario-btn" id="btn-usuario" type="button" aria-haspopup="menu" aria-expanded="false" title="Sua conta">
+            <span class="usuario-avatar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+            </span>
+            <span class="usuario-nome" id="usuario-nome"></span>
+            <svg class="icon usuario-seta" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="usuario-menu" id="usuario-menu" role="menu" hidden>
+            <p class="usuario-email" id="usuario-email"></p>
+            <button class="usuario-opcao" id="btn-sair" type="button" role="menuitem">Sair</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ---------- Início ---------- -->
+      <section class="view" id="view-inicio" hidden>
+        <h1 class="saudacao">Olá, <span id="saudacao-nome"></span>!</h1>
+        <p class="saudacao-sub">O que você deseja fazer agora?</p>
+
+        <div class="atalhos">
+          <article class="atalho">
+            <div class="atalho-topo">
+              <span class="atalho-icone">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/><path d="M14 3v5h5v4"/><path d="M9 13h4"/><path d="M9 17h2"/><path d="M18 15v6"/><path d="M15 18h6"/></svg>
+              </span>
+              <div>
+                <h2 class="atalho-titulo">Nova avaliação</h2>
+                <p class="atalho-texto">Cadastrar um novo paciente e iniciar o preenchimento.</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-grande" id="btn-nova-avaliacao" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Iniciar nova avaliação
+            </button>
+          </article>
+
+          <article class="atalho">
+            <div class="atalho-topo">
+              <span class="atalho-icone atalho-icone-verde">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13.5a2 2 0 0 0 1.9-1.4L22.5 12a1.5 1.5 0 0 0-1.4-2H7.6a2 2 0 0 0-1.9 1.4L3 20"/></svg>
+              </span>
+              <div>
+                <h2 class="atalho-titulo">Continuar avaliação</h2>
+                <p class="atalho-texto">Acesse avaliações em andamento para dar continuidade.</p>
+              </div>
+            </div>
+            <button class="btn btn-contorno btn-grande" id="btn-ver-andamento" type="button">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13.5a2 2 0 0 0 1.9-1.4L22.5 12a1.5 1.5 0 0 0-1.4-2H7.6a2 2 0 0 0-1.9 1.4L3 20"/></svg>
+              Ver avaliações em andamento
+            </button>
+          </article>
+        </div>
+
+        <section class="painel" id="lista-avaliacoes">
+          <div class="painel-head">
+            <h2 class="painel-titulo">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2"/></svg>
+              <span id="lista-titulo">Avaliações em andamento</span>
+            </h2>
+            <a class="link" href="#historico" id="btn-ver-todas">Ver todas</a>
+          </div>
+          <div class="tabela-wrap">
+            <table class="tabela">
+              <thead>
+                <tr>
+                  <th scope="col">Paciente</th>
+                  <th scope="col">Última atualização</th>
+                  <th scope="col">Responsável</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="sr-only">Abrir</span></th>
+                </tr>
+              </thead>
+              <tbody id="lista-corpo"></tbody>
+            </table>
+          </div>
+          <p class="lista-vazia" id="lista-vazia" hidden></p>
+        </section>
+      </section>
+
+      <!-- ---------- Avaliações (formulário) ---------- -->
+      <section class="view" id="view-avaliacoes" hidden>
       <header class="topbar">
         <div class="topbar-title">
           <button class="icon-btn" id="btn-topo" type="button" aria-label="Voltar ao início do formulário" title="Voltar ao início do formulário">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
           </button>
           <h1 class="page-title" id="titulo-pagina">Nova avaliação</h1>
+          <span class="status-salvo" id="status-salvo" aria-live="polite"></span>
         </div>
         <div class="topbar-acoes">
-          <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Apagar todos os dados preenchidos e começar uma nova avaliação">
+          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Adicionar um backup: carregar o arquivo (.json) baixado em Gerar Arquivo ou Salvar PDF e arquivo para continuar ou corrigir a avaliação">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            Carregar arquivo
+          </button>
+          <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
+          <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Esvaziar os campos e começar uma nova avaliação (a atual continua salva)">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
             Limpar campos
           </button>
@@ -288,16 +398,76 @@
           </div>
         </form>
       </main>
+      </section>
+
+      <!-- ---------- Histórico de Avaliações ---------- -->
+      <section class="view" id="view-historico" hidden>
+        <div class="aviso-retencao" role="note">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
+          <p>Cada avaliação fica guardada por <strong>30 dias depois da última alteração</strong> e depois é apagada de vez.
+            Para manter uma cópia, clique em <strong>Salvar PDF e arquivo</strong>: o arquivo (.json) pode ser aberto de novo em Carregar arquivo.</p>
+        </div>
+
+        <section class="painel">
+          <div class="painel-head">
+            <h2 class="painel-titulo">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3.5 2"/></svg>
+              Últimos 30 dias
+            </h2>
+            <span class="historico-total" id="historico-total"></span>
+          </div>
+          <ul class="historico-lista" id="historico-lista"></ul>
+          <p class="lista-vazia" id="historico-vazio" hidden></p>
+        </section>
+      </section>
+
+      <!-- ---------- Ajuda ---------- -->
+      <section class="view" id="view-ajuda" hidden>
+        <div class="ajuda">
+          <section class="painel">
+            <h2 class="painel-titulo">Começar uma avaliação</h2>
+            <p>No Início, clique em <strong>Iniciar nova avaliação</strong>. O formulário abre na aba Nova Avaliação, com as etapas no menu lateral (use <strong>Início</strong>, no topo do menu, para voltar). Nenhum campo é obrigatório e as etapas podem ser abertas em qualquer ordem.</p>
+          </section>
+          <section class="painel">
+            <h2 class="painel-titulo">Salvamento</h2>
+            <p>Tudo o que é digitado é salvo sozinho no banco de dados, alguns segundos depois. Ao lado do título aparece “Salvo às …”. A avaliação fica na lista do Início e no Histórico para qualquer profissional continuar.</p>
+          </section>
+          <section class="painel">
+            <h2 class="painel-titulo">Continuar uma avaliação</h2>
+            <p>Clique na avaliação na lista do Início ou use <strong>Abrir</strong> no <strong>Histórico de Avaliações</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>+ Carregar arquivo</strong> no topo do formulário.</p>
+          </section>
+          <section class="painel">
+            <h2 class="painel-titulo">Por quanto tempo fica guardada</h2>
+            <p>Cada avaliação fica no banco por 30 dias depois da última alteração e depois é apagada de vez. No <strong>Histórico de Avaliações</strong> aparece quanto tempo falta para cada uma e o botão <strong>Salvar PDF e arquivo</strong>. Quem iniciou a avaliação também vê o botão <strong>Excluir</strong>, para apagá-la antes do prazo.</p>
+          </section>
+          <section class="painel">
+            <h2 class="painel-titulo">Relatório e arquivo</h2>
+            <p><strong>Imprimir Avaliação</strong> baixa o PDF (ou use Ctrl+P). <strong>Gerar Arquivo</strong> baixa um .json da avaliação, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+          </section>
+        </div>
+      </section>
     </div>
   </div>
 
   <dialog class="modal" id="modal-limpar">
     <form class="modal-body" method="dialog">
       <h3 class="modal-title">Limpar campos?</h3>
-      <p class="modal-text">Todos os dados preenchidos serão apagados. Essa ação não pode ser desfeita.</p>
+      <p class="modal-text">Os campos serão esvaziados para começar uma nova avaliação. A avaliação atual continua salva na lista do Início.</p>
       <div class="modal-actions">
         <button class="btn btn-light" value="cancelar">Cancelar</button>
         <button class="btn btn-danger" value="confirmar">Limpar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="modal-excluir">
+    <form class="modal-body" method="dialog">
+      <h3 class="modal-title">Excluir avaliação?</h3>
+      <p class="modal-text">A avaliação de <strong id="excluir-nome"></strong> será apagada de vez do banco de dados. Essa ação não pode ser desfeita.</p>
+      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e use <strong>Salvar PDF e arquivo</strong> antes.</p>
+      <div class="modal-actions">
+        <button class="btn btn-light" value="cancelar" autofocus>Cancelar</button>
+        <button class="btn btn-danger" value="confirmar">Excluir</button>
       </div>
     </form>
   </dialog>
@@ -310,6 +480,11 @@
     ou o botão <strong>Imprimir Avaliação</strong>.
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/banco.js"></script>
   <script src="libs/jspdf.umd.min.js"></script>
   <script src="libs/jspdf.plugin.autotable.min.js"></script>
   <script src="libs/exceljs.min.js"></script>
@@ -319,5 +494,6 @@
   <script src="js/shulman.js"></script>
   <script src="js/relatorio.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/painel.js"></script>
 </body>
 </html>

@@ -110,18 +110,18 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     saem na mesma folha da tabela.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
-12. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
+12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna
+    Média do F-A-S é a mediana para a idade do paciente (60 a 69, 70 a 79, 80 ou mais) e o
+    tempo de escolaridade escolhido acima da tabela (1 a 3, 4 a 7, 8 a 11, 12 anos ou mais;
+    tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade e a média ficam só na
+    tela, para a profissional se basear: não saem na impressão. Na impressão
+    a explicação dos testes de fluência verbal tem letra 10.
+13. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
     do CERAD vêm das abas já preenchidas (fluência Animais e Frutas da Linguagem, total do
     MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o Reconhecimento);
     Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia são digitadas aqui
     (só números). Na impressão o título é "Consortium to Establish a Registry for Alzheimer's
     Disease", e os testes analisados das Funções executivas saem sublinhados.
-13. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna
-    Média do F-A-S é a mediana para a idade do paciente (60 a 69, 70 a 79, 80 ou mais) e o
-    tempo de escolaridade escolhido acima da tabela (1 a 3, 4 a 7, 8 a 11, 12 anos ou mais;
-    tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade e a média ficam só na
-    tela, para a profissional se basear: não saem na impressão. Na impressão
-    sai antes do CERAD, e a explicação dos testes de fluência verbal tem letra 10.
 14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente

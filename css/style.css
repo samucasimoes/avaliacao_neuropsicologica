@@ -1092,7 +1092,7 @@ body.modo-avaliacao .menu-etapas .steps-list li {
   justify-content: center;
   gap: 8px;
   width: 100%;
-  margin: 6px 0 16px;
+  margin: 6px 0 8px;
   border: 0;
   background: #fff;
   color: var(--brand-dark);
@@ -1104,9 +1104,31 @@ body.modo-avaliacao .menu-etapas .steps-list li {
   background: var(--brand-soft);
 }
 
-.btn-imprimir-lateral:focus-visible {
+.btn-imprimir-lateral:focus-visible,
+.btn-carregar-lateral:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.6);
   outline-offset: 2px;
+}
+
+/* Carregar arquivo: logo abaixo do Imprimir, em contorno branco (ação secundária). */
+.btn-carregar-lateral {
+  flex: none;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-carregar-lateral:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-carregar-lateral[hidden] {
+  display: none;
 }
 
 /* ---------- Etapas ---------- */
@@ -2273,7 +2295,8 @@ td.estreita .input-tabela {
     width: max-content;
   }
 
-  .btn-imprimir-lateral {
+  .btn-imprimir-lateral,
+  .btn-carregar-lateral {
     width: auto;
     margin: 0;
     padding: 0 10px;

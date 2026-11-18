@@ -568,18 +568,6 @@
     evento.preventDefault();
   });
 
-  /* Gerar Arquivo: baixa só o .json, que depois volta pelo botão Carregar arquivo. */
-  document.getElementById("btn-gerar-arquivo").addEventListener("click", function () {
-    toast.hidden = true;
-    try {
-      Relatorio.gerarBackup(coletarCampos(), valor("nome"), situacaoArquivo());
-      mostrarAviso("Arquivo da avaliação (.json) baixado.");
-    } catch (erro) {
-      console.error(erro);
-      mostrarAviso("Não foi possível gerar o arquivo. Tente novamente.");
-    }
-  });
-
   /* Ctrl+P (Cmd+P no Mac) imprime o relatório completo, e não a página do formulário.
      O PDF abre numa nova aba já com a janela de impressão. Se a impressão for aberta
      pelo menu do navegador, o CSS (@media print) mostra só um aviso. */
@@ -983,19 +971,18 @@
         }));
       });
     },
-    /* Abre o PDF numa nova aba, já com a janela de impressão. ids: as páginas escolhidas
-       (sem ids, todas). Roda dentro do clique, senão o navegador bloqueia a nova aba. */
+    /* Baixa o PDF direto (sem abrir a janela de impressão do navegador). ids: as páginas
+       escolhidas (sem ids, todas). */
     imprimir: function (campos, ids) {
-      const endereco = comCampos(campos || {}, function () {
+      comCampos(campos || {}, function () {
         let lista = secoesDoRelatorio();
         let semDados = false;
         if (ids) {
           semDados = ids.indexOf("dados") === -1;
           lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
         }
-        return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { imprimir: true, semDados: semDados });
+        Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { semDados: semDados, situacao: situacaoArquivo() });
       });
-      return !!window.open(endereco, "_blank");
     },
     /* Confere o status das avaliações da lista pelos campos salvos (todas as etapas 100% =
        Concluída) e corrige no banco as que estiverem erradas. Devolve a lista corrigida. */

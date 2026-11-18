@@ -542,19 +542,17 @@
     atualizarModalImpressao();
   });
 
-  /* A impressão abre dentro do clique em Imprimir (antes de o modal fechar), senão o
-     navegador bloqueia a nova aba. */
+  /* Baixa o PDF direto, com todas as páginas ou só as escolhidas. */
   botaoConfirmarImpressao.addEventListener("click", function () {
     const pedido = pendenteImpressao;
     if (!pedido) return;
     const ids = modoImpressao() === "escolher" ? paginasMarcadas() : null;
     try {
-      if (!window.Formulario.imprimir(pedido.av.campos, ids)) {
-        aviso("O navegador bloqueou a nova aba. Permita pop-ups para este site e tente de novo.");
-      }
+      window.Formulario.imprimir(pedido.av.campos, ids);
+      aviso("Avaliação em PDF baixada.");
     } catch (erro) {
       console.error(erro);
-      aviso("Não foi possível gerar a impressão. Tente novamente.");
+      aviso("Não foi possível gerar o PDF. Tente novamente.");
     }
   });
 

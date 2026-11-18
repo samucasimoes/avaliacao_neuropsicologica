@@ -1086,37 +1086,18 @@ body.modo-avaliacao .menu-etapas .steps-list li {
   mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
 }
 
-/* Imprimir Avaliação: fixo no pé do menu lateral, abaixo das etapas. */
-.btn-imprimir-lateral {
-  flex: none;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin: 6px 0 8px;
-  border: 0;
-  background: #fff;
-  color: var(--brand-dark);
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
-}
-
-.btn-imprimir-lateral:hover {
-  background: var(--brand-soft);
-}
-
-.btn-imprimir-lateral:focus-visible,
 .btn-carregar-lateral:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.6);
   outline-offset: 2px;
 }
 
-/* Carregar arquivo: logo abaixo do Imprimir, em contorno branco (ação secundária). */
+/* Carregar arquivo: no pé do menu lateral, abaixo das etapas, em contorno branco. */
 .btn-carregar-lateral {
   flex: none;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  margin: 0 0 16px;
+  margin: 6px 0 16px;
   border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
   background: transparent;
   color: #fff;
@@ -1256,6 +1237,12 @@ a.step:not(.active):hover {
 }
 
 /* ---------- Barra superior ---------- */
+
+/* Imprimir Avaliação: no fim da barra do topo do formulário, à direita. */
+.btn-imprimir-topo {
+  flex: none;
+  gap: 8px;
+}
 
 .topbar {
   display: flex;
@@ -2295,7 +2282,6 @@ td.estreita .input-tabela {
     width: max-content;
   }
 
-  .btn-imprimir-lateral,
   .btn-carregar-lateral {
     width: auto;
     margin: 0;

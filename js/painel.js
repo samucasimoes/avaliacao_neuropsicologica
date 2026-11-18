@@ -476,7 +476,8 @@
       });
   }
 
-  /* ---------- Imprimir (Avaliações Concluídas): todas ou só as páginas escolhidas ---------- */
+  /* ---------- Imprimir: todas ou só as páginas escolhidas ----------
+     Usado no Imprimir das Avaliações Concluídas e no Imprimir Avaliação do topo do formulário. */
 
   const modalImprimir = document.getElementById("modal-imprimir");
   const listaPaginas = document.getElementById("imprimir-lista");
@@ -525,6 +526,11 @@
     modalImprimir.returnValue = "";
     modalImprimir.showModal();
   }
+
+  const botaoImprimirTopo = document.getElementById("btn-imprimir-topo");
+  botaoImprimirTopo.addEventListener("click", function () {
+    escolherImpressao(window.Formulario.atual(), botaoImprimirTopo);
+  });
 
   modalImprimir.addEventListener("change", atualizarModalImpressao);
   document.getElementById("imprimir-marcar").addEventListener("click", function () {

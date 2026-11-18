@@ -670,7 +670,7 @@ body.aguardando-login .toast {
 
 .historico-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 10px 16px;
   padding: 14px 16px;
@@ -756,9 +756,162 @@ body.aguardando-login .toast {
   color: #9c3a33;
 }
 
+/* Botões no canto inferior direito do card. */
 .historico-acoes {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+}
+
+.historico-item[hidden] {
+  display: none;
+}
+
+/* ---------- Pesquisa pelo nome do paciente ---------- */
+
+.busca {
+  position: relative;
+  display: block;
+  margin: 0 0 14px;
+}
+
+.busca .icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.busca-campo {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 42px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.busca-campo::placeholder {
+  color: var(--muted);
+}
+
+.busca-campo:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(19, 135, 124, 0.12);
+}
+
+/* ---------- Avaliação concluída aberta só para leitura ---------- */
+
+.aviso-leitura {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border: 1px solid #b7dbd6;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+}
+
+.aviso-leitura[hidden] {
+  display: none;
+}
+
+.aviso-leitura .icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+
+.aviso-leitura p {
+  flex: 1;
+  margin: 0;
+  font-size: 14.5px;
+}
+
+.aviso-leitura .btn {
+  flex: none;
+}
+
+/* Campos travados: um pouco apagados, sem parecer desativados demais. */
+body.somente-leitura .form .secao {
+  opacity: 0.85;
+}
+
+/* ---------- Imprimir: todas ou só as páginas escolhidas ---------- */
+
+.modal.modal-imprimir {
+  width: min(520px, calc(100% - 32px));
+}
+
+.imprimir-modo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0 0 12px;
+}
+
+.imprimir-opcao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.imprimir-opcao input {
+  accent-color: var(--brand);
+}
+
+.imprimir-paginas {
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.imprimir-paginas:disabled {
+  opacity: 0.5;
+}
+
+.imprimir-paginas-topo {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.imprimir-paginas-topo .link {
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.imprimir-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+@media (max-width: 560px) {
+  .imprimir-lista {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aviso-leitura {
+    flex-wrap: wrap;
+  }
 }
 
 .historico-acoes .btn {
@@ -790,8 +943,6 @@ body.aguardando-login .toast {
 
 @media (max-width: 1180px) {
   .historico-acoes {
-    flex-wrap: wrap;
-    grid-column: 1 / -1;
     margin-left: 30px;
   }
 }
@@ -933,6 +1084,29 @@ body.modo-avaliacao .menu-etapas .steps-list li {
   scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
+}
+
+/* Imprimir Avaliação: fixo no pé do menu lateral, abaixo das etapas. */
+.btn-imprimir-lateral {
+  flex: none;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 6px 0 16px;
+  border: 0;
+  background: #fff;
+  color: var(--brand-dark);
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.btn-imprimir-lateral:hover {
+  background: var(--brand-soft);
+}
+
+.btn-imprimir-lateral:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
 }
 
 /* ---------- Etapas ---------- */
@@ -2097,6 +2271,16 @@ td.estreita .input-tabela {
   .steps-list {
     flex-direction: row;
     width: max-content;
+  }
+
+  .btn-imprimir-lateral {
+    width: auto;
+    margin: 0;
+    padding: 0 10px;
+  }
+
+  .btn-imprimir-rotulo {
+    display: none;
   }
 
   .step {

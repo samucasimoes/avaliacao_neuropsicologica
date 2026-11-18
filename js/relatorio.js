@@ -937,6 +937,14 @@ const Relatorio = (function () {
       });
     });
 
+    /* Impressão de páginas escolhidas sem os dados do paciente: a folha dos dados perde
+       essa parte (o Resumo, que sai junto com ela, passa a abrir a folha). */
+    if (opcoes && opcoes.semDados) {
+      folhas[0].partes = folhas[0].partes.filter(function (parte) { return !parte.dados; });
+      if (folhas[0].partes.length) folhas[0].partes[0] = Object.assign({}, folhas[0].partes[0], { junto: false });
+      else folhas.shift();
+    }
+
     folhas.forEach(function (folha) {
       folhaUnica(function () {
         folha.partes.forEach(function (parte) {

@@ -35,9 +35,13 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
             Nova Avaliação
           </a>
-          <a class="menu-item" href="#historico" data-view="historico">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3.5 2"/></svg>
-            Histórico de Avaliações
+          <a class="menu-item" href="#pendentes" data-view="pendentes">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            Avaliações Pendentes
+          </a>
+          <a class="menu-item" href="#concluidas" data-view="concluidas">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>
+            Avaliações Concluídas
           </a>
           <a class="menu-item" href="#ajuda" data-view="ajuda">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9"/><path d="M12 17.2h.01"/></svg>
@@ -82,6 +86,10 @@
               <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
             </ol>
           </nav>
+          <button class="btn btn-imprimir-lateral" id="btn-gerar-secundario" type="submit" form="form-avaliacao" title="Imprimir a avaliação em PDF">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+            <span class="btn-imprimir-rotulo">Imprimir Avaliação</span>
+          </button>
         </div>
       </div>
 
@@ -137,16 +145,16 @@
           <article class="atalho">
             <div class="atalho-topo">
               <span class="atalho-icone atalho-icone-verde">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13.5a2 2 0 0 0 1.9-1.4L22.5 12a1.5 1.5 0 0 0-1.4-2H7.6a2 2 0 0 0-1.9 1.4L3 20"/></svg>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg>
               </span>
               <div>
-                <h2 class="atalho-titulo">Continuar avaliação</h2>
-                <p class="atalho-texto">Acesse avaliações em andamento para dar continuidade.</p>
+                <h2 class="atalho-titulo">Carregar arquivo de avaliação</h2>
+                <p class="atalho-texto">Abrir uma avaliação salva antes em arquivo (.json) para continuar ou corrigir.</p>
               </div>
             </div>
-            <button class="btn btn-contorno btn-grande" id="btn-ver-andamento" type="button">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v11a2 2 0 0 0 2 2h13.5a2 2 0 0 0 1.9-1.4L22.5 12a1.5 1.5 0 0 0-1.4-2H7.6a2 2 0 0 0-1.9 1.4L3 20"/></svg>
-              Ver avaliações em andamento
+            <button class="btn btn-contorno btn-grande" id="btn-carregar-arquivo" type="button" title="Escolher o arquivo (.json) baixado em Salvar PDF e arquivo">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Carregar arquivo
             </button>
           </article>
         </div>
@@ -157,7 +165,7 @@
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2"/></svg>
               <span id="lista-titulo">Avaliações em andamento</span>
             </h2>
-            <a class="link" href="#historico" id="btn-ver-todas">Ver todas</a>
+            <a class="link" href="#pendentes" id="btn-ver-todas">Ver todas</a>
           </div>
           <div class="tabela-wrap">
             <table class="tabela">
@@ -188,7 +196,7 @@
           <span class="status-salvo" id="status-salvo" aria-live="polite"></span>
         </div>
         <div class="topbar-acoes">
-          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Adicionar um backup: carregar o arquivo (.json) baixado em Gerar Arquivo ou Salvar PDF e arquivo para continuar ou corrigir a avaliação">
+          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Adicionar um backup: carregar o arquivo (.json) baixado em Salvar PDF e arquivo (Avaliações Concluídas) para continuar ou corrigir a avaliação">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             Carregar arquivo
           </button>
@@ -199,6 +207,12 @@
           </button>
         </div>
       </header>
+
+      <div class="aviso-leitura" id="aviso-leitura" role="note" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>
+        <p><strong>Avaliação concluída.</strong> Aberta só para leitura: os campos estão travados.</p>
+        <button class="btn btn-light btn-pequeno" id="btn-liberar-edicao" type="button" title="Destravar os campos para corrigir esta avaliação">Editar avaliação</button>
+      </div>
 
       <main class="card">
         <form class="form" id="form-avaliacao" novalidate autocomplete="off">
@@ -378,14 +392,6 @@
               </button>
             </div>
             <div class="actions-group">
-              <button class="btn btn-light" id="btn-gerar-arquivo" type="button" title="Baixar o arquivo da avaliação (.json) para continuar ou corrigir depois em Carregar arquivo">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-                Gerar Arquivo
-              </button>
-              <button class="btn btn-light" id="btn-gerar-secundario" type="submit" title="Imprimir a avaliação em PDF">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-                Imprimir Avaliação
-              </button>
               <button title="Próxima" class="btn btn-primary" id="btn-proxima" type="button">
                 <span class="btn-rotulo"></span>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
@@ -400,24 +406,53 @@
       </main>
       </section>
 
-      <!-- ---------- Histórico de Avaliações ---------- -->
-      <section class="view" id="view-historico" hidden>
+      <!-- ---------- Avaliações Pendentes ---------- -->
+      <section class="view" id="view-pendentes" hidden>
         <div class="aviso-retencao" role="note">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
-          <p>Cada avaliação fica guardada por <strong>30 dias depois da última alteração</strong> e depois é apagada de vez.
-            Para manter uma cópia, clique em <strong>Salvar PDF e arquivo</strong>: o arquivo (.json) pode ser aberto de novo em Carregar arquivo.</p>
+          <p>Cada avaliação fica guardada por <strong>6 meses depois da última alteração</strong> e depois é apagada de vez. Quando todas as etapas ficam 100% preenchidas, ela passa sozinha para <strong>Avaliações Concluídas</strong>.</p>
         </div>
 
         <section class="painel">
           <div class="painel-head">
             <h2 class="painel-titulo">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3.5 2"/></svg>
-              Últimos 30 dias
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              Avaliações pendentes
             </h2>
-            <span class="historico-total" id="historico-total"></span>
+            <span class="historico-total" id="pendentes-total"></span>
           </div>
-          <ul class="historico-lista" id="historico-lista"></ul>
-          <p class="lista-vazia" id="historico-vazio" hidden></p>
+          <label class="busca">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="sr-only">Pesquisar pelo nome do paciente</span>
+            <input class="busca-campo" id="pendentes-busca" type="search" placeholder="Pesquisar pelo nome do paciente" autocomplete="off">
+          </label>
+          <ul class="historico-lista" id="pendentes-lista"></ul>
+          <p class="lista-vazia" id="pendentes-vazio" hidden></p>
+        </section>
+      </section>
+
+      <!-- ---------- Avaliações Concluídas ---------- -->
+      <section class="view" id="view-concluidas" hidden>
+        <div class="aviso-retencao" role="note">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20Z"/><path d="M12 10v4"/><path d="M12 17h.01"/></svg>
+          <p>Cada avaliação fica guardada por <strong>6 meses depois da última alteração</strong> e depois é apagada de vez. Para manter uma cópia, clique em <strong>Salvar PDF e arquivo</strong>: o arquivo (.json) pode ser aberto de novo em Carregar arquivo.</p>
+        </div>
+
+        <section class="painel">
+          <div class="painel-head">
+            <h2 class="painel-titulo">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>
+              Avaliações concluídas
+            </h2>
+            <span class="historico-total" id="concluidas-total"></span>
+          </div>
+          <label class="busca">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="sr-only">Pesquisar pelo nome do paciente</span>
+            <input class="busca-campo" id="concluidas-busca" type="search" placeholder="Pesquisar pelo nome do paciente" autocomplete="off">
+          </label>
+          <ul class="historico-lista" id="concluidas-lista"></ul>
+          <p class="lista-vazia" id="concluidas-vazio" hidden></p>
         </section>
       </section>
 
@@ -430,19 +465,19 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Salvamento</h2>
-            <p>Tudo o que é digitado é salvo sozinho no banco de dados, alguns segundos depois. Ao lado do título aparece “Salvo às …”. A avaliação fica na lista do Início e no Histórico para qualquer profissional continuar.</p>
+            <p>Tudo o que é digitado é salvo sozinho no banco de dados, alguns segundos depois. Ao lado do título aparece “Salvo às …”. A avaliação fica na lista do Início e em <strong>Avaliações Pendentes</strong> para qualquer profissional continuar. Quando todas as etapas ficam 100% preenchidas (com o check verde), ela passa sozinha para <strong>Avaliações Concluídas</strong>.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Continuar uma avaliação</h2>
-            <p>Clique na avaliação na lista do Início ou use <strong>Abrir</strong> no <strong>Histórico de Avaliações</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>+ Carregar arquivo</strong> no topo do formulário.</p>
+            <p>Clique na avaliação na lista do Início ou use <strong>Editar</strong> em <strong>Avaliações Pendentes</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>Carregar arquivo de avaliação</strong> no Início ou <strong>+ Carregar arquivo</strong> no topo do formulário.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Por quanto tempo fica guardada</h2>
-            <p>Cada avaliação fica no banco por 30 dias depois da última alteração e depois é apagada de vez. No <strong>Histórico de Avaliações</strong> aparece quanto tempo falta para cada uma e o botão <strong>Salvar PDF e arquivo</strong>. Quem iniciou a avaliação também vê o botão <strong>Excluir</strong>, para apagá-la antes do prazo.</p>
+            <p>Cada avaliação fica no banco por 6 meses depois da última alteração e depois é apagada de vez. Nas abas <strong>Avaliações Pendentes</strong> e <strong>Avaliações Concluídas</strong> aparece quanto tempo falta para cada uma. Nas pendentes, quem iniciou a avaliação também vê o botão <strong>Excluir</strong>, para apagá-la antes do prazo.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p><strong>Imprimir Avaliação</strong> baixa o PDF (ou use Ctrl+P). <strong>Gerar Arquivo</strong> baixa um .json da avaliação, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p><strong>Imprimir Avaliação</strong>, no menu lateral, baixa o PDF (ou use Ctrl+P). Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> deixa escolher todas as páginas ou só algumas, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>
@@ -464,10 +499,33 @@
     <form class="modal-body" method="dialog">
       <h3 class="modal-title">Excluir avaliação?</h3>
       <p class="modal-text">A avaliação de <strong id="excluir-nome"></strong> será apagada de vez do banco de dados. Essa ação não pode ser desfeita.</p>
-      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e use <strong>Salvar PDF e arquivo</strong> antes.</p>
+      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e baixe o PDF pelo botão <strong>Imprimir Avaliação</strong> antes.</p>
       <div class="modal-actions">
         <button class="btn btn-light" value="cancelar" autofocus>Cancelar</button>
         <button class="btn btn-danger" value="confirmar">Excluir</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal modal-imprimir" id="modal-imprimir">
+    <form class="modal-body" method="dialog">
+      <h3 class="modal-title">Imprimir avaliação</h3>
+      <p class="modal-text">Avaliação de <strong id="imprimir-nome"></strong>. Escolha o que vai para a impressão.</p>
+      <div class="imprimir-modo" role="radiogroup" aria-label="Páginas para imprimir">
+        <label class="imprimir-opcao"><input type="radio" name="imprimir-modo" value="todas" checked> Todas as páginas</label>
+        <label class="imprimir-opcao"><input type="radio" name="imprimir-modo" value="escolher"> Escolher as páginas</label>
+      </div>
+      <fieldset class="imprimir-paginas" id="imprimir-paginas" disabled>
+        <legend class="sr-only">Páginas</legend>
+        <div class="imprimir-paginas-topo">
+          <button class="link" type="button" id="imprimir-marcar">Marcar todas</button>
+          <button class="link" type="button" id="imprimir-desmarcar">Desmarcar todas</button>
+        </div>
+        <div class="imprimir-lista" id="imprimir-lista"></div>
+      </fieldset>
+      <div class="modal-actions">
+        <button class="btn btn-light" value="cancelar">Cancelar</button>
+        <button class="btn btn-primary" value="confirmar" id="imprimir-confirmar">Imprimir</button>
       </div>
     </form>
   </dialog>

@@ -6,9 +6,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Cada avaliação fica 30 dias depois da última alteração e então pode ser apagada
-    // (o sistema apaga sozinho ao entrar). Antes disso, só quem iniciou a avaliação
-    // (responsavelUid) pode excluir, pelo Histórico de Avaliações.
+    // Cada avaliação fica 6 meses (180 dias) depois da última alteração e então pode ser
+    // apagada (o sistema apaga sozinho ao entrar). Antes disso, só quem iniciou a avaliação
+    // (responsavelUid) pode excluir, pelas Avaliações Pendentes.
     match /avaliacoes/{id} {
       allow read: if request.auth != null;
       allow create: if request.auth != null
@@ -18,7 +18,7 @@ service cloud.firestore {
         && request.resource.data.responsavelUid == resource.data.responsavelUid;
       allow delete: if request.auth != null && (
         resource.data.responsavelUid == request.auth.uid
-        || resource.data.atualizadoEm < request.time - duration.value(30, 'd'));
+        || resource.data.atualizadoEm < request.time - duration.value(180, 'd'));
     }
 
     // Nome de quem entrou (saudação). Cada uma só grava o próprio.

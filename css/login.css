@@ -23,7 +23,9 @@ body {
   display: grid;
   place-items: center;
   min-height: 100vh;
-  padding: 32px 16px;
+  min-height: 100dvh;
+  /* Margens e espaços verticais acompanham a altura da tela: no notebook o bloco cabe sem rolagem. */
+  padding: clamp(12px, 2.5vh, 32px) 16px;
   overflow-x: hidden;
   background: linear-gradient(160deg, #e4f1f1 0%, #f2f8f8 45%, #d9eeeb 100%);
   color: var(--ink);
@@ -78,7 +80,7 @@ input {
   position: relative;
   width: 100%;
   max-width: 460px;
-  padding: 32px 38px 26px;
+  padding: clamp(18px, 4vh, 32px) 38px clamp(16px, 3.2vh, 26px);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.94);
   box-shadow: 0 20px 60px rgba(15, 60, 80, 0.14), 0 2px 6px rgba(15, 60, 80, 0.05);
@@ -87,9 +89,9 @@ input {
 
 .login-logo {
   display: block;
-  width: 190px;
+  width: clamp(100px, 22vh, 190px);
   height: auto;
-  margin: 0 auto 12px;
+  margin: 0 auto clamp(6px, 1.5vh, 12px);
 }
 
 .login-titulo {
@@ -106,12 +108,12 @@ input {
 }
 
 .login-form {
-  margin-top: 28px;
+  margin-top: clamp(14px, 3.5vh, 28px);
   text-align: left;
 }
 
 .login-chamada {
-  margin: 0 0 16px;
+  margin: 0 0 clamp(10px, 2vh, 16px);
   font-size: 19px;
   font-weight: 700;
 }
@@ -137,12 +139,12 @@ input {
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: clamp(10px, 1.8vh, 14px);
 }
 
 .campo input {
   width: 100%;
-  height: 48px;
+  height: clamp(42px, 6.5vh, 48px);
   padding: 0 46px 0 46px;
   border: 1.5px solid var(--line);
   border-radius: 10px;
@@ -222,7 +224,7 @@ input {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px 12px;
-  margin: 2px 0 20px;
+  margin: 2px 0 clamp(12px, 2.5vh, 20px);
 }
 
 .lembrar {
@@ -264,7 +266,7 @@ input {
   justify-content: center;
   gap: 10px;
   width: 100%;
-  height: 50px;
+  height: clamp(44px, 6.8vh, 50px);
   border: 0;
   border-radius: 10px;
   background: var(--brand);
@@ -328,8 +330,8 @@ input {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin: 24px 0 0;
-  padding-top: 18px;
+  margin: clamp(14px, 3vh, 24px) 0 0;
+  padding-top: clamp(10px, 2.2vh, 18px);
   border-top: 1px solid #e3eeef;
   color: var(--ink-soft);
   font-size: 13.5px;
@@ -363,7 +365,7 @@ input {
   }
 
   .login-logo {
-    width: 140px;
+    width: clamp(100px, 18vh, 140px);
   }
 
   .login-titulo {

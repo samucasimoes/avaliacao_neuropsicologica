@@ -35,10 +35,16 @@
     document.body.classList.remove("aguardando-login");
     Banco.perfil()
       .then(function (dados) {
+        /* Ainda não trocou a senha provisória do primeiro acesso: volta para o login criar a senha. */
+        if (dados.senhaDefinida !== true) {
+          window.location.replace("login.html");
+          throw { redirecionando: true };
+        }
         perfil = dados;
         mostrarNome(dados.nome);
       })
       .catch(function (erro) {
+        if (erro && erro.redirecionando) throw erro;
         console.error(erro);
         aviso(Banco.mensagemErro(erro));
       })
@@ -47,7 +53,8 @@
         irPara(viewDoEndereco());
         /* Apaga de vez as que passaram de 6 meses sem alteração. */
         Banco.apagarExpiradas().catch(function (erro) { console.warn("Limpeza das avaliações:", erro); });
-      });
+      })
+      .catch(function () { /* indo para o login */ });
   });
 
   function mostrarNome(nome) {
@@ -630,6 +637,82 @@
       fecharMenuUsuario();
       botaoUsuario.focus();
     }
+  });
+
+  /* ---------- Redefinir senha (menu do usuário) ---------- */
+
+  const modalSenha = document.getElementById("modal-senha");
+  const formSenha = document.getElementById("form-trocar-senha");
+  const senhaAtual = document.getElementById("senha-atual");
+  const senhaNova = document.getElementById("senha-nova");
+  const senhaConfirmar = document.getElementById("senha-confirmar");
+  const senhaMostrar = document.getElementById("senha-mostrar");
+  const senhaErro = document.getElementById("senha-erro");
+  const senhaSalvar = document.getElementById("senha-salvar");
+  const camposSenha = [senhaAtual, senhaNova, senhaConfirmar];
+
+  function erroSenha(mensagem, campo) {
+    senhaErro.textContent = mensagem || "";
+    senhaErro.hidden = !mensagem;
+    camposSenha.forEach(function (c) { c.classList.toggle("invalido", c === campo); });
+    if (campo) campo.focus();
+  }
+
+  document.getElementById("btn-redefinir-senha").addEventListener("click", function () {
+    fecharMenuUsuario();
+    formSenha.reset();
+    camposSenha.forEach(function (c) { c.type = "password"; });
+    document.getElementById("senha-usuario-email").value = (Banco.usuario() || {}).email || "";
+    erroSenha("");
+    senhaSalvar.disabled = false;
+    senhaSalvar.textContent = "Salvar nova senha";
+    modalSenha.showModal();
+    senhaAtual.focus();
+  });
+
+  senhaMostrar.addEventListener("change", function () {
+    camposSenha.forEach(function (c) { c.type = senhaMostrar.checked ? "text" : "password"; });
+  });
+
+  camposSenha.forEach(function (c) {
+    c.addEventListener("input", function () { c.classList.remove("invalido"); });
+  });
+
+  document.getElementById("senha-cancelar").addEventListener("click", function () {
+    modalSenha.close();
+  });
+
+  modalSenha.addEventListener("close", function () {
+    formSenha.reset();
+    botaoUsuario.focus();
+  });
+
+  formSenha.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    if (!senhaAtual.value) { erroSenha("Digite a senha atual.", senhaAtual); return; }
+    const problema = Banco.validarNovaSenha(senhaNova.value, senhaConfirmar.value);
+    if (problema) {
+      erroSenha(problema, /Confirme|iguais/.test(problema) ? senhaConfirmar : senhaNova);
+      return;
+    }
+    if (senhaNova.value === senhaAtual.value) {
+      erroSenha("A nova senha precisa ser diferente da senha atual.", senhaNova);
+      return;
+    }
+    erroSenha("");
+    senhaSalvar.disabled = true;
+    senhaSalvar.textContent = "Salvando…";
+    Banco.trocarSenha(senhaAtual.value, senhaNova.value)
+      .then(function () {
+        modalSenha.close();
+        aviso("Senha alterada com sucesso.");
+      })
+      .catch(function (erro) {
+        senhaSalvar.disabled = false;
+        senhaSalvar.textContent = "Salvar nova senha";
+        if (erro && erro.code === "senha-atual") erroSenha(erro.message, senhaAtual);
+        else erroSenha(Banco.mensagemErro(erro));
+      });
   });
 
   document.getElementById("btn-sair").addEventListener("click", function () {

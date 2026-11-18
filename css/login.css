@@ -301,6 +301,26 @@ input {
   outline-offset: 2px;
 }
 
+/* ---------- Primeiro acesso: criar senha ---------- */
+
+.login-explica {
+  margin: -8px 0 16px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.login-regra {
+  margin: -4px 0 18px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.login-voltar {
+  display: block;
+  margin: 14px auto 0;
+}
+
 /* ---------- Rodapé ---------- */
 
 .login-rodape {

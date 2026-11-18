@@ -2166,6 +2166,37 @@ td.estreita .input-tabela {
   gap: 12px;
 }
 
+.senha-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.senha-campos .input {
+  height: 40px;
+}
+
+.senha-mostrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.senha-mostrar input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--brand);
+}
+
+.senha-erro {
+  margin: -4px 0 14px;
+}
+
 /* ---------- Aviso ---------- */
 
 .toast {

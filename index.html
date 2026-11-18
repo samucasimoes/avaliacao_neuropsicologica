@@ -116,6 +116,7 @@
           </button>
           <div class="usuario-menu" id="usuario-menu" role="menu" hidden>
             <p class="usuario-email" id="usuario-email"></p>
+            <button class="usuario-opcao" id="btn-redefinir-senha" type="button" role="menuitem">Redefinir senha</button>
             <button class="usuario-opcao" id="btn-sair" type="button" role="menuitem">Sair</button>
           </div>
         </div>
@@ -509,6 +510,34 @@
       <div class="modal-actions">
         <button class="btn btn-light" value="cancelar">Cancelar</button>
         <button class="btn btn-primary" value="confirmar" id="imprimir-confirmar">Imprimir</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="modal-senha" aria-labelledby="senha-titulo">
+    <form class="modal-body" id="form-trocar-senha" novalidate>
+      <h3 class="modal-title" id="senha-titulo">Redefinir senha</h3>
+      <p class="modal-text">A nova senha precisa ter no mínimo 8 caracteres, com letras e números.</p>
+      <input type="email" id="senha-usuario-email" autocomplete="username" hidden>
+      <div class="senha-campos">
+        <label class="field">
+          <span class="label">Senha atual</span>
+          <input class="input" type="password" id="senha-atual" autocomplete="current-password" required>
+        </label>
+        <label class="field">
+          <span class="label">Nova senha</span>
+          <input class="input" type="password" id="senha-nova" autocomplete="new-password" minlength="8" required>
+        </label>
+        <label class="field">
+          <span class="label">Confirmar nova senha</span>
+          <input class="input" type="password" id="senha-confirmar" autocomplete="new-password" minlength="8" required>
+        </label>
+        <label class="senha-mostrar"><input type="checkbox" id="senha-mostrar"> Mostrar senhas</label>
+      </div>
+      <p class="campo-erro senha-erro" id="senha-erro" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-light" type="button" id="senha-cancelar">Cancelar</button>
+        <button class="btn btn-primary" type="submit" id="senha-salvar">Salvar nova senha</button>
       </div>
     </form>
   </dialog>

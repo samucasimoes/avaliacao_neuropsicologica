@@ -39,7 +39,7 @@
         <span class="sr-only">Senha</span>
         <svg class="campo-icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
         <input type="password" id="senha" name="senha" placeholder="Senha" autocomplete="current-password" required>
-        <button class="campo-olho" id="btn-olho" type="button" aria-label="Mostrar senha" title="Mostrar senha" aria-pressed="false">
+        <button class="campo-olho" type="button" data-olho="senha" aria-label="Mostrar senha" title="Mostrar senha" aria-pressed="false">
           <svg class="olho-fechado" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3.1"/><path d="M6.6 6.6A16.6 16.6 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg>
           <svg class="olho-aberto" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -57,6 +57,44 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5"/><path d="M15 12H3"/></svg>
         <span>Entrar</span>
       </button>
+    </form>
+
+    <!-- Primeiro acesso: troca a senha provisória criada no Firebase. -->
+    <form class="login-form" id="form-senha" novalidate hidden>
+      <h2 class="login-chamada">Crie sua senha</h2>
+      <p class="login-explica">Este é o seu primeiro acesso. Crie uma senha pessoal para continuar.</p>
+
+      <div class="aviso" id="aviso-senha" role="alert" hidden></div>
+
+      <input type="email" id="senha-usuario" autocomplete="username" hidden>
+
+      <label class="campo">
+        <span class="sr-only">Nova senha</span>
+        <svg class="campo-icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
+        <input type="password" id="nova-senha" placeholder="Nova senha" autocomplete="new-password" minlength="8" required aria-describedby="regra-senha">
+        <button class="campo-olho" type="button" data-olho="nova-senha" aria-label="Mostrar senha" title="Mostrar senha" aria-pressed="false">
+          <svg class="olho-fechado" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3.1"/><path d="M6.6 6.6A16.6 16.6 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg>
+          <svg class="olho-aberto" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </label>
+
+      <label class="campo">
+        <span class="sr-only">Confirmar nova senha</span>
+        <svg class="campo-icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/></svg>
+        <input type="password" id="confirmar-senha" placeholder="Confirmar nova senha" autocomplete="new-password" minlength="8" required>
+        <button class="campo-olho" type="button" data-olho="confirmar-senha" aria-label="Mostrar senha" title="Mostrar senha" aria-pressed="false">
+          <svg class="olho-fechado" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3.1"/><path d="M6.6 6.6A16.6 16.6 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/></svg>
+          <svg class="olho-aberto" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </label>
+
+      <p class="login-regra" id="regra-senha">Mínimo de 8 caracteres, com letras e números.</p>
+
+      <button class="btn-entrar" id="btn-salvar-senha" type="submit">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+        <span>Salvar senha e entrar</span>
+      </button>
+      <button class="link login-voltar" id="btn-voltar" type="button">Voltar ao login</button>
     </form>
 
     <p class="login-rodape">

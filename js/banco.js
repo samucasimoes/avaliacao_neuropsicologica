@@ -3,7 +3,8 @@
    - avaliacoes/{id}: paciente, campos (os mesmos nomes do formulário e do .json), secao,
      status ("em_andamento" ou "concluida"), responsavelNome/Uid, criadoEm, atualizadoEm
      e expiraEm (6 meses, 180 dias, depois da última alteração; depois disso é apagada de vez).
-   - profissionais/{uid}: nome e e-mail de quem já entrou (usado na saudação).
+   - profissionais/{uid}: nome e e-mail de quem já entrou (usado na saudação) e senhaDefinida
+     (true depois que a pessoa troca a senha provisória do primeiro acesso).
    Os acessos são criados no console do Firebase (Authentication > Usuários). */
 
 const Banco = (function () {
@@ -47,6 +48,8 @@ const Banco = (function () {
     "auth/wrong-password": "E-mail ou senha incorretos.",
     "auth/invalid-credential": "E-mail ou senha incorretos.",
     "auth/invalid-login-credentials": "E-mail ou senha incorretos.",
+    "auth/weak-password": "Senha fraca. Use no mínimo 8 caracteres, com letras e números.",
+    "auth/requires-recent-login": "Por segurança, saia e entre de novo antes de trocar a senha.",
     "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
     "auth/network-request-failed": "Sem conexão com a internet.",
     "auth/unauthorized-domain": "Este endereço não está autorizado no Firebase (Authentication > Configurações > Domínios autorizados).",
@@ -88,6 +91,51 @@ const Banco = (function () {
 
   function recuperarSenha(email) {
     return auth.sendPasswordResetEmail(email);
+  }
+
+  /* Regra da senha: no mínimo 8 caracteres, com pelo menos uma letra e um número.
+     Devolve a mensagem do problema, ou "" se estiver tudo certo. */
+  function validarNovaSenha(nova, confirmar) {
+    if (!nova) return "Digite a nova senha.";
+    if (nova.length < 8) return "A nova senha precisa ter no mínimo 8 caracteres.";
+    if (!/[A-Za-zÀ-ÿ]/.test(nova) || !/[0-9]/.test(nova)) return "A nova senha precisa ter letras e números.";
+    if (!confirmar) return "Confirme a nova senha.";
+    if (nova !== confirmar) return "As senhas não são iguais.";
+    return "";
+  }
+
+  /* Primeiro acesso: a senha ainda é a provisória criada no console do Firebase. */
+  function precisaDefinirSenha() {
+    const u = usuario();
+    return colecao("profissionais").doc(u.uid).get().then(function (doc) {
+      return !(doc.exists && doc.data().senhaDefinida === true);
+    });
+  }
+
+  function marcarSenhaDefinida() {
+    const u = usuario();
+    return colecao("profissionais").doc(u.uid).set(
+      { senhaDefinida: true, email: u.email, atualizadoEm: agora() }, { merge: true });
+  }
+
+  /* Troca a senha de quem acabou de entrar (primeiro acesso). */
+  function definirSenha(nova) {
+    return usuario().updatePassword(nova).then(marcarSenhaDefinida);
+  }
+
+  /* Troca a senha pelo menu do usuário: confere a senha atual antes. */
+  function trocarSenha(atual, nova) {
+    const u = usuario();
+    const credencial = firebase.auth.EmailAuthProvider.credential(u.email, atual);
+    return u.reauthenticateWithCredential(credencial)
+      .catch(function (erro) {
+        if (erro && /wrong-password|invalid-credential|invalid-login-credentials/.test(erro.code)) {
+          throw { code: "senha-atual", message: "A senha atual está incorreta." };
+        }
+        throw erro;
+      })
+      .then(function () { return u.updatePassword(nova); })
+      .then(marcarSenhaDefinida);
   }
 
   function aoMudarUsuario(retorno) {
@@ -194,6 +242,10 @@ const Banco = (function () {
     entrar: entrar,
     sair: sair,
     recuperarSenha: recuperarSenha,
+    validarNovaSenha: validarNovaSenha,
+    precisaDefinirSenha: precisaDefinirSenha,
+    definirSenha: definirSenha,
+    trocarSenha: trocarSenha,
     aoMudarUsuario: aoMudarUsuario,
     usuario: usuario,
     perfil: perfil,

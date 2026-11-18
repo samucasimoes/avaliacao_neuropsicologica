@@ -7,28 +7,37 @@ avaliações salvas no banco de dados (Firebase).
 
 - **Login** (`login.html`) – e-mail e senha, "Lembrar meu acesso" e "Esqueci minha senha"
   (envia um link por e-mail). Sem login, o sistema volta para esta tela.
-- **Início** – saudação, atalhos *Iniciar nova avaliação* e *Ver avaliações em andamento*, e a
-  lista das avaliações em andamento (clique numa linha para abrir). *Ver todas* leva ao Histórico.
-- **Nova Avaliação** – o formulário. Ao entrar nesta aba, o menu lateral troca (com animação) para
-  as etapas da avaliação, com **Início** no topo para voltar, e a barra do topo mostra o título e a
-  explicação da etapa aberta (o `card-head` da etapa é levado para lá). As etapas podem ser
-  abertas em qualquer ordem.
-- **Histórico de Avaliações** – as avaliações dos últimos 30 dias, cada uma com o aviso de quanto
-  tempo falta para ser apagada, **Abrir** e **Salvar PDF e arquivo** (baixa o PDF e o .json).
-  **Excluir** (com confirmação) aparece só para quem iniciou a avaliação; as regras do
-  Firestore também barram a exclusão por outra pessoa e a troca do dono da avaliação. Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título).
-  *+ Carregar arquivo* traz uma avaliação de um backup (.json). *Limpar campos* começa uma
-  nova avaliação (a anterior continua salva).
+- **Início** – saudação, atalhos *Iniciar nova avaliação* e *Carregar arquivo de avaliação*
+  (abre um .json salvo antes), e a lista das avaliações em andamento (clique numa linha para
+  abrir). *Ver todas* leva às Avaliações Pendentes.
+- **Nova Avaliação** – o formulário, sempre vazio ao entrar pelo menu (a avaliação anterior
+  continua salva). Ao entrar nesta aba, o menu lateral troca (com animação) para as etapas da
+  avaliação, com **Início** no topo para voltar e **Imprimir Avaliação** no pé, e a barra do topo
+  mostra o título e a explicação da etapa aberta. As etapas podem ser abertas em qualquer ordem.
+  Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título). *+ Carregar arquivo* traz uma
+  avaliação de um backup (.json). *Limpar campos* começa uma nova avaliação.
+- **Avaliações Pendentes** – as avaliações em andamento, com pesquisa pelo nome do paciente,
+  o aviso de quanto tempo falta para serem apagadas, **Editar avaliação** e **Excluir avaliação**
+  (com confirmação, só para quem iniciou; as regras do Firestore também barram a exclusão por
+  outra pessoa e a troca do dono da avaliação).
+- **Avaliações Concluídas** – as avaliações com todas as etapas 100% preenchidas, com pesquisa
+  pelo nome, **Visualizar** (abre o formulário só para leitura; *Editar avaliação* destrava),
+  **Imprimir** (todas as páginas ou só as escolhidas) e **Salvar PDF e arquivo** (PDF e .json).
 - **Ajuda** – resumo de como usar.
 
-### 30 dias no banco
+### Status: pendente ou concluída
 
-Para gastar pouco do banco, cada avaliação fica guardada por **30 dias depois da última
-alteração** e depois é **apagada de vez**. A limpeza é feita pelo próprio sistema sempre que
-alguém entra, e as regras do Firestore (`firestore.rules`) só deixam apagar as que já passaram
-do prazo — publique as regras de novo depois desta mudança. As listas só leem as avaliações
-dos últimos 30 dias. Cada avaliação também tem o campo `expiraEm`: se quiser, dá para criar
-uma política de TTL no Firestore com esse campo (opcional).
+Uma avaliação fica **Concluída** sozinha quando todas as etapas estão 100% preenchidas (o check
+verde no menu de etapas), a mesma regra do "Concluído" no nome do PDF. O status é gravado a cada
+salvamento, e as listas conferem e corrigem no banco as avaliações antigas.
+
+### 6 meses no banco
+
+Cada avaliação fica guardada por **6 meses (180 dias) depois da última alteração** e depois é
+**apagada de vez**. A limpeza é feita pelo próprio sistema sempre que alguém entra, e as regras
+do Firestore (`firestore.rules`) só deixam apagar as que já passaram do prazo — publique as regras
+de novo depois desta mudança. Cada avaliação também tem o campo `expiraEm`: se quiser, dá para
+criar uma política de TTL no Firestore com esse campo (opcional).
 
 ## Firebase
 

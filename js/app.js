@@ -167,6 +167,11 @@
     return ordem.every(etapaCompleta) ? "Concluído" : "Pendente";
   }
 
+  /* Status no banco pela mesma regra: Concluída com todas as etapas 100% preenchidas. */
+  function statusCalculado() {
+    return situacaoArquivo() === "Concluído" ? "concluida" : "em_andamento";
+  }
+
   function atualizarNavegacao() {
     const posicao = ordem.indexOf(secaoAtual);
     const anterior = ordem[posicao - 1];
@@ -610,6 +615,7 @@
     Secoes.atualizar();
     atualizarEtapas();
     definirAvaliacao(null, "em_andamento");
+    definirSomenteLeitura(false);
     alterado = false;
     marcarStatusSalvo("");
     mostrarSecao("dados");
@@ -649,8 +655,11 @@
         trocas++;
         preencherCampos(campos);
         definirAvaliacao(null, "em_andamento");
+        definirSomenteLeitura(false);
         mostrarSecao("dados");
         marcarAlterado();
+        /* O painel abre o formulário (o arquivo também pode vir do atalho do Início). */
+        document.dispatchEvent(new CustomEvent("avaliacao-carregada"));
         mostrarAviso("Arquivo carregado. Você já pode editar os campos.");
         campoNome.focus();
       }).catch(function () { /* cancelado */ });
@@ -688,6 +697,26 @@
     statusAvaliacao = status || "em_andamento";
   }
 
+  /* ---------- Somente leitura (Avaliações Concluídas > Visualizar) ----------
+     As etapas ficam travadas (inert) e nada é gravado até clicar em Editar avaliação. */
+  let somenteLeitura = false;
+  const avisoLeitura = document.getElementById("aviso-leitura");
+
+  function definirSomenteLeitura(ligar) {
+    somenteLeitura = !!ligar;
+    document.body.classList.toggle("somente-leitura", somenteLeitura);
+    secoes.forEach(function (secao) { secao.inert = somenteLeitura; });
+    avisoLeitura.hidden = !somenteLeitura;
+    document.getElementById("btn-backup").hidden = somenteLeitura;
+    document.getElementById("btn-limpar").hidden = somenteLeitura;
+  }
+
+  document.getElementById("btn-liberar-edicao").addEventListener("click", function () {
+    definirSomenteLeitura(false);
+    gravarRascunho();
+    mostrarAviso("Edição liberada. As alterações são salvas sozinhas.");
+  });
+
   function horaAgora() {
     const d = new Date();
     return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
@@ -701,11 +730,12 @@
     if (!alterado) return Promise.resolve();
     if (!avaliacaoId && !formularioPreenchido()) return Promise.resolve();
     alterado = false;
-    const dados = { paciente: valor("nome"), campos: coletarCampos(), secao: secaoAtual };
+    const status = statusCalculado();
+    const dados = { paciente: valor("nome"), campos: coletarCampos(), secao: secaoAtual, status: status };
     marcarStatusSalvo("Salvando…");
     salvando = Banco.salvarAvaliacao(avaliacaoId, dados, responsavelNome)
       .then(function (id) {
-        if (!avaliacaoId) definirAvaliacao(id, "em_andamento");
+        definirAvaliacao(id, status);
         marcarStatusSalvo("Salvo às " + horaAgora());
       })
       .catch(function (erro) {
@@ -722,6 +752,7 @@
   }
 
   function marcarAlterado() {
+    if (somenteLeitura) return;
     alterado = true;
     if (!bancoAtivo) return;
     clearTimeout(timerBanco);
@@ -764,6 +795,7 @@
         secao: secaoAtual,
         avaliacaoId: avaliacaoId,
         status: statusAvaliacao,
+        somenteLeitura: somenteLeitura,
         alterado: alterado
       }));
     } catch (erro) {
@@ -781,6 +813,7 @@
     if (salvo && salvo.campos) {
       preencherCampos(salvo.campos);
       definirAvaliacao(salvo.avaliacaoId || null, salvo.status);
+      definirSomenteLeitura(salvo.somenteLeitura === true && !!salvo.avaliacaoId);
       /* Rascunho antigo (de antes do banco) ou com alterações não enviadas: envia no login. */
       alterado = salvo.alterado === true || (!salvo.avaliacaoId && formularioPreenchido());
       const secaoSalva = salvo.secao === "curva" ? "ravlt" : salvo.secao;
@@ -812,6 +845,39 @@
       evento.returnValue = "";
     }
   });
+
+  /* Coloca outros campos no formulário só para calcular algo (relatório, status) e depois
+     volta o formulário como estava. */
+  function comVariosCampos(itens, fazer) {
+    const anterior = {
+      campos: coletarCampos(), id: avaliacaoId, status: statusAvaliacao,
+      secao: secaoAtual, alterado: alterado
+    };
+    try {
+      return itens.map(function (item) {
+        preencherCampos(item.campos || {});
+        return fazer(item);
+      });
+    } finally {
+      preencherCampos(anterior.campos);
+      definirAvaliacao(anterior.id, anterior.status);
+      alterado = anterior.alterado;
+      mostrarSecao(anterior.secao, true);
+    }
+  }
+
+  function comCampos(campos, fazer) {
+    return comVariosCampos([{ campos: campos }], function () { return fazer(); })[0];
+  }
+
+  /* Avaliações já conferidas nesta sessão (id + data da última alteração). */
+  const statusConferido = {};
+
+  function corrigirStatus(id, atual, certo) {
+    if (!id || certo === (atual || "em_andamento")) return;
+    if (id === avaliacaoId) statusAvaliacao = certo;
+    Banco.marcarStatus(id, certo).catch(function (erro) { console.warn("Status da avaliação:", erro); });
+  }
 
   /* ---------- Ligação com o painel (painel.js) ---------- */
 
@@ -860,8 +926,14 @@
         gravarRascunho();
       });
     },
-    abrir: function (id) {
-      if (id === avaliacaoId) return Promise.resolve();
+    /* opcoes.somenteLeitura: abre travada (Avaliações Concluídas > Visualizar). */
+    abrir: function (id, opcoes) {
+      const leitura = !!(opcoes && opcoes.somenteLeitura);
+      if (id === avaliacaoId) {
+        definirSomenteLeitura(leitura);
+        gravarRascunho();
+        return Promise.resolve();
+      }
       let troca;
       return terminarGravacao()
         .then(function () {
@@ -873,9 +945,11 @@
           if (troca !== trocas) throw new Error("cancelado");
           preencherCampos(dados.campos || {});
           definirAvaliacao(dados.id, dados.status);
+          definirSomenteLeitura(leitura);
           alterado = false;
           marcarStatusSalvo("");
-          mostrarSecao(ordem.indexOf(dados.secao) !== -1 ? dados.secao : "dados");
+          mostrarSecao(leitura ? "dados" : ordem.indexOf(dados.secao) !== -1 ? dados.secao : "dados");
+          corrigirStatus(dados.id, dados.status, statusCalculado());
           gravarRascunho();
         });
     },
@@ -892,29 +966,62 @@
       cabecalhoVisivel = !!visivel;
       levarCabecalho();
     },
-    /* Histórico: baixa o PDF e o .json de uma avaliação salva sem trocar a que está aberta.
-       Coloca a avaliação no formulário só para gerar os arquivos e depois volta a anterior. */
+    /* Avaliações Concluídas: baixa o PDF e o .json de uma avaliação salva sem trocar a que
+       está aberta. */
     baixarArquivos: function (id) {
       return gravarNoBanco()
         .then(function () { return Banco.abrirAvaliacao(id); })
         .then(function (dados) {
-          const anterior = {
-            campos: coletarCampos(), id: avaliacaoId, status: statusAvaliacao,
-            secao: secaoAtual, alterado: alterado
-          };
-          try {
-            preencherCampos(dados.campos || {});
+          comCampos(dados.campos || {}, function () {
             const situacao = situacaoArquivo();
             const nome = valor("nome");
             Relatorio.gerarPdf(coletarDados(), nome, secoesDoRelatorio(), { situacao: situacao });
             Relatorio.gerarBackup(coletarCampos(), nome, situacao);
-          } finally {
-            preencherCampos(anterior.campos);
-            definirAvaliacao(anterior.id, anterior.status);
-            alterado = anterior.alterado;
-            mostrarSecao(anterior.secao, true);
+          });
+        });
+    },
+    /* Páginas que saem no relatório desta avaliação (para escolher o que imprimir). */
+    paginas: function (campos) {
+      return comCampos(campos || {}, function () {
+        return [{ id: "dados", titulo: "Dados do paciente" }].concat(secoesDoRelatorio().map(function (secao) {
+          return { id: secao.id, titulo: nomeEtapa(secao.id) };
+        }));
+      });
+    },
+    /* Abre o PDF numa nova aba, já com a janela de impressão. ids: as páginas escolhidas
+       (sem ids, todas). Roda dentro do clique, senão o navegador bloqueia a nova aba. */
+    imprimir: function (campos, ids) {
+      const endereco = comCampos(campos || {}, function () {
+        let lista = secoesDoRelatorio();
+        let semDados = false;
+        if (ids) {
+          semDados = ids.indexOf("dados") === -1;
+          lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
+        }
+        return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { imprimir: true, semDados: semDados });
+      });
+      return !!window.open(endereco, "_blank");
+    },
+    /* Confere o status das avaliações da lista pelos campos salvos (todas as etapas 100% =
+       Concluída) e corrige no banco as que estiverem erradas. Devolve a lista corrigida. */
+    conferirStatus: function (lista) {
+      const conferir = lista.filter(function (av) {
+        const quando = av.atualizadoEm && av.atualizadoEm.toMillis ? av.atualizadoEm.toMillis() : "";
+        const chave = av.id + "@" + quando;
+        if (statusConferido[chave]) return false;
+        statusConferido[chave] = true;
+        return !!av.campos;
+      });
+      if (conferir.length) {
+        comVariosCampos(conferir, function (av) {
+          const certo = statusCalculado();
+          if (certo !== (av.status || "em_andamento")) {
+            corrigirStatus(av.id, av.status, certo);
+            av.status = certo;
           }
         });
+      }
+      return lista;
     },
     /* Ao sair do sistema: grava o que falta e apaga o rascunho deste navegador. */
     encerrar: function () {

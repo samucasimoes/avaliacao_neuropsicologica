@@ -90,6 +90,11 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
             <span class="btn-imprimir-rotulo">Imprimir Avaliação</span>
           </button>
+          <button class="btn btn-carregar-lateral" id="btn-backup" type="button" title="Carregar o arquivo (.json) de uma avaliação, baixado em Gerar Arquivo ou Salvar PDF e arquivo, para continuar ou corrigir">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            <span class="btn-imprimir-rotulo">Carregar arquivo</span>
+          </button>
+          <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
         </div>
       </div>
 
@@ -194,17 +199,6 @@
           </button>
           <h1 class="page-title" id="titulo-pagina">Nova avaliação</h1>
           <span class="status-salvo" id="status-salvo" aria-live="polite"></span>
-        </div>
-        <div class="topbar-acoes">
-          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Adicionar um backup: carregar o arquivo (.json) baixado em Salvar PDF e arquivo (Avaliações Concluídas) para continuar ou corrigir a avaliação">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-            Carregar arquivo
-          </button>
-          <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
-          <button class="btn btn-light btn-pequeno" id="btn-limpar" type="button" title="Esvaziar os campos e começar uma nova avaliação (a atual continua salva)">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-            Limpar campos
-          </button>
         </div>
       </header>
 
@@ -392,13 +386,17 @@
               </button>
             </div>
             <div class="actions-group">
+              <button class="btn btn-light" id="btn-gerar-pdf" type="submit" title="Baixar a avaliação em PDF">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
+                Gerar PDF
+              </button>
+              <button class="btn btn-light" id="btn-gerar-arquivo" type="button" title="Baixar o arquivo da avaliação (.json), que pode ser aberto depois em Carregar arquivo">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+                Gerar Arquivo
+              </button>
               <button title="Próxima" class="btn btn-primary" id="btn-proxima" type="button">
                 <span class="btn-rotulo"></span>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-              </button>
-              <button class="btn btn-primary" id="btn-gerar" type="submit" hidden title="Imprimir a avaliação em PDF">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-                Imprimir Avaliação
               </button>
             </div>
           </div>
@@ -469,7 +467,7 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Continuar uma avaliação</h2>
-            <p>Clique na avaliação na lista do Início ou use <strong>Editar</strong> em <strong>Avaliações Pendentes</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>Carregar arquivo de avaliação</strong> no Início ou <strong>+ Carregar arquivo</strong> no topo do formulário.</p>
+            <p>Clique na avaliação na lista do Início ou use <strong>Editar</strong> em <strong>Avaliações Pendentes</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>Carregar arquivo de avaliação</strong> no Início ou <strong>+ Carregar arquivo</strong> no menu lateral do formulário.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Por quanto tempo fica guardada</h2>
@@ -477,23 +475,12 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p><strong>Imprimir Avaliação</strong>, no menu lateral, baixa o PDF (ou use Ctrl+P). Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> deixa escolher todas as páginas ou só algumas, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p>No rodapé do formulário, <strong>Gerar PDF</strong> baixa o relatório e <strong>Gerar Arquivo</strong> baixa o .json da avaliação. <strong>Imprimir Avaliação</strong>, no menu lateral, também baixa o PDF (ou use Ctrl+P). Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> deixa escolher todas as páginas ou só algumas, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>
     </div>
   </div>
-
-  <dialog class="modal" id="modal-limpar">
-    <form class="modal-body" method="dialog">
-      <h3 class="modal-title">Limpar campos?</h3>
-      <p class="modal-text">Os campos serão esvaziados para começar uma nova avaliação. A avaliação atual continua salva na lista do Início.</p>
-      <div class="modal-actions">
-        <button class="btn btn-light" value="cancelar">Cancelar</button>
-        <button class="btn btn-danger" value="confirmar">Limpar</button>
-      </div>
-    </form>
-  </dialog>
 
   <dialog class="modal" id="modal-excluir">
     <form class="modal-body" method="dialog">

@@ -8,7 +8,6 @@
   const campoTelefone = document.getElementById("telefone");
   const campoDataAvaliacao = document.getElementById("data-avaliacao");
   const selects = form.querySelectorAll("select");
-  const modalLimpar = document.getElementById("modal-limpar");
   const toast = document.getElementById("toast");
   let timerToast = null;
 
@@ -131,7 +130,7 @@
   const ordem = linksSecao.map(function (link) { return link.dataset.secao; });
   const botaoAnterior = document.getElementById("btn-anterior");
   const botaoProxima = document.getElementById("btn-proxima");
-  const botaoGerar = document.getElementById("btn-gerar");
+  const botaoGerarPdf = document.getElementById("btn-gerar-pdf");
   const botaoGerarSecundario = document.getElementById("btn-gerar-secundario");
   const ICONE_COMPLETA = '<svg class="step-ok" viewBox="0 0 24 24" aria-hidden="true">' +
     '<circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>';
@@ -182,8 +181,6 @@
       botaoAnterior.title = "Voltar para " + nomeEtapa(anterior);
     }
     botaoProxima.hidden = !proxima;
-    botaoGerarSecundario.hidden = !proxima;
-    botaoGerar.hidden = !!proxima;
     if (proxima) {
       botaoProxima.querySelector(".btn-rotulo").textContent = "Continuar: " + nomeEtapa(proxima);
       botaoProxima.title = "Continuar para " + nomeEtapa(proxima);
@@ -543,9 +540,9 @@
     campoNome.focus({ preventScroll: true });
   });
 
-  const botoesImprimir = [botaoGerar, botaoGerarSecundario];
+  const botoesImprimir = [botaoGerarPdf, botaoGerarSecundario];
 
-  /* Imprimir Avaliação: baixa o PDF completo direto, sem perguntas. */
+  /* Gerar PDF (rodapé) e Imprimir Avaliação (menu lateral): baixam o PDF completo direto. */
   form.addEventListener("submit", function (evento) {
     evento.preventDefault();
     toast.hidden = true;
@@ -570,6 +567,18 @@
     if (alvo.tagName === "TEXTAREA") return;
     if (alvo.tagName === "BUTTON" && alvo.type !== "submit") return;
     evento.preventDefault();
+  });
+
+  /* Gerar Arquivo: baixa só o .json, que depois volta pelo botão Carregar arquivo. */
+  document.getElementById("btn-gerar-arquivo").addEventListener("click", function () {
+    toast.hidden = true;
+    try {
+      Relatorio.gerarBackup(coletarCampos(), valor("nome"), situacaoArquivo());
+      mostrarAviso("Arquivo da avaliação (.json) baixado.");
+    } catch (erro) {
+      console.error(erro);
+      mostrarAviso("Não foi possível gerar o arquivo. Tente novamente.");
+    }
   });
 
   /* Ctrl+P (Cmd+P no Mac) imprime o relatório completo, e não a página do formulário.
@@ -597,11 +606,6 @@
     }
   });
 
-  document.getElementById("btn-limpar").addEventListener("click", function () {
-    modalLimpar.returnValue = "";
-    modalLimpar.showModal();
-  });
-
   /* Esvazia o formulário. A avaliação anterior continua salva no banco. */
   function esvaziarFormulario() {
     trocas++;
@@ -620,16 +624,6 @@
     marcarStatusSalvo("");
     mostrarSecao("dados");
   }
-
-  modalLimpar.addEventListener("close", function () {
-    if (modalLimpar.returnValue !== "confirmar") return;
-    terminarGravacao().then(function () {
-      esvaziarFormulario();
-      gravarRascunho();
-      mostrarAviso("Campos limpos.");
-      campoNome.focus();
-    }).catch(function () { /* cancelado */ });
-  });
 
   const arquivoBackup = document.getElementById("arquivo-backup");
 
@@ -708,7 +702,6 @@
     secoes.forEach(function (secao) { secao.inert = somenteLeitura; });
     avisoLeitura.hidden = !somenteLeitura;
     document.getElementById("btn-backup").hidden = somenteLeitura;
-    document.getElementById("btn-limpar").hidden = somenteLeitura;
   }
 
   document.getElementById("btn-liberar-edicao").addEventListener("click", function () {
@@ -825,7 +818,6 @@
 
   ["input", "change"].forEach(function (tipo) { form.addEventListener(tipo, salvarRascunho); });
   document.addEventListener("click", salvarRascunho);
-  modalLimpar.addEventListener("close", salvarRascunho);
   /* Ao sair ou trocar de aba do navegador, grava na hora. */
   window.addEventListener("pagehide", function () {
     gravarRascunho();

@@ -12,10 +12,11 @@ avaliações salvas no banco de dados (Firebase).
   abrir). *Ver todas* leva às Avaliações Pendentes.
 - **Nova Avaliação** – o formulário, sempre vazio ao entrar pelo menu (a avaliação anterior
   continua salva). Ao entrar nesta aba, o menu lateral troca (com animação) para as etapas da
-  avaliação, com **Início** no topo para voltar e **Imprimir Avaliação** no pé, e a barra do topo
-  mostra o título e a explicação da etapa aberta. As etapas podem ser abertas em qualquer ordem.
-  Tudo é salvo sozinho no banco ("Salvo às …" ao lado do título). *+ Carregar arquivo* traz uma
-  avaliação de um backup (.json). *Limpar campos* começa uma nova avaliação.
+  avaliação, com **Início** no topo para voltar e, no pé, **Imprimir Avaliação** e
+  **+ Carregar arquivo** (traz uma avaliação de um backup .json). A barra do topo mostra o título
+  e a explicação da etapa aberta. As etapas podem ser abertas em qualquer ordem. No rodapé, à
+  esquerda do botão de continuar, ficam **Gerar PDF** e **Gerar Arquivo** (.json). Tudo é salvo
+  sozinho no banco ("Salvo às …" ao lado do título).
 - **Avaliações Pendentes** – as avaliações em andamento, com pesquisa pelo nome do paciente,
   o aviso de quanto tempo falta para serem apagadas, **Editar avaliação** e **Excluir avaliação**
   (com confirmação, só para quem iniciou; as regras do Firestore também barram a exclusão por
@@ -193,7 +194,7 @@ entre com e-mail e senha. É preciso internet para o login e o banco de dados.
 O botão **Imprimir Avaliação** baixa o relatório em PDF e o botão
 **Gerar Arquivo** baixa a avaliação em `.json`. Os arquivos saem com o nome do
 paciente, a data em que foram gerados e a situação: **Concluído** quando todas as etapas estão 100% preenchidas, senão **Pendente** (ex.: `Maria da Silva - 30-10-2026 - Pendente.pdf`). Para continuar ou
-corrigir uma avaliação, clique em **Carregar arquivo** (no topo do formulário),
+corrigir uma avaliação, clique em **Carregar arquivo** (no menu lateral do formulário),
 escolha esse arquivo e os campos serão preenchidos novamente (vira uma avaliação nova no banco). Backups e rascunhos
 antigos são convertidos para os nomes de campos atuais (`migrarCampos` em `js/app.js`).
 

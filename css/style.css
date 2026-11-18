@@ -178,8 +178,8 @@ body.aguardando-login .toast {
   margin: 0 -24px 18px;
   padding: 12px 24px 12px 32px;
   background: rgba(255, 255, 255, 0.96);
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
+  /* border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px; */
   box-shadow: 0 4px 18px rgba(15, 47, 69, 0.05);
 }
 

@@ -166,6 +166,21 @@ const Banco = (function () {
     });
   }
 
+  /* Troca o nome de quem entrou (menu do usuário). Devolve o nome gravado. */
+  function alterarNome(nome) {
+    const u = usuario();
+    const limpo = String(nome || "").trim().replace(/\s+/g, " ");
+    return colecao("profissionais").doc(u.uid)
+      .set({ nome: limpo, email: u.email, atualizadoEm: agora() }, { merge: true })
+      .then(function () {
+        /* Também no Authentication; se falhar, o nome do Firestore já basta. */
+        return u.updateProfile({ displayName: limpo }).catch(function (erro) {
+          console.warn("Nome no Authentication:", erro);
+        });
+      })
+      .then(function () { return limpo; });
+  }
+
   /* ---------- Avaliações ---------- */
 
   /* Cria (sem id) ou atualiza a avaliação. Devolve o id. */
@@ -249,6 +264,7 @@ const Banco = (function () {
     aoMudarUsuario: aoMudarUsuario,
     usuario: usuario,
     perfil: perfil,
+    alterarNome: alterarNome,
     salvarAvaliacao: salvarAvaliacao,
     listarAvaliacoes: listarAvaliacoes,
     apagarExpiradas: apagarExpiradas,

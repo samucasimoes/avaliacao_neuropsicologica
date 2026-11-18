@@ -639,6 +639,66 @@
     }
   });
 
+  /* ---------- Alterar nome (menu do usuário) ---------- */
+
+  const modalNome = document.getElementById("modal-nome");
+  const formNome = document.getElementById("form-alterar-nome");
+  const nomeNovo = document.getElementById("nome-novo");
+  const nomeErro = document.getElementById("nome-erro");
+  const nomeSalvar = document.getElementById("nome-salvar");
+
+  function erroNome(mensagem) {
+    nomeErro.textContent = mensagem || "";
+    nomeErro.hidden = !mensagem;
+    nomeNovo.classList.toggle("invalido", !!mensagem);
+    if (mensagem) nomeNovo.focus();
+  }
+
+  document.getElementById("btn-alterar-nome").addEventListener("click", function () {
+    fecharMenuUsuario();
+    formNome.reset();
+    nomeNovo.value = perfil && perfil.nome ? perfil.nome : "";
+    erroNome("");
+    nomeSalvar.disabled = false;
+    nomeSalvar.textContent = "Salvar nome";
+    modalNome.showModal();
+    nomeNovo.focus();
+    nomeNovo.select();
+  });
+
+  nomeNovo.addEventListener("input", function () { nomeNovo.classList.remove("invalido"); });
+
+  document.getElementById("nome-cancelar").addEventListener("click", function () {
+    modalNome.close();
+  });
+
+  modalNome.addEventListener("close", function () {
+    formNome.reset();
+    botaoUsuario.focus();
+  });
+
+  formNome.addEventListener("submit", function (evento) {
+    evento.preventDefault();
+    const nome = nomeNovo.value.trim().replace(/\s+/g, " ");
+    if (nome.length < 2) { erroNome("Digite o seu nome."); return; }
+    if (perfil && nome === perfil.nome) { modalNome.close(); return; }
+    erroNome("");
+    nomeSalvar.disabled = true;
+    nomeSalvar.textContent = "Salvando…";
+    Banco.alterarNome(nome)
+      .then(function (gravado) {
+        perfil = Object.assign({}, perfil, { nome: gravado });
+        mostrarNome(gravado);
+        modalNome.close();
+        aviso("Nome alterado com sucesso.");
+      })
+      .catch(function (erro) {
+        nomeSalvar.disabled = false;
+        nomeSalvar.textContent = "Salvar nome";
+        erroNome(Banco.mensagemErro(erro));
+      });
+  });
+
   /* ---------- Redefinir senha (menu do usuário) ---------- */
 
   const modalSenha = document.getElementById("modal-senha");

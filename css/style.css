@@ -935,6 +935,29 @@ body.modo-avaliacao .menu-etapas .steps-list li {
   mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent 100%);
 }
 
+/* Imprimir Avaliação: fixo no pé do menu lateral, abaixo das etapas. */
+.btn-imprimir-lateral {
+  flex: none;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 6px 0 16px;
+  border: 0;
+  background: #fff;
+  color: var(--brand-dark);
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.btn-imprimir-lateral:hover {
+  background: var(--brand-soft);
+}
+
+.btn-imprimir-lateral:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
 /* ---------- Etapas ---------- */
 
 .steps-list {
@@ -2097,6 +2120,16 @@ td.estreita .input-tabela {
   .steps-list {
     flex-direction: row;
     width: max-content;
+  }
+
+  .btn-imprimir-lateral {
+    width: auto;
+    margin: 0;
+    padding: 0 10px;
+  }
+
+  .btn-imprimir-rotulo {
+    display: none;
   }
 
   .step {

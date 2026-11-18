@@ -567,18 +567,6 @@
     evento.preventDefault();
   });
 
-  /* Gerar Arquivo: baixa só o .json, que depois volta pelo botão Carregar arquivo. */
-  document.getElementById("btn-gerar-arquivo").addEventListener("click", function () {
-    toast.hidden = true;
-    try {
-      Relatorio.gerarBackup(coletarCampos(), valor("nome"), situacaoArquivo());
-      mostrarAviso("Arquivo da avaliação (.json) baixado.");
-    } catch (erro) {
-      console.error(erro);
-      mostrarAviso("Não foi possível gerar o arquivo. Tente novamente.");
-    }
-  });
-
   /* Ctrl+P (Cmd+P no Mac) imprime o relatório completo, e não a página do formulário.
      O PDF abre numa nova aba já com a janela de impressão. Se a impressão for aberta
      pelo menu do navegador, o CSS (@media print) mostra só um aviso. */

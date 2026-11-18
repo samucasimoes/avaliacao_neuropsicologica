@@ -82,6 +82,10 @@
               <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
             </ol>
           </nav>
+          <button class="btn btn-imprimir-lateral" id="btn-gerar-secundario" type="submit" form="form-avaliacao" title="Imprimir a avaliação em PDF">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+            <span class="btn-imprimir-rotulo">Imprimir Avaliação</span>
+          </button>
         </div>
       </div>
 
@@ -188,7 +192,7 @@
           <span class="status-salvo" id="status-salvo" aria-live="polite"></span>
         </div>
         <div class="topbar-acoes">
-          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Adicionar um backup: carregar o arquivo (.json) baixado em Gerar Arquivo ou Salvar PDF e arquivo para continuar ou corrigir a avaliação">
+          <button class="btn btn-primary btn-documento" id="btn-backup" type="button" title="Adicionar um backup: carregar o arquivo (.json) baixado em Salvar PDF e arquivo (Histórico de Avaliações) para continuar ou corrigir a avaliação">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
             Carregar arquivo
           </button>
@@ -378,14 +382,6 @@
               </button>
             </div>
             <div class="actions-group">
-              <button class="btn btn-light" id="btn-gerar-arquivo" type="button" title="Baixar o arquivo da avaliação (.json) para continuar ou corrigir depois em Carregar arquivo">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-                Gerar Arquivo
-              </button>
-              <button class="btn btn-light" id="btn-gerar-secundario" type="submit" title="Imprimir a avaliação em PDF">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-                Imprimir Avaliação
-              </button>
               <button title="Próxima" class="btn btn-primary" id="btn-proxima" type="button">
                 <span class="btn-rotulo"></span>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
@@ -442,7 +438,7 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p><strong>Imprimir Avaliação</strong> baixa o PDF (ou use Ctrl+P). <strong>Gerar Arquivo</strong> baixa um .json da avaliação, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p><strong>Imprimir Avaliação</strong>, no menu lateral, baixa o PDF (ou use Ctrl+P). Para ter o .json da avaliação, use <strong>Salvar PDF e arquivo</strong> no <strong>Histórico de Avaliações</strong>; ele pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>

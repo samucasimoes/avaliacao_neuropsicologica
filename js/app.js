@@ -255,8 +255,6 @@
   /* Só na tela, fora da impressão: o Relógio de Shulman e Humor e comportamento
      (os resultados de cada escala já saem na folha dela). */
   const FORA_DA_IMPRESSAO = ["dados", "shulman", "humor"];
-  /* Na impressão, uma etapa pode sair antes de outra (a Linguagem antes do CERAD). */
-  const ANTES_NA_IMPRESSAO = { linguagem: "cerad" };
 
   /* Etapas na ordem dos números do menu, para o relatório. */
   function secoesDoRelatorio() {
@@ -266,11 +264,6 @@
       })
       .filter(function (etapa) { return FORA_DA_IMPRESSAO.indexOf(etapa.id) === -1; })
       .sort(function (a, b) { return a.numero - b.numero; });
-    Object.keys(ANTES_NA_IMPRESSAO).forEach(function (id) {
-      const de = etapas.findIndex(function (etapa) { return etapa.id === id; });
-      const para = etapas.findIndex(function (etapa) { return etapa.id === ANTES_NA_IMPRESSAO[id]; });
-      if (de > para && para !== -1) etapas.splice(para, 0, etapas.splice(de, 1)[0]);
-    });
     return etapas
       .map(function (etapa) {
         const conteudo = etapa.id === "cornell" ? Cornell.relatorio()

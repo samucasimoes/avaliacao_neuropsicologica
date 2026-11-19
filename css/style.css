@@ -271,6 +271,14 @@ body.aguardando-login .toast {
   cursor: pointer;
 }
 
+/* Nome completo; se for muito longo, termina em reticências (aparece inteiro no title). */
+.usuario-nome {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .usuario-btn:hover {
   background: var(--gray-soft);
 }
@@ -928,6 +936,52 @@ body.somente-leitura .form .secao {
   background: #fbeceb;
 }
 
+/* Lixeira no canto superior direito do card (Avaliações Concluídas). */
+.historico-item.com-lixeira {
+  position: relative;
+}
+
+.historico-item.com-lixeira .historico-info {
+  padding-right: 40px;
+}
+
+.historico-lixeira {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.historico-lixeira .icon {
+  width: 19px;
+  height: 19px;
+}
+
+.historico-lixeira:hover:not(:disabled) {
+  border-color: #efc9c5;
+  background: #fbeceb;
+}
+
+.historico-lixeira:focus-visible {
+  outline: 3px solid #efc9c5;
+  outline-offset: 1px;
+}
+
+.historico-lixeira:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* Item excluído sai com um leve recolhimento. */
 .historico-item.saindo {
   animation: none;
@@ -1108,6 +1162,17 @@ body.modo-avaliacao .menu-etapas .steps-list li {
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* Imprimir Avaliação: preenchido em branco, para se destacar no pé do menu. */
+.btn.btn-imprimir-lateral {
+  border-color: #fff !important;
+  background: #fff;
+  color: var(--brand-dark);
+}
+
+.btn.btn-imprimir-lateral:hover {
+  background: rgba(255, 255, 255, 0.88);
+}
+
 .btn-carregar-lateral[hidden] {
   display: none;
 }
@@ -1237,12 +1302,6 @@ a.step:not(.active):hover {
 }
 
 /* ---------- Barra superior ---------- */
-
-/* Imprimir Avaliação: no fim da barra do topo do formulário, à direita. */
-.btn-imprimir-topo {
-  flex: none;
-  gap: 8px;
-}
 
 .topbar {
   display: flex;

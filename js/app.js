@@ -130,7 +130,6 @@
   const ordem = linksSecao.map(function (link) { return link.dataset.secao; });
   const botaoAnterior = document.getElementById("btn-anterior");
   const botaoProxima = document.getElementById("btn-proxima");
-  const botaoGerarPdf = document.getElementById("btn-gerar-pdf");
   const ICONE_COMPLETA = '<svg class="step-ok" viewBox="0 0 24 24" aria-hidden="true">' +
     '<circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>';
   let secaoAtual = "dados";
@@ -532,22 +531,9 @@
     campoNome.focus({ preventScroll: true });
   });
 
-  const botoesImprimir = [botaoGerarPdf];
-
-  /* Gerar PDF (rodapé): baixa o PDF completo direto. */
+  /* O formulário não é enviado: o PDF sai pelo botão Imprimir Avaliação. */
   form.addEventListener("submit", function (evento) {
     evento.preventDefault();
-    toast.hidden = true;
-    botoesImprimir.forEach(function (botao) { botao.disabled = true; });
-    try {
-      Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio(), { situacao: situacaoArquivo() });
-      mostrarAviso("Avaliação em PDF baixada.");
-    } catch (erro) {
-      console.error(erro);
-      mostrarAviso("Não foi possível gerar o PDF. Tente novamente.");
-    } finally {
-      botoesImprimir.forEach(function (botao) { botao.disabled = false; });
-    }
   });
 
   /* ENTER não baixa o relatório: só o clique em Imprimir Avaliação gera o PDF.
@@ -607,10 +593,11 @@
 
   const arquivoBackup = document.getElementById("arquivo-backup");
 
-  document.getElementById("btn-backup").addEventListener("click", function () {
+  /* Carregar arquivo: o botão fica só no Início (painel.js chama esta função). */
+  function escolherArquivo() {
     arquivoBackup.value = "";
     arquivoBackup.click();
-  });
+  }
 
   arquivoBackup.addEventListener("change", function () {
     const arquivo = arquivoBackup.files[0];
@@ -681,7 +668,6 @@
     document.body.classList.toggle("somente-leitura", somenteLeitura);
     secoes.forEach(function (secao) { secao.inert = somenteLeitura; });
     avisoLeitura.hidden = !somenteLeitura;
-    document.getElementById("btn-backup").hidden = somenteLeitura;
   }
 
   document.getElementById("btn-liberar-edicao").addEventListener("click", function () {
@@ -854,6 +840,7 @@
   /* ---------- Ligação com o painel (painel.js) ---------- */
 
   window.Formulario = {
+    escolherArquivo: escolherArquivo,
     /* Depois do login: liga o salvamento e atualiza o formulário aberto com o que está no banco. */
     ativarBanco: function (nome) {
       responsavelNome = nome || "";

@@ -86,9 +86,9 @@
               <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
             </ol>
           </nav>
-          <button class="btn btn-carregar-lateral" id="btn-backup" type="button" title="Carregar o arquivo (.json) de uma avaliação, baixado em Salvar PDF e arquivo (Avaliações Concluídas), para continuar ou corrigir">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-            <span class="btn-imprimir-rotulo">Carregar arquivo</span>
+          <button class="btn btn-carregar-lateral btn-imprimir-lateral" id="btn-imprimir-topo" type="button" title="Baixar a avaliação em PDF: todas as páginas ou só as escolhidas">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+            <span class="btn-imprimir-rotulo">Imprimir Avaliação</span>
           </button>
           <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
         </div>
@@ -198,10 +198,6 @@
           <h1 class="page-title" id="titulo-pagina">Nova avaliação</h1>
           <span class="status-salvo" id="status-salvo" aria-live="polite"></span>
         </div>
-        <button class="btn btn-primary btn-documento btn-imprimir-topo" id="btn-imprimir-topo" type="button" title="Baixar a avaliação em PDF: todas as páginas ou só as escolhidas">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
-          Imprimir Avaliação
-        </button>
       </header>
 
       <div class="aviso-leitura" id="aviso-leitura" role="note" hidden>
@@ -388,10 +384,6 @@
               </button>
             </div>
             <div class="actions-group">
-              <button class="btn btn-light" id="btn-gerar-pdf" type="submit" title="Baixar a avaliação em PDF">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
-                Gerar PDF
-              </button>
               <button title="Próxima" class="btn btn-primary" id="btn-proxima" type="button">
                 <span class="btn-rotulo"></span>
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
@@ -465,15 +457,15 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Continuar uma avaliação</h2>
-            <p>Clique na avaliação na lista do Início ou use <strong>Editar</strong> em <strong>Avaliações Pendentes</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>Carregar arquivo de avaliação</strong> no Início ou <strong>+ Carregar arquivo</strong> no menu lateral do formulário.</p>
+            <p>Clique na avaliação na lista do Início ou use <strong>Editar</strong> em <strong>Avaliações Pendentes</strong>. Para trazer uma avaliação de um arquivo (.json) salvo antes, use <strong>Carregar arquivo de avaliação</strong> no Início.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Por quanto tempo fica guardada</h2>
-            <p>Cada avaliação fica no banco por 6 meses depois da última alteração e depois é apagada de vez. Nas abas <strong>Avaliações Pendentes</strong> e <strong>Avaliações Concluídas</strong> aparece quanto tempo falta para cada uma. Nas pendentes, quem iniciou a avaliação também vê o botão <strong>Excluir</strong>, para apagá-la antes do prazo.</p>
+            <p>Cada avaliação fica no banco por 6 meses depois da última alteração e depois é apagada de vez. Nas abas <strong>Avaliações Pendentes</strong> e <strong>Avaliações Concluídas</strong> aparece quanto tempo falta para cada uma. Quem iniciou a avaliação também pode apagá-la antes do prazo: pelo botão <strong>Excluir</strong> nas pendentes ou pela lixeira no canto do card nas concluídas.</p>
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p>No rodapé do formulário, <strong>Gerar PDF</strong> baixa o relatório completo. <strong>Imprimir Avaliação</strong>, no topo do formulário, baixa o PDF com todas as páginas ou só as escolhidas (Ctrl+P abre a impressão com tudo). Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> faz o mesmo, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p><strong>Imprimir Avaliação</strong>, no pé do menu lateral do formulário, baixa o PDF com todas as páginas ou só as escolhidas (Ctrl+P abre a impressão com tudo). Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> faz o mesmo, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>
@@ -484,7 +476,7 @@
     <form class="modal-body" method="dialog">
       <h3 class="modal-title">Excluir avaliação?</h3>
       <p class="modal-text">A avaliação de <strong id="excluir-nome"></strong> será apagada de vez do banco de dados. Essa ação não pode ser desfeita.</p>
-      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e baixe o PDF pelo botão <strong>Gerar PDF</strong> do formulário antes.</p>
+      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e baixe antes pelo botão <strong>Salvar PDF e arquivo</strong> (Avaliações Concluídas) ou <strong>Imprimir Avaliação</strong> (formulário).</p>
       <div class="modal-actions">
         <button class="btn btn-light" value="cancelar" autofocus>Cancelar</button>
         <button class="btn btn-danger" value="confirmar">Excluir</button>

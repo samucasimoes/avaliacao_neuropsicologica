@@ -58,9 +58,10 @@
   });
 
   function mostrarNome(nome) {
-    const primeiro = String(nome || "").trim().split(/\s+/)[0] || "";
-    document.getElementById("usuario-nome").textContent = primeiro;
-    document.getElementById("saudacao-nome").textContent = primeiro;
+    const completo = String(nome || "").trim().replace(/\s+/g, " ");
+    document.getElementById("usuario-nome").textContent = completo;
+    document.getElementById("btn-usuario").title = completo ? completo + " · Sua conta" : "Sua conta";
+    document.getElementById("saudacao-nome").textContent = completo;
     window.Formulario.definirResponsavel(nome);
   }
 
@@ -164,7 +165,7 @@
   /* Carregar arquivo de avaliação: usa o mesmo seletor do botão do formulário. Quando o
      arquivo é lido, o formulário avisa (avaliacao-carregada) e a tela troca. */
   document.getElementById("btn-carregar-arquivo").addEventListener("click", function () {
-    document.getElementById("btn-backup").click();
+    window.Formulario.escolherArquivo();
   });
 
   document.addEventListener("avaliacao-carregada", function () {
@@ -413,6 +414,19 @@
           function (b) { confirmarExclusao(av, li, b, lista); }));
       }
     } else {
+      /* Lixeira no canto superior direito do card; só para quem iniciou (as regras do Firestore também conferem). */
+      const dono = Banco.usuario();
+      if (dono && av.responsavelUid === dono.uid) {
+        const lixeira = document.createElement("button");
+        lixeira.className = "historico-lixeira";
+        lixeira.type = "button";
+        lixeira.innerHTML = ICONE_LIXEIRA;
+        lixeira.title = "Excluir de vez a avaliação de " + nome;
+        lixeira.setAttribute("aria-label", "Excluir a avaliação de " + nome);
+        lixeira.addEventListener("click", function () { confirmarExclusao(av, li, lixeira, lista); });
+        li.appendChild(lixeira);
+        li.classList.add("com-lixeira");
+      }
       acoes.appendChild(botao("btn-light", ICONE_OLHO, "Visualizar",
         "Abrir a avaliação de " + nome + " só para leitura",
         function () { abrirAvaliacao(av.id, li, { somenteLeitura: true }); }));

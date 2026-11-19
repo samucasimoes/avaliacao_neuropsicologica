@@ -47,6 +47,11 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.2-2.5 3.9"/><path d="M12 17.2h.01"/></svg>
             Ajuda
           </a>
+          <!-- Só para o administrador (painel.js mostra; as regras do Firestore conferem). -->
+          <a class="menu-item" href="#admin" data-view="admin" id="menu-admin" hidden>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.3 7.5 9.5 4.3-1.2 7.5-4.9 7.5-9.5V6Z"/><circle cx="12" cy="10.5" r="2.5"/><path d="M8.5 16.5a4 4 0 0 1 7 0"/></svg>
+            Administração
+          </a>
         </nav>
 
         <div class="menu-etapas">
@@ -469,6 +474,69 @@
           </section>
         </div>
       </section>
+      <!-- ---------- Administração (só o administrador) ---------- -->
+      <section class="view" id="view-admin" hidden>
+        <section class="painel">
+          <div class="painel-head">
+            <h2 class="painel-titulo">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8.5" r="3.8"/><path d="M3 20a7 7 0 0 1 11.5-5.4"/><path d="M18 14v6"/><path d="M15 17h6"/></svg>
+              Novo acesso
+            </h2>
+          </div>
+          <form class="admin-form" id="form-novo-usuario" novalidate autocomplete="off">
+            <div class="admin-campos">
+              <label class="field">
+                <span class="label">Nome completo</span>
+                <input class="input" type="text" id="admin-nome" maxlength="80" placeholder="Nome da profissional" autocomplete="off" required>
+              </label>
+              <label class="field">
+                <span class="label">E-mail</span>
+                <input class="input" type="email" id="admin-email" maxlength="120" placeholder="email@exemplo.com" autocomplete="off" required>
+              </label>
+              <div class="field">
+                <label class="label" for="admin-senha">Senha provisória</label>
+                <div class="admin-senha">
+                  <input class="input" type="text" id="admin-senha" maxlength="40" placeholder="Letras e números (mín. 8)" autocomplete="new-password" spellcheck="false" required>
+                  <button class="btn btn-light" type="button" id="admin-gerar" title="Gerar uma senha provisória aleatória">Gerar</button>
+                </div>
+              </div>
+            </div>
+            <p class="campo-erro admin-erro" id="admin-erro" role="alert" hidden></p>
+            <div class="admin-form-pe">
+              <p class="nota">No primeiro login, a pessoa entra com a senha provisória e o sistema já pede para ela criar uma senha pessoal.</p>
+              <button class="btn btn-primary" type="submit" id="admin-criar">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                Criar acesso
+              </button>
+            </div>
+          </form>
+          <div class="admin-criado" id="admin-criado" role="status" hidden>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>
+            <div class="admin-criado-texto">
+              <p><strong>Acesso criado.</strong> Envie os dados para a pessoa entrar:</p>
+              <p class="admin-criado-dados" id="admin-criado-dados"></p>
+            </div>
+            <button class="btn btn-light btn-pequeno" type="button" id="admin-copiar" title="Copiar o endereço do sistema, o e-mail e a senha provisória">Copiar</button>
+          </div>
+        </section>
+
+        <section class="painel">
+          <div class="painel-head">
+            <h2 class="painel-titulo">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 7.8"/><path d="M18.5 14.2A6.5 6.5 0 0 1 21.5 20"/></svg>
+              Usuários
+            </h2>
+            <span class="historico-total" id="admin-total"></span>
+          </div>
+          <label class="busca">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="sr-only">Pesquisar pelo nome ou e-mail</span>
+            <input class="busca-campo" id="admin-busca" type="search" placeholder="Pesquisar pelo nome ou e-mail" autocomplete="off">
+          </label>
+          <ul class="historico-lista" id="admin-lista"></ul>
+          <p class="lista-vazia" id="admin-vazio" hidden></p>
+        </section>
+      </section>
     </div>
   </div>
 
@@ -553,6 +621,19 @@
     </form>
   </dialog>
 
+  <!-- Confirmação das ações da Administração (texto e botão montados por admin.js). -->
+  <dialog class="modal" id="modal-admin" aria-labelledby="admin-modal-titulo">
+    <form class="modal-body" method="dialog">
+      <h3 class="modal-title" id="admin-modal-titulo"></h3>
+      <p class="modal-text" id="admin-modal-texto"></p>
+      <p class="modal-text modal-dica" id="admin-modal-dica"></p>
+      <div class="modal-actions">
+        <button class="btn btn-light" value="cancelar" autofocus>Cancelar</button>
+        <button class="btn btn-primary" value="confirmar" id="admin-modal-confirmar"></button>
+      </div>
+    </form>
+  </dialog>
+
   <div class="toast" id="toast" role="status" hidden></div>
 
   <!-- Só aparece se a impressão for aberta pelo menu do navegador (veja @media print no CSS). -->
@@ -575,6 +656,7 @@
   <script src="js/shulman.js"></script>
   <script src="js/relatorio.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
   <script src="js/painel.js"></script>
 </body>
 </html>

@@ -1,30 +1,66 @@
 rules_version = '2';
 
-// Regras do Firestore: cole no console do Firebase (Firestore Database > Regras > Publicar).
-// Só quem entrou com e-mail e senha lê e grava. Os acessos são criados em
-// Authentication > Usuários; não existe cadastro pela tela de login.
+// Regras do Firestore: cole no console do Firebase (Firestore Database > Regras > Publicar)
+// ou publique com: firebase deploy --only firestore:rules
+//
+// Quem tem acesso: o administrador (e-mail abaixo) e quem ele cadastrou na aba Administração
+// (registro em profissionais/{uid}, ativo e não excluído). Uma conta criada por fora do
+// sistema, desativada ou excluída não lê nem grava nada.
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function logado() {
+      return request.auth != null;
+    }
+
+    // Dono do sistema. Se trocar o e-mail aqui, troque também ADMIN_EMAIL em js/banco.js.
+    function ehAdmin() {
+      return logado() && request.auth.token.email == 'avaliacaoneuropsicologica26@gmail.com';
+    }
+
+    // Registros antigos, sem o campo ativo, contam como ativos.
+    function liberado(dados) {
+      return dados.get('ativo', true) == true && dados.get('excluido', false) != true;
+    }
+
+    function autorizado() {
+      return ehAdmin() || (logado()
+        && exists(/databases/$(database)/documents/profissionais/$(request.auth.uid))
+        && liberado(get(/databases/$(database)/documents/profissionais/$(request.auth.uid)).data));
+    }
 
     // Cada avaliação fica 6 meses (180 dias) depois da última alteração e então pode ser
     // apagada (o sistema apaga sozinho ao entrar). Antes disso, só quem iniciou a avaliação
     // (responsavelUid) pode excluir, pelas Avaliações Pendentes.
     match /avaliacoes/{id} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null
+      allow read: if autorizado();
+      allow create: if autorizado()
         && request.resource.data.responsavelUid == request.auth.uid;
       // Qualquer profissional edita, mas ninguém troca o dono.
-      allow update: if request.auth != null
+      allow update: if autorizado()
         && request.resource.data.responsavelUid == resource.data.responsavelUid;
-      allow delete: if request.auth != null && (
+      allow delete: if autorizado() && (
         resource.data.responsavelUid == request.auth.uid
         || resource.data.atualizadoEm < request.time - duration.value(180, 'd'));
     }
 
-    // Nome de quem entrou (saudação). Cada uma só grava o próprio.
+    // Acessos ao sistema. Só o administrador cria, desativa, reativa e exclui.
+    // Cada pessoa lê o próprio registro (o login confere se está liberado) e, com o acesso
+    // liberado, altera só o nome e marca que já criou a senha pessoal (senhaDefinida: true).
     match /profissionais/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == uid;
+      allow read: if ehAdmin() || (logado() && request.auth.uid == uid);
+      allow create: if ehAdmin();
+      allow update: if ehAdmin() || (logado() && request.auth.uid == uid
+        && liberado(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['nome', 'email', 'senhaDefinida', 'atualizadoEm'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['senhaDefinida'])
+            || request.resource.data.senhaDefinida == true)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['email'])
+            || request.resource.data.email == request.auth.token.email));
+      // Acesso excluído: a própria pessoa apaga o registro ao tentar entrar (e a conta some).
+      allow delete: if ehAdmin() || (logado() && request.auth.uid == uid
+        && resource.data.get('excluido', false) == true);
     }
 
     match /{documento=**} {

@@ -26,6 +26,32 @@ avaliações salvas no banco de dados (Firebase).
   pelo nome, **Visualizar** (abre o formulário só para leitura; *Editar avaliação* destrava),
   **Imprimir** (todas as páginas ou só as escolhidas) e **Salvar PDF e arquivo** (PDF e .json).
 - **Ajuda** – resumo de como usar.
+- **Administração** – só aparece para o dono do sistema (`avaliacaoneuropsicologica26@gmail.com`).
+  Veja **Acessos ao sistema** abaixo.
+
+### Acessos ao sistema (aba Administração)
+
+O administrador é o e-mail `avaliacaoneuropsicologica26@gmail.com` (constante `ADMIN_EMAIL` em
+`js/banco.js` e função `ehAdmin()` em `firestore.rules`; se trocar, troque nos dois). Essa conta
+precisa existir no Authentication. Tudo é feito pela aba, sem abrir o console do Firebase:
+
+- **Novo acesso** – nome, e-mail e senha provisória (o botão **Gerar** sorteia uma). Depois de
+  criar, aparecem os dados para enviar à pessoa, com o botão **Copiar**. No primeiro login a
+  pessoa entra com a senha provisória e o sistema pede para ela criar uma senha pessoal.
+- **Redefinir senha** – o Firebase envia para o e-mail da pessoa um link para criar uma senha
+  nova (a senha atual vale até ela trocar). Sem servidor (plano gratuito do Firebase) o
+  administrador não consegue digitar a senha de outra pessoa.
+- **Desativar acesso / Dar acesso** – a pessoa desativada não entra e, se estiver com o
+  sistema aberto, volta na hora para o login. Ao dar o acesso de novo, ela entra com a mesma senha.
+- **Excluir usuário** – a pessoa some da lista e perde o acesso na hora. A conta do
+  Authentication é apagada de vez quando ela tentar entrar de novo. Se o administrador criar o
+  acesso com o mesmo e-mail antes disso, o sistema oferece **Restaurar acesso** (com a senha que
+  a pessoa já tinha). As avaliações que ela iniciou continuam no banco.
+
+O acesso vale pelo registro em `profissionais` (campos `ativo` e `excluido`), conferido pelas
+regras do Firestore: uma conta criada por fora do sistema, desativada ou excluída não lê nem
+grava nada. Registros antigos, sem o campo `ativo`, contam como ativos. Uma conta que entra sem
+registro (criada por fora) é apagada do Authentication no próprio login.
 
 ### Status: pendente ou concluída
 
@@ -48,8 +74,9 @@ criar uma política de TTL no Firestore com esse campo (opcional).
    e clique em **Publicar**.
 3. Em **Configurações do projeto > Seus apps**, crie um app da Web (`</>`) e copie o objeto
    `firebaseConfig` para `js/firebase-config.js`.
-4. Crie os acessos em **Authentication > Usuários > Adicionar usuário** (não existe cadastro
-   pela tela de login).
+4. Os acessos são criados pelo administrador na aba **Administração** (não existe cadastro
+   pela tela de login). Depois desta mudança, publique as regras novas (`firestore.rules`):
+   sem elas o banco recusa o cadastro.
 5. Se o site estiver publicado num domínio próprio (ou GitHub Pages), adicione o endereço em
    **Authentication > Configurações > Domínios autorizados**. `localhost` já vem autorizado.
 
@@ -70,7 +97,8 @@ projeto e abrir `http://localhost:8000`.
 No banco, cada avaliação fica em `avaliacoes` com os campos do formulário (os mesmos nomes do
 arquivo .json), o nome do paciente, a etapa aberta, o status e quem iniciou. O nome de cada
 profissional (usado na saudação e como responsável) fica em `profissionais`: no primeiro
-acesso ele vem do e-mail e pode ser corrigido pelo próprio console do Firestore.
+acesso ele vem do nome digitado pelo administrador (ou do e-mail) e pode ser trocado no menu do
+usuário em **Alterar nome**.
 
 ## Etapas do formulário
 
@@ -208,6 +236,7 @@ antigos são convertidos para os nomes de campos atuais (`migrarCampos` em `js/a
 - `js/firebase-config.js` – configuração do projeto no Firebase (preencher)
 - `js/banco.js` – login e leitura/gravação no Firestore
 - `js/painel.js` – exige login, troca de telas, lista de avaliações e menu do usuário
+- `js/admin.js` – aba Administração (criar, redefinir senha, desativar, dar acesso, excluir)
 - `firestore.rules` – regras de acesso do banco (colar no console do Firebase)
 - `assets/cerebro-login.webp` – imagem do cérebro da tela de login (fundo transparente)
 - `js/app.js` – comportamento do formulário (etapas, idade automática, máscara de telefone, backup, salvamento automático no banco)

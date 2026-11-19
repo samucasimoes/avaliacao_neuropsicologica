@@ -3,11 +3,17 @@
    - avaliacoes/{id}: paciente, campos (os mesmos nomes do formulário e do .json), secao,
      status ("em_andamento" ou "concluida"), responsavelNome/Uid, criadoEm, atualizadoEm
      e expiraEm (6 meses, 180 dias, depois da última alteração; depois disso é apagada de vez).
-   - profissionais/{uid}: nome e e-mail de quem já entrou (usado na saudação) e senhaDefinida
-     (true depois que a pessoa troca a senha provisória do primeiro acesso).
-   Os acessos são criados no console do Firebase (Authentication > Usuários). */
+   - profissionais/{uid}: nome e e-mail de cada acesso (usado na saudação), senhaDefinida
+     (true depois que a pessoa troca a senha provisória do primeiro acesso), ativo (false =
+     acesso desativado) e excluido (true = acesso excluído; a conta do Authentication é
+     apagada de vez na próxima vez que a pessoa tentar entrar).
+   Os acessos são criados pelo administrador (ADMIN_EMAIL) na aba Administração. Quem não
+   tem o registro em profissionais (ou está desativado) não lê nem grava nada no banco. */
 
 const Banco = (function () {
+  /* Dono do sistema: só este e-mail vê a aba Administração (as regras do Firestore conferem). */
+  const ADMIN_EMAIL = "avaliacaoneuropsicologica26@gmail.com";
+
   const config = window.FIREBASE_CONFIG || {};
   const configurado = !!(window.firebase && config.apiKey && config.projectId &&
     !/COLE_AQUI|SEU-PROJETO/.test(config.apiKey + config.projectId));
@@ -52,7 +58,12 @@ const Banco = (function () {
     "auth/requires-recent-login": "Por segurança, saia e entre de novo antes de trocar a senha.",
     "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
     "auth/network-request-failed": "Sem conexão com a internet.",
-    "auth/unauthorized-domain": "Este endereço não está autorizado no Firebase (Authentication > Configurações > Domínios autorizados).",
+    "auth/email-already-in-use": "Já existe uma conta com este e-mail no Firebase.",
+    "auth/operation-not-allowed": "O login por e-mail e senha não está ativado no Firebase (Authentication > Método de login).",
+    "sem-acesso": "Este e-mail não tem acesso ao sistema. Fale com o administrador do sistema.",
+    "desativado": "Este acesso foi desativado. Fale com o administrador do sistema.",
+    "ja-cadastrado": "Este e-mail já tem acesso ao sistema.",
+    "auth/unauthorized-domain":"Este endereço não está autorizado no Firebase (Authentication > Configurações > Domínios autorizados).",
     "permission-denied": "Sem permissão para acessar os dados. Confira as regras do Firestore.",
     "unavailable": "Sem conexão com o banco de dados. Tente de novo em instantes.",
     "not-found": "Avaliação não encontrada."
@@ -104,12 +115,69 @@ const Banco = (function () {
     return "";
   }
 
-  /* Primeiro acesso: a senha ainda é a provisória criada no console do Firebase. */
-  function precisaDefinirSenha() {
+  function ehAdmin() {
     const u = usuario();
-    return colecao("profissionais").doc(u.uid).get().then(function (doc) {
-      return !(doc.exists && doc.data().senhaDefinida === true);
+    return !!(u && String(u.email || "").toLowerCase() === ADMIN_EMAIL);
+  }
+
+  /* O registro em profissionais libera o acesso (ativo e não excluído). Registros antigos,
+     sem o campo ativo, contam como ativos. */
+  function liberado(dados) {
+    return !!dados && dados.ativo !== false && dados.excluido !== true;
+  }
+
+  /* Situação de quem acabou de entrar: acesso "ok", "desativado" ou "sem-acesso" (sem
+     registro ou excluído), e se ainda precisa trocar a senha provisória do primeiro acesso.
+     Lê direto do servidor, para não decidir por um dado antigo. */
+  function situacaoAcesso() {
+    const u = usuario();
+    return colecao("profissionais").doc(u.uid).get({ source: "server" }).then(function (doc) {
+      const dados = doc.exists ? doc.data() : null;
+      let acesso = "ok";
+      if (!ehAdmin()) {
+        if (!dados || dados.excluido === true) acesso = "sem-acesso";
+        else if (dados.ativo === false) acesso = "desativado";
+      }
+      return {
+        acesso: acesso,
+        excluido: !!(dados && dados.excluido === true),
+        senhaDefinida: !!(dados && dados.senhaDefinida === true)
+      };
     });
+  }
+
+  /* Acesso recusado no login: sai. Sem acesso (excluído pelo administrador, ou conta criada
+     fora do sistema) a própria conta é apagada do Authentication, liberando o e-mail para
+     um novo cadastro. */
+  function recusarAcesso(situacao) {
+    const u = usuario();
+    if (!u) return Promise.resolve();
+    let passo = Promise.resolve();
+    if (situacao.acesso === "sem-acesso") {
+      if (situacao.excluido) {
+        passo = colecao("profissionais").doc(u.uid).delete().catch(function (erro) {
+          console.warn("Registro do acesso excluído:", erro);
+        });
+      }
+      passo = passo.then(function () { return u.delete(); }).catch(function (erro) {
+        console.warn("Conta sem acesso:", erro);
+      });
+    }
+    return passo.then(function () { return auth.currentUser ? auth.signOut() : null; });
+  }
+
+  /* Avisa (uma vez) se o acesso de quem está no sistema for desativado ou excluído. */
+  function vigiarAcesso(retorno) {
+    const u = usuario();
+    if (!u || ehAdmin()) return function () {};
+    let avisado = false;
+    return colecao("profissionais").doc(u.uid).onSnapshot(function (doc) {
+      if (avisado || doc.metadata.fromCache) return;
+      if (!liberado(doc.exists ? doc.data() : null)) {
+        avisado = true;
+        retorno();
+      }
+    }, function (erro) { console.warn("Acompanhamento do acesso:", erro); });
   }
 
   function marcarSenhaDefinida() {
@@ -157,11 +225,15 @@ const Banco = (function () {
     const u = usuario();
     const ref = colecao("profissionais").doc(u.uid);
     return ref.get().then(function (doc) {
+      const admin = ehAdmin();
+      if (!admin && !liberado(doc.exists ? doc.data() : null)) throw { code: "sem-acesso" };
       if (doc.exists && doc.data().nome) return lerDoc(doc);
       const novo = { nome: u.displayName || nomeDoEmail(u.email), email: u.email, atualizadoEm: agora() };
+      if (admin && !doc.exists) novo.ativo = true;
       return ref.set(novo, { merge: true }).then(function () {
-        novo.id = u.uid;
-        return novo;
+        const dados = Object.assign({}, doc.exists ? doc.data() : {}, novo);
+        dados.id = u.uid;
+        return dados;
       });
     });
   }
@@ -250,15 +322,129 @@ const Banco = (function () {
     return colecao("avaliacoes").doc(id).delete();
   }
 
+  /* ---------- Administração (só ADMIN_EMAIL; as regras do Firestore conferem) ---------- */
+
+  /* Todos os acessos, menos os excluídos. */
+  function listarUsuarios() {
+    return colecao("profissionais").get().then(function (r) {
+      return r.docs.map(lerDoc).filter(function (p) { return p.excluido !== true; });
+    });
+  }
+
+  function buscarPorEmail(email) {
+    return colecao("profissionais").where("email", "==", email).get()
+      .then(function (r) { return r.docs.map(lerDoc); });
+  }
+
+  /* Segunda instância do Firebase só para cadastrar: criar a conta nela não troca quem
+     está logado (o administrador continua no sistema). */
+  function authCadastro() {
+    const existente = firebase.apps.filter(function (a) { return a.name === "cadastro"; })[0];
+    const app = existente || firebase.initializeApp(config, "cadastro");
+    const a = app.auth();
+    a.languageCode = "pt-BR";
+    return a;
+  }
+
+  function limparNome(nome) {
+    return String(nome || "").trim().replace(/\s+/g, " ");
+  }
+
+  /* Cria o acesso com a senha provisória. No primeiro login a pessoa troca por uma senha
+     pessoal (senhaDefinida: false). Se o e-mail for de um acesso excluído que ainda está no
+     Authentication, recusa com { code: "excluido", usuario } para o administrador restaurar. */
+  function criarUsuario(nome, email, senha) {
+    const endereco = String(email || "").trim().toLowerCase();
+    const limpo = limparNome(nome);
+    return buscarPorEmail(endereco).then(function (achados) {
+      const comAcesso = achados.filter(function (p) { return p.excluido !== true; })[0];
+      if (comAcesso || endereco === ADMIN_EMAIL) throw { code: "ja-cadastrado" };
+      const excluido = achados[0];
+      const cadastro = authCadastro();
+      return cadastro.setPersistence(firebase.auth.Auth.Persistence.NONE)
+        .then(function () { return cadastro.createUserWithEmailAndPassword(endereco, senha); })
+        .then(function (credencial) {
+          const novo = credencial.user;
+          const registro = {
+            nome: limpo,
+            email: endereco,
+            ativo: true,
+            excluido: false,
+            senhaDefinida: false,
+            criadoEm: agora(),
+            criadoPor: usuario().email,
+            atualizadoEm: agora()
+          };
+          return colecao("profissionais").doc(novo.uid).set(registro)
+            .catch(function (erro) {
+              /* Não deixa uma conta sem registro para trás. */
+              return novo.delete().catch(function () {}).then(function () { throw erro; });
+            })
+            .then(function () {
+              return novo.updateProfile({ displayName: limpo }).catch(function () {});
+            })
+            .then(function () { return { id: novo.uid, nome: limpo, email: endereco }; });
+        })
+        .catch(function (erro) {
+          if (erro && erro.code === "auth/email-already-in-use" && excluido) {
+            throw { code: "excluido", usuario: excluido };
+          }
+          throw erro;
+        })
+        .finally(function () { return cadastro.signOut().catch(function () {}); });
+    });
+  }
+
+  function alterarUsuario(uid, campos) {
+    return colecao("profissionais").doc(uid).update(Object.assign({}, campos, {
+      atualizadoEm: agora(),
+      alteradoPor: usuario().email
+    }));
+  }
+
+  /* Desativar / dar acesso de novo. */
+  function definirAtivo(uid, ativo) {
+    return alterarUsuario(uid, { ativo: ativo });
+  }
+
+  /* Excluir: some da lista e perde o acesso na hora. A conta do Authentication é apagada de
+     vez quando a pessoa tentar entrar de novo (o e-mail fica livre para outro cadastro). */
+  function excluirUsuario(uid) {
+    return alterarUsuario(uid, { excluido: true, ativo: false, excluidoEm: agora() });
+  }
+
+  /* Acesso excluído cadastrado de novo: volta com a senha que a pessoa já tinha. */
+  function restaurarUsuario(uid, nome) {
+    const campos = { excluido: false, ativo: true };
+    if (limparNome(nome)) campos.nome = limparNome(nome);
+    return alterarUsuario(uid, campos);
+  }
+
+  /* Redefinir a senha de um usuário: o Firebase manda um link por e-mail para a pessoa
+     criar uma senha nova (a atual vale até ela trocar). */
+  function enviarRedefinicao(email) {
+    return auth.sendPasswordResetEmail(email);
+  }
+
   return {
     configurado: configurado,
+    ADMIN_EMAIL: ADMIN_EMAIL,
+    ehAdmin: ehAdmin,
+    situacaoAcesso: situacaoAcesso,
+    recusarAcesso: recusarAcesso,
+    vigiarAcesso: vigiarAcesso,
+    listarUsuarios: listarUsuarios,
+    criarUsuario: criarUsuario,
+    definirAtivo: definirAtivo,
+    excluirUsuario: excluirUsuario,
+    restaurarUsuario: restaurarUsuario,
+    enviarRedefinicao: enviarRedefinicao,
     mensagemErro: mensagemErro,
     nomeDoEmail: nomeDoEmail,
     entrar: entrar,
     sair: sair,
     recuperarSenha: recuperarSenha,
     validarNovaSenha: validarNovaSenha,
-    precisaDefinirSenha: precisaDefinirSenha,
     definirSenha: definirSenha,
     trocarSenha: trocarSenha,
     aoMudarUsuario: aoMudarUsuario,

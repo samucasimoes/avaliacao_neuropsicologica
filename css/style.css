@@ -2607,3 +2607,135 @@ td.estreita .input-tabela {
 .campo-escore .label {
   white-space: nowrap;
 }
+
+/* ---------- Administração (só o administrador) ---------- */
+
+.menu-item[hidden] {
+  display: none;
+}
+
+.admin-campos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.admin-campos .input {
+  height: 40px;
+}
+
+.admin-senha {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-senha .input {
+  flex: 1;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-senha .btn {
+  flex: none;
+  height: 40px;
+  padding: 0 14px;
+}
+
+.admin-erro {
+  margin-top: 12px;
+}
+
+.admin-erro[hidden] {
+  display: none;
+}
+
+.admin-form-pe {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-top: 16px;
+}
+
+.admin-form-pe .nota {
+  margin: 0 !important;
+}
+
+.admin-form-pe .btn {
+  flex: none;
+}
+
+.admin-criado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid #b7dbd6;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+}
+
+.admin-criado[hidden] {
+  display: none;
+}
+
+.admin-criado > .icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+}
+
+.admin-criado-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.painel .admin-criado p {
+  margin: 0;
+  color: var(--brand-dark);
+  font-size: 14.5px;
+}
+
+.painel .admin-criado .admin-criado-dados {
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+}
+
+.admin-criado .btn {
+  flex: none;
+}
+
+.status-desativado {
+  background: #f8e3e1;
+  color: #9c3a33;
+}
+
+.status-admin {
+  background: #dde8f3;
+  color: #0d3550;
+}
+
+.admin-item.admin-desativado .historico-nome span,
+.admin-item.admin-desativado .historico-detalhes {
+  opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+  .admin-campos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-form-pe {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 560px) {
+  .admin-criado {
+    flex-wrap: wrap;
+  }
+}

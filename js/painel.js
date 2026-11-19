@@ -1,15 +1,16 @@
 /* Painel: exige login, troca de tela pelo menu lateral (Início, Nova Avaliação,
-   Avaliações Pendentes, Avaliações Concluídas, Ajuda), lista as avaliações do banco e o
-   menu do usuário. */
+   Avaliações Pendentes, Avaliações Concluídas, Ajuda e, só para o administrador,
+   Administração), lista as avaliações do banco e o menu do usuário. */
 
 (function () {
-  const VIEWS = ["inicio", "avaliacoes", "pendentes", "concluidas", "ajuda"];
+  const VIEWS = ["inicio", "avaliacoes", "pendentes", "concluidas", "ajuda", "admin"];
   /* Título da barra do topo em cada tela (em Nova Avaliação vem o cabeçalho da etapa). */
   const TITULOS = {
     inicio: ["Início", "Resumo das avaliações em andamento"],
     pendentes: ["Avaliações Pendentes", "Avaliações em andamento, para continuar ou excluir"],
     concluidas: ["Avaliações Concluídas", "Avaliações com todas as etapas preenchidas"],
-    ajuda: ["Ajuda", "Como usar o sistema"]
+    ajuda: ["Ajuda", "Como usar o sistema"],
+    admin: ["Administração", "Acessos ao sistema: criar, redefinir senha, desativar e excluir"]
   };
   const views = {};
   VIEWS.forEach(function (nome) { views[nome] = document.getElementById("view-" + nome); });
@@ -42,13 +43,26 @@
         }
         perfil = dados;
         mostrarNome(dados.nome);
+        /* Desativado ou excluído pelo administrador com o sistema aberto: volta para o login,
+           que mostra o aviso e encerra a sessão. */
+        Banco.vigiarAcesso(function () {
+          window.Formulario.encerrar().catch(function () {}).then(function () {
+            window.location.replace("login.html");
+          });
+        });
       })
       .catch(function (erro) {
         if (erro && erro.redirecionando) throw erro;
+        /* Sem acesso liberado: o login mostra o motivo e encerra a sessão. */
+        if (erro && erro.code === "sem-acesso") {
+          window.location.replace("login.html");
+          throw { redirecionando: true };
+        }
         console.error(erro);
         aviso(Banco.mensagemErro(erro));
       })
       .then(function () {
+        document.getElementById("menu-admin").hidden = !Banco.ehAdmin();
         window.Formulario.ativarBanco(perfil ? perfil.nome : "");
         irPara(viewDoEndereco());
         /* Apaga de vez as que passaram de 6 meses sem alteração. */
@@ -71,6 +85,7 @@
     const nome = window.location.hash.replace("#", "");
     /* Endereço antigo do Histórico de Avaliações. */
     if (nome === "historico") return "pendentes";
+    if (nome === "admin" && !Banco.ehAdmin()) return "inicio";
     return VIEWS.indexOf(nome) !== -1 ? nome : "inicio";
   }
 
@@ -96,6 +111,7 @@
   const menuEtapas = document.querySelector(".menu-etapas");
 
   function irPara(nome) {
+    if (nome === "admin" && !Banco.ehAdmin()) nome = "inicio";
     /* Em Nova Avaliação o menu lateral mostra as etapas no lugar do menu principal
        e a barra do topo mostra o cabeçalho da etapa aberta. */
     const avaliando = nome === "avaliacoes";
@@ -123,6 +139,7 @@
     window.scrollTo({ top: 0 });
     if (nome === "inicio") window.Formulario.salvar().then(carregarLista);
     if (listas[nome]) window.Formulario.salvar().then(function () { carregarAba(nome); });
+    if (nome === "admin") window.Formulario.salvar().then(window.Admin.carregar);
   }
 
   function abrirFormulario() {

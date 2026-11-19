@@ -1,5 +1,6 @@
 /* Tela de login: entrar, mostrar a senha, recuperar a senha por e-mail e, no primeiro
-   acesso, trocar a senha provisória (criada no console do Firebase) por uma senha pessoal. */
+   acesso, trocar a senha provisória (criada pelo administrador) por uma senha pessoal. Quem foi
+   desativado ou excluído na aba Administração não entra. */
 
 (function () {
   const form = document.getElementById("form-login");
@@ -49,10 +50,21 @@
     });
   });
 
-  /* Depois de entrar: no primeiro acesso pede a senha nova; se não, vai para o sistema. */
+  /* Depois de entrar: confere se o acesso está liberado pelo administrador; no primeiro
+     acesso pede a senha nova; se não, vai para o sistema. */
   function seguir() {
-    return Banco.precisaDefinirSenha().then(function (precisa) {
-      if (precisa) abrirCriarSenha();
+    return Banco.situacaoAcesso().then(function (situacao) {
+      if (situacao.acesso !== "ok") {
+        return Banco.recusarAcesso(situacao).then(function () {
+          entrando = false;
+          formSenha.hidden = true;
+          form.hidden = false;
+          ocupado(botaoEntrar, false, "Entrar");
+          senha.value = "";
+          mostrar(Banco.mensagemErro({ code: situacao.acesso }));
+        });
+      }
+      if (!situacao.senhaDefinida) abrirCriarSenha();
       else window.location.replace("index.html");
     });
   }

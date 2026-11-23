@@ -2,7 +2,7 @@
    Coleções:
    - avaliacoes/{id}: paciente, campos (os mesmos nomes do formulário e do .json), secao,
      status ("em_andamento" ou "concluida"), responsavelNome/Uid, criadoEm, atualizadoEm
-     e expiraEm (6 meses, 180 dias, depois da última alteração; depois disso é apagada de vez).
+     (ficam guardadas sem prazo; só quem iniciou a avaliação pode excluí-la).
    - profissionais/{uid}: nome e e-mail de cada acesso (usado na saudação), senhaDefinida
      (true depois que a pessoa troca a senha provisória do primeiro acesso), ativo (false =
      acesso desativado) e excluido (true = acesso excluído; a conta do Authentication é
@@ -25,21 +25,6 @@ const Banco = (function () {
     auth = firebase.auth();
     auth.languageCode = "pt-BR";
     db = firebase.firestore();
-  }
-
-  /* Cada avaliação fica guardada por 6 meses (180 dias) depois da última alteração. */
-  const DIAS_GUARDADA = 180;
-  const DIA_MS = 24 * 60 * 60 * 1000;
-
-  function limiteGuarda() {
-    return new Date(Date.now() - DIAS_GUARDADA * DIA_MS);
-  }
-
-  /* Quando a avaliação será apagada (a partir da última alteração). */
-  function expiraEm(avaliacao) {
-    const base = avaliacao.atualizadoEm && avaliacao.atualizadoEm.toDate
-      ? avaliacao.atualizadoEm.toDate() : new Date();
-    return new Date(base.getTime() + DIAS_GUARDADA * DIA_MS);
   }
 
   const agora = function () { return firebase.firestore.FieldValue.serverTimestamp(); };
@@ -285,14 +270,13 @@ const Banco = (function () {
   /* Cria (sem id) ou atualiza a avaliação. Devolve o id. */
   function salvarAvaliacao(id, dados, responsavelNome) {
     const registro = Object.assign({}, dados, {
-      atualizadoEm: agora(),
-      expiraEm: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + DIAS_GUARDADA * DIA_MS))
+      atualizadoEm: agora()
     });
     if (id) {
       return colecao("avaliacoes").doc(id).update(registro)
         .then(function () { return id; })
         .catch(function (erro) {
-          /* Já foi apagada (passou do prazo): grava de novo como avaliação nova. */
+          /* Já foi excluída: grava de novo como avaliação nova. */
           if (erro && erro.code === "not-found") return salvarAvaliacao(null, dados, responsavelNome);
           throw erro;
         });
@@ -306,29 +290,13 @@ const Banco = (function () {
     return colecao("avaliacoes").add(registro).then(function (ref) { return ref.id; });
   }
 
-  /* Só as que ainda estão no prazo (as mais antigas são apagadas), da mais recente para a mais antiga. */
+  /* Da mais recente para a mais antiga. */
   function listarAvaliacoes(limite) {
     return colecao("avaliacoes")
-      .where("atualizadoEm", ">=", limiteGuarda())
       .orderBy("atualizadoEm", "desc")
       .limit(limite || 100)
       .get()
       .then(function (r) { return r.docs.map(lerDoc); });
-  }
-
-  /* Apaga de vez as avaliações sem alteração há mais de 6 meses (feito ao entrar no sistema).
-     As regras do Firestore só deixam apagar as que já passaram do prazo. */
-  function apagarExpiradas() {
-    return colecao("avaliacoes")
-      .where("atualizadoEm", "<", limiteGuarda())
-      .limit(100)
-      .get()
-      .then(function (r) {
-        if (r.empty) return 0;
-        const lote = db.batch();
-        r.docs.forEach(function (doc) { lote.delete(doc.ref); });
-        return lote.commit().then(function () { return r.size; });
-      });
   }
 
   function abrirAvaliacao(id) {
@@ -339,7 +307,7 @@ const Banco = (function () {
   }
 
   /* Corrige só o status (Concluída quando todas as etapas estão 100%), sem mexer na data da
-     última alteração, para não adiar a exclusão. */
+     última alteração. */
   function marcarStatus(id, status) {
     return colecao("avaliacoes").doc(id).update({ status: status });
   }
@@ -480,9 +448,6 @@ const Banco = (function () {
     alterarNome: alterarNome,
     salvarAvaliacao: salvarAvaliacao,
     listarAvaliacoes: listarAvaliacoes,
-    apagarExpiradas: apagarExpiradas,
-    expiraEm: expiraEm,
-    DIAS_GUARDADA: DIAS_GUARDADA,
     abrirAvaliacao: abrirAvaliacao,
     marcarStatus: marcarStatus,
     excluirAvaliacao: excluirAvaliacao

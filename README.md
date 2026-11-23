@@ -14,8 +14,8 @@ avaliações salvas no banco de dados (Firebase).
   continua salva). Ao entrar nesta aba, o menu lateral troca (com animação) para as etapas da
   avaliação, com **Início** no topo para voltar e, no pé, **+ Carregar arquivo** (traz uma
   avaliação de um backup .json). A barra do topo mostra o título e a explicação da etapa aberta,
-  e o formulário tem **Imprimir Avaliação** no fim da barra do título, à direita: baixa o PDF
-  com todas as páginas ou só as escolhidas. As etapas podem ser abertas em qualquer ordem. No rodapé, à
+  e o formulário tem **Imprimir Avaliação** no fim da barra do título, à direita: abre a impressão
+  com todas as páginas, o mesmo que Ctrl+P. As etapas podem ser abertas em qualquer ordem. No rodapé, à
   esquerda do botão de continuar, fica **Gerar PDF** (relatório completo). Tudo é salvo
   sozinho no banco ("Salvo às …" ao lado do título).
 - **Avaliações Pendentes** – as avaliações em andamento, com pesquisa pelo nome do paciente,
@@ -201,8 +201,8 @@ Cada aba ocupa uma folha: os textos têm limite de caracteres (com contador na t
 conteúdo não couber, primeiro os espaços entre os blocos e nas linhas das tabelas encolhem e,
 só se ainda faltar lugar, a letra diminui naquela folha até caber, sem passar para outra
 página (os títulos mantêm o mesmo tamanho).
-O botão **Gerar PDF** baixa o PDF completo direto, sem perguntas. **Imprimir Avaliação** baixa
-o PDF com todas as páginas ou só as escolhidas.
+O botão **Gerar PDF** baixa o PDF completo direto, sem perguntas. **Imprimir Avaliação** abre
+a impressão com todas as páginas, o mesmo que Ctrl+P (não baixa o arquivo).
 A tecla ENTER não baixa o relatório (nos textos longos ela só quebra a linha).
 Nenhum dado é salvo: tudo acontece no navegador.
 

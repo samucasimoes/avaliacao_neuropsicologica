@@ -458,7 +458,8 @@
   }
 
   /* ---------- Imprimir: todas ou só as páginas escolhidas ----------
-     Usado no Imprimir das Avaliações Concluídas e no Imprimir Avaliação do topo do formulário. */
+     Usado no Imprimir das Avaliações Concluídas. O Imprimir Avaliação do formulário imprime
+     tudo direto, como o Ctrl+P. */
 
   const modalImprimir = document.getElementById("modal-imprimir");
   const listaPaginas = document.getElementById("imprimir-lista");
@@ -510,7 +511,14 @@
 
   const botaoImprimirTopo = document.getElementById("btn-imprimir-topo");
   botaoImprimirTopo.addEventListener("click", function () {
-    escolherImpressao(window.Formulario.atual(), botaoImprimirTopo);
+    try {
+      if (!window.Formulario.imprimir(window.Formulario.atual().campos)) {
+        aviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir.");
+      }
+    } catch (erro) {
+      console.error(erro);
+      aviso("Não foi possível abrir a impressão. Tente novamente.");
+    }
   });
 
   modalImprimir.addEventListener("change", atualizarModalImpressao);
@@ -523,17 +531,18 @@
     atualizarModalImpressao();
   });
 
-  /* Baixa o PDF direto, com todas as páginas ou só as escolhidas. */
+  /* Abre a impressão do navegador, com todas as páginas ou só as escolhidas. */
   botaoConfirmarImpressao.addEventListener("click", function () {
     const pedido = pendenteImpressao;
     if (!pedido) return;
     const ids = modoImpressao() === "escolher" ? paginasMarcadas() : null;
     try {
-      window.Formulario.imprimir(pedido.av.campos, ids);
-      aviso("Avaliação em PDF baixada.");
+      if (!window.Formulario.imprimir(pedido.av.campos, ids)) {
+        aviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir.");
+      }
     } catch (erro) {
       console.error(erro);
-      aviso("Não foi possível gerar o PDF. Tente novamente.");
+      aviso("Não foi possível abrir a impressão. Tente novamente.");
     }
   });
 

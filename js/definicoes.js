@@ -209,6 +209,13 @@ const DEFINICOES = [
         itens: [
           "Histórico familiar de 1° grau para DA",
           "Baixa escolaridade",
+          /* Só aparece quando o sexo nos Dados do paciente é Feminino. A chave própria
+             mantém o nome dos campos dos outros itens (avaliações já salvas). */
+          {
+            chave: "sexo-feminino",
+            texto: "Sexo feminino",
+            mostrarSe: function (paciente) { return paciente.sexo === "Feminino"; }
+          },
           "Hipertensão arterial",
           "Hiperlipidemia",
           "Obesidade",
@@ -733,12 +740,14 @@ const DEFINICOES = [
         id: "cerad",
         titulo: "Bateria do CERAD",
         colunaRotulo: "Teste",
+        /* Os escores puxados de outras abas aparecem já preenchidos, mas podem ser alterados. */
+        puxadoEditavel: true,
         colunas: [
           { rotulo: "Escore obtido", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
         ],
         linhas: [
-          /* "puxar": o escore vem de outra aba ([aba, bloco, linha, coluna]) e não é digitado aqui.
+          /* "puxar": o escore vem de outra aba ([aba, bloco, linha, coluna]); aqui pode ser alterado.
              Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia não têm escore em
              outra aba (na Linguagem, a Nomeação de Boston é um texto) e são digitadas aqui. */
           { rotulo: "Fluência verbal: Animais", puxar: { 0: ["linguagem", "semantica", "1", 0] } },

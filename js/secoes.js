@@ -103,31 +103,49 @@ const Secoes = (function () {
 
   /* Itens com as mesmas opções para todos (Resumo, Pfeffer, IQCODE). */
   function blocoOpcoes(secao, b) {
-    const itens = b.itens.map(function (item, i) {
-      return typeof item === "string"
-        ? { numero: i + 1, texto: item, opcoes: b.opcoes }
-        : { numero: i + 1, texto: item.texto, opcoes: item.opcoes };
+    /* "chave" é o fim do nome do campo. Os itens comuns usam a posição (1, 2, 3...); um item
+       com "chave" própria (ex.: Sexo feminino do Resumo) não muda o nome dos outros, para as
+       avaliações já salvas continuarem abrindo certo. Item com "mostrarSe" só aparece (e só
+       conta) quando a condição vale para o paciente; a numeração na tela e na impressão
+       acompanha os itens visíveis. */
+    let posicao = 0;
+    const itens = b.itens.map(function (item) {
+      const objeto = typeof item === "string" ? { texto: item } : item;
+      return {
+        chave: objeto.chave || String(++posicao),
+        texto: objeto.texto,
+        opcoes: objeto.opcoes || b.opcoes,
+        mostrarSe: objeto.mostrarSe || null
+      };
     });
 
-    function nome(n) {
-      return secao.id + "-" + b.id + "-" + n;
+    function nome(chave) {
+      return secao.id + "-" + b.id + "-" + chave;
     }
 
-    function resposta(n) {
-      const v = valorDe(nome(n));
-      return itens[n - 1].opcoes.find(function (o) { return o.valor === v; }) || null;
+    function visiveis() {
+      const p = contexto.paciente();
+      return itens.filter(function (item) { return !item.mostrarSe || item.mostrarSe(p); });
     }
+
+    function resposta(item) {
+      const v = valorDe(nome(item.chave));
+      return item.opcoes.find(function (o) { return o.valor === v; }) || null;
+    }
+
+    const linhasTela = [];
 
     return {
       montar: function (container) {
         const lista = criar("div", "escala");
-        itens.forEach(function (item) {
+        itens.forEach(function (item, i) {
           const linha = criar("div", "escala-item" + (b.empilhado ? " empilhado" : ""));
           linha.setAttribute("role", "radiogroup");
-          linha.setAttribute("aria-labelledby", nome(item.numero) + "-texto");
+          linha.setAttribute("aria-labelledby", nome(item.chave) + "-texto");
           const texto = criar("p", "escala-texto");
-          texto.id = nome(item.numero) + "-texto";
-          texto.appendChild(criar("span", "escala-num", String(item.numero)));
+          texto.id = nome(item.chave) + "-texto";
+          const numero = criar("span", "escala-num", String(i + 1));
+          texto.appendChild(numero);
           texto.appendChild(document.createTextNode(item.texto));
           linha.appendChild(texto);
 
@@ -135,37 +153,48 @@ const Secoes = (function () {
           if (!b.empilhado) opcoes.style.setProperty("--colunas", item.opcoes.length);
           item.opcoes.forEach(function (o) {
             const pontos = b.mostrarPontos && !o.semPontos ? o.pontos : null;
-            opcoes.appendChild(pilula(nome(item.numero), o.valor, o.rotulo, pontos,
-              "Item " + item.numero + ": " + o.rotulo));
+            opcoes.appendChild(pilula(nome(item.chave), o.valor, o.rotulo, pontos,
+              item.texto + ": " + o.rotulo));
           });
           linha.appendChild(opcoes);
           lista.appendChild(linha);
+          linhasTela.push({ item: item, el: linha, numero: numero });
         });
         container.appendChild(lista);
+      },
+      /* Mostra ou esconde os itens condicionais e renumera. */
+      atualizar: function () {
+        const lista = visiveis();
+        linhasTela.forEach(function (l) {
+          const posicaoVisivel = lista.indexOf(l.item);
+          l.el.hidden = posicaoVisivel === -1;
+          if (posicaoVisivel !== -1) l.numero.textContent = String(posicaoVisivel + 1);
+        });
       },
       pontuacao: function () {
         let total = 0;
         let respondidos = 0;
-        itens.forEach(function (item) {
-          const r = resposta(item.numero);
+        const lista = visiveis();
+        lista.forEach(function (item) {
+          const r = resposta(item);
           if (!r) return;
           respondidos++;
           total += r.pontos || 0;
         });
-        return { total: total, respondidos: respondidos, totalItens: itens.length };
+        return { total: total, respondidos: respondidos, totalItens: lista.length };
       },
       preenchido: function () {
-        return itens.some(function (item) { return resposta(item.numero); });
+        return visiveis().some(function (item) { return resposta(item); });
       },
       completo: function () {
-        return itens.every(function (item) { return resposta(item.numero); });
+        return visiveis().every(function (item) { return resposta(item); });
       },
       relatorio: function () {
         const linhas = [];
-        itens.forEach(function (item) {
-          const r = resposta(item.numero);
+        visiveis().forEach(function (item, i) {
+          const r = resposta(item);
           if (!r) return;
-          const linha = [item.numero, item.texto, r.rotulo];
+          const linha = [i + 1, item.texto, r.rotulo];
           if (b.mostrarPontos) linha.push(r.semPontos ? "—" : r.pontos);
           linhas.push(linha);
         });
@@ -381,11 +410,33 @@ const Secoes = (function () {
       return bloco && bloco.texto ? bloco.texto(origem.ref[2], origem.ref[3]) || "" : "";
     }
 
+    /* Com puxadoEditavel (CERAD), a célula puxada vira um campo: mostra o valor da outra
+       aba, mas pode ser alterado. O campo "-manual" marca que foi digitado à mão; apagando
+       o que foi digitado, volta a mostrar o valor da outra aba. */
+    function editavel(linha, coluna) {
+      return !!b.puxadoEditavel && puxado(linha, coluna);
+    }
+
+    function nomeManual(linha, coluna) {
+      return nome(linha, coluna) + "-manual";
+    }
+
+    function digitadoAMao(linha, coluna) {
+      return editavel(linha, coluna) && valorDe(nomeManual(linha, coluna)) === "1";
+    }
+
+    /* Valor da célula puxada: o digitado à mão, se houver; senão, o da outra aba. */
+    function valorDaCelulaPuxada(linha, coluna) {
+      return digitadoAMao(linha, coluna) ? valorDe(nome(linha, coluna)) : valorPuxado(linha, coluna);
+    }
+
+    const editaveis = [];
+
     const acesso = {
       num: function (chave, coluna) {
         const linha = porChave[chave];
         if (!linha) return null;
-        if (puxado(linha, coluna)) return numero(valorPuxado(linha, coluna));
+        if (puxado(linha, coluna)) return numero(valorDaCelulaPuxada(linha, coluna));
         if (calculado(linha, coluna)) return linha.calculos[coluna](acesso);
         const valor = valorDe(nome(linha, coluna));
         if (acimaDoMaximo(valor, linha.maximo)) return null;
@@ -474,7 +525,7 @@ const Secoes = (function () {
     function celula(linha, coluna) {
       const tipo = b.colunas[coluna].tipo;
       if (tipo === "referencia") return referencia(linha, b.colunas[coluna].dado);
-      if (puxado(linha, coluna)) return valorPuxado(linha, coluna);
+      if (puxado(linha, coluna)) return valorDaCelulaPuxada(linha, coluna);
       if (calculado(linha, coluna)) {
         const v = linha.calculos[coluna](acesso);
         /* Um cálculo pode devolver texto (ex.: percentil "< 10"). */
@@ -502,6 +553,7 @@ const Secoes = (function () {
 
     function linhaDigitada(linha) {
       return b.colunas.some(function (coluna, c) {
+        if (digitadoAMao(linha, c)) return celula(linha, c) !== "";
         return !informativa(coluna) && !calculado(linha, c) && !puxado(linha, c) && celula(linha, c) !== "";
       });
     }
@@ -544,7 +596,36 @@ const Secoes = (function () {
           b.colunas.forEach(function (coluna, c) {
             const td = criar("td", coluna.estreita ? "estreita" : "");
             const rotulo = linha.rotulo + " – " + coluna.rotulo;
-            if (calculado(linha, c) || puxado(linha, c)) {
+            if (editavel(linha, c)) {
+              const input = criar("input", "input input-tabela input-puxado");
+              input.type = "text";
+              input.name = nome(linha, c);
+              input.inputMode = "decimal";
+              input.maxLength = LIMITE_CELULA;
+              input.autocomplete = "off";
+              input.setAttribute("aria-label", rotulo);
+              /* Marca de digitado à mão: campo de texto escondido, para o "limpar" do
+                 formulário zerar junto. */
+              const manual = criar("input");
+              manual.type = "text";
+              manual.name = nomeManual(linha, c);
+              manual.hidden = true;
+              manual.tabIndex = -1;
+              manual.setAttribute("aria-hidden", "true");
+              input.addEventListener("input", function () {
+                /* Só números (com vírgula ou ponto para decimais). */
+                const limpo = input.value.replace(/[^\d.,]/g, "");
+                if (limpo !== input.value) input.value = limpo;
+                manual.value = input.value.trim() ? "1" : "";
+              });
+              /* Apagou tudo: volta a mostrar o valor da outra aba. */
+              input.addEventListener("blur", function () {
+                if (!manual.value) input.value = valorPuxado(linha, c);
+              });
+              editaveis.push({ el: input, linha: linha, coluna: c });
+              td.appendChild(input);
+              td.appendChild(manual);
+            } else if (calculado(linha, c) || puxado(linha, c)) {
               const saida = criar("output", "calc" + (puxado(linha, c) ? " puxado" : ""), "—");
               saida.setAttribute("aria-label", rotulo);
               saidas.push({ el: saida, linha: linha, coluna: c });
@@ -603,6 +684,17 @@ const Secoes = (function () {
         container.appendChild(rolagem);
       },
       atualizar: function () {
+        editaveis.forEach(function (s) {
+          const origem = origemPuxada(s.linha, s.coluna).secao;
+          const aba = origem ? origem.def.titulo : "correspondente";
+          if (digitadoAMao(s.linha, s.coluna)) {
+            s.el.title = "Valor digitado aqui. Apague para voltar ao valor da aba " + aba;
+          } else {
+            /* Não troca o que está sendo digitado (campo com o foco). */
+            if (document.activeElement !== s.el) s.el.value = valorPuxado(s.linha, s.coluna);
+            s.el.title = "Vem da aba " + aba + ". Pode ser alterado aqui";
+          }
+        });
         saidas.forEach(function (s) {
           s.el.value = celula(s.linha, s.coluna) || "—";
           if (puxado(s.linha, s.coluna)) {

@@ -107,7 +107,8 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
    pela data de nascimento ou pode ser digitada quando ela não for conhecida. O sexo é
    usado só nas referências e não sai no relatório. Também tem Médico solicitante e
    Endereço. O topo da página mostra o nome e a idade.
-2. **Resumo** – fatores de risco (Sim / Não / Não disponível).
+2. **Resumo** – fatores de risco (Sim / Não / Não disponível). "Sexo feminino" aparece
+   abaixo de "Baixa escolaridade" só quando o sexo nos Dados do paciente é Feminino.
 3. **Funções avaliadas** – lista já marcada.
 4. **Protocolos aplicados** – texto fixo, sai só na impressão.
 5. **Escala de Katz** – conta as dependências (0 a 6) e interpreta na tela. Enunciado e
@@ -144,7 +145,8 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     a explicação dos testes de fluência verbal tem letra 10.
 13. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
     do CERAD vêm das abas já preenchidas (fluência Animais e Frutas da Linguagem, total do
-    MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o Reconhecimento);
+    MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o Reconhecimento),
+    mas podem ser alterados aqui (apagando o valor digitado, volta o da outra aba);
     Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia são digitadas aqui
     (só números). Na impressão o título é "Consortium to Establish a Registry for Alzheimer's
     Disease", e os testes analisados das Funções executivas saem sublinhados.

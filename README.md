@@ -161,7 +161,9 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 16. **Trilhas** (com atenção sustentada, seletiva e alternada): o percentil do Teste das
     Trilhas é calculado pela idade do paciente e pelo tempo em segundos, pela tabela de Davies
     (1968) em `TRILHAS_TEMPOS` (`js/definicoes.js`); acima de 79 anos usa a faixa de 70 a 79 e,
-    mais lento que o percentil 10, sai "< 10". 17. **Praxias**,
+    mais lento que o percentil 10, sai "< 10". Cada forma tem, no fim da linha, a caixa **Incapaz de realizar**:
+    marcada, o tempo sai com esse texto (sem percentil), inclusive na Trilha B da Atenção
+    alternada. 17. **Praxias**,
     18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares): a coluna
     Referência é o tempo médio da Versão Victoria para a idade do paciente (1ª cartela =
     cores de estímulos, 2ª = palavras sem interferência, 3ª = com interferência),

@@ -432,10 +432,27 @@ const Secoes = (function () {
 
     const editaveis = [];
 
+    /* Com b.incapaz (Teste das Trilhas), cada linha tem a caixa "Incapaz de realizar":
+       marcada, a coluna b.incapaz.coluna (o tempo) vale o texto em vez de um número. */
+    function nomeIncapaz(linha) {
+      return secao.id + "-" + b.id + "-" + linha.indice + "-incapaz";
+    }
+
+    function incapaz(linha) {
+      return !!b.incapaz && valorDe(nomeIncapaz(linha)) === true;
+    }
+
+    function colunaIncapaz(linha, coluna) {
+      return incapaz(linha) && coluna === b.incapaz.coluna;
+    }
+
+    const caixasIncapaz = [];
+
     const acesso = {
       num: function (chave, coluna) {
         const linha = porChave[chave];
         if (!linha) return null;
+        if (colunaIncapaz(linha, coluna)) return null;
         if (puxado(linha, coluna)) return numero(valorDaCelulaPuxada(linha, coluna));
         if (calculado(linha, coluna)) return linha.calculos[coluna](acesso);
         const valor = valorDe(nome(linha, coluna));
@@ -525,6 +542,7 @@ const Secoes = (function () {
     function celula(linha, coluna) {
       const tipo = b.colunas[coluna].tipo;
       if (tipo === "referencia") return referencia(linha, b.colunas[coluna].dado);
+      if (colunaIncapaz(linha, coluna)) return b.incapaz.texto;
       if (puxado(linha, coluna)) return valorDaCelulaPuxada(linha, coluna);
       if (calculado(linha, coluna)) {
         const v = linha.calculos[coluna](acesso);
@@ -545,6 +563,8 @@ const Secoes = (function () {
 
     /* Todas as células digitáveis da linha preenchidas. */
     function linhaCompleta(linha) {
+      /* Não conseguiu fazer: não há tempo nem erros para preencher. */
+      if (incapaz(linha)) return true;
       return b.colunas.every(function (coluna, c) {
         return informativa(coluna) || coluna.tipo === "calculo" || calculado(linha, c) ||
           puxado(linha, c) || celula(linha, c) !== "";
@@ -552,6 +572,7 @@ const Secoes = (function () {
     }
 
     function linhaDigitada(linha) {
+      if (incapaz(linha)) return true;
       return b.colunas.some(function (coluna, c) {
         if (digitadoAMao(linha, c)) return celula(linha, c) !== "";
         return !informativa(coluna) && !calculado(linha, c) && !puxado(linha, c) && celula(linha, c) !== "";
@@ -584,6 +605,8 @@ const Secoes = (function () {
           const th = criar("th", coluna.estreita ? "estreita" : coluna.tipo === "classe" ? "classe" : "", coluna.rotulo);
           cabecalho.appendChild(th);
         });
+        /* Coluna da caixa "Incapaz de realizar" (só na tela). */
+        if (b.incapaz) cabecalho.appendChild(criar("th", "", ""));
         thead.appendChild(cabecalho);
         tabela.appendChild(thead);
 
@@ -593,6 +616,22 @@ const Secoes = (function () {
           const th = criar("th", "", linha.rotulo);
           th.scope = "row";
           tr.appendChild(th);
+          /* A caixa fica na última coluna da linha (montada depois das colunas). */
+          let tdIncapaz = null;
+          if (b.incapaz) {
+            tdIncapaz = criar("td", "td-incapaz");
+            const label = criar("label", "check-incapaz");
+            label.title = linha.rotulo + ": o paciente não conseguiu realizar (o tempo sai como \"" +
+              b.incapaz.texto + "\")";
+            const caixa = criar("input", "check-caixa");
+            caixa.type = "checkbox";
+            caixa.name = nomeIncapaz(linha);
+            caixa.value = "sim";
+            label.appendChild(caixa);
+            label.appendChild(criar("span", "", b.incapaz.texto));
+            tdIncapaz.appendChild(label);
+            caixasIncapaz.push({ linha: linha, caixa: caixa });
+          }
           b.colunas.forEach(function (coluna, c) {
             const td = criar("td", coluna.estreita ? "estreita" : "");
             const rotulo = linha.rotulo + " – " + coluna.rotulo;
@@ -677,6 +716,7 @@ const Secoes = (function () {
             }
             tr.appendChild(td);
           });
+          if (tdIncapaz) tr.appendChild(tdIncapaz);
           tbody.appendChild(tr);
         });
         tabela.appendChild(tbody);
@@ -684,6 +724,16 @@ const Secoes = (function () {
         container.appendChild(rolagem);
       },
       atualizar: function () {
+        /* Incapaz de realizar: o campo do tempo fica travado, vazio, mostrando o texto. */
+        caixasIncapaz.forEach(function (item) {
+          const campo = form.elements.namedItem(nome(item.linha, b.incapaz.coluna));
+          if (!campo) return;
+          const marcado = item.caixa.checked;
+          if (marcado && campo.value) campo.value = "";
+          campo.disabled = marcado;
+          campo.placeholder = marcado ? b.incapaz.texto : "";
+          campo.classList.toggle("input-incapaz", marcado);
+        });
         editaveis.forEach(function (s) {
           const origem = origemPuxada(s.linha, s.coluna).secao;
           const aba = origem ? origem.def.titulo : "correspondente";

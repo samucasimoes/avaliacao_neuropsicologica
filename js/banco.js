@@ -88,15 +88,34 @@ const Banco = (function () {
 
   /* ---------- Login ---------- */
 
-  function entrar(email, senha, lembrar) {
-    const persistencia = lembrar ? firebase.auth.Auth.Persistence.LOCAL
-      : firebase.auth.Auth.Persistence.SESSION;
-    return auth.setPersistence(persistencia).then(function () {
+  /* O acesso vale só enquanto a aba estiver aberta: ao fechar a aba (ou o navegador) o
+     usuário precisa entrar de novo. Recarregar a página ou navegar dentro do sistema na
+     mesma aba não desloga, e não há tempo limite enquanto a aba estiver aberta.
+     A marca fica no sessionStorage, que o navegador apaga quando a aba é fechada; ela também
+     derruba acessos antigos que ficaram salvos com "Lembrar meu acesso". */
+  const CHAVE_SESSAO = "sessaoAbaAtiva";
+
+  function marcarSessao(ativa) {
+    try {
+      if (ativa) sessionStorage.setItem(CHAVE_SESSAO, "1");
+      else sessionStorage.removeItem(CHAVE_SESSAO);
+    } catch (erro) { /* sem acesso ao sessionStorage */ }
+  }
+
+  function sessaoDaAba() {
+    try { return sessionStorage.getItem(CHAVE_SESSAO) === "1"; }
+    catch (erro) { return true; /* sem sessionStorage não dá para conferir */ }
+  }
+
+  function entrar(email, senha) {
+    marcarSessao(true);
+    return auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function () {
       return auth.signInWithEmailAndPassword(email, senha);
     });
   }
 
   function sair() {
+    marcarSessao(false);
     return auth.signOut();
   }
 
@@ -211,7 +230,15 @@ const Banco = (function () {
       retorno(null);
       return;
     }
-    auth.onAuthStateChanged(retorno);
+    auth.onAuthStateChanged(function (u) {
+      /* Acesso que não foi aberto nesta aba (aba fechada e reaberta, ou login antigo
+         salvo no navegador): sai e avisa como "sem usuário" na próxima chamada. */
+      if (u && !sessaoDaAba()) {
+        auth.signOut();
+        return;
+      }
+      retorno(u);
+    });
   }
 
   function usuario() {

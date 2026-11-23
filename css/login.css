@@ -216,32 +216,15 @@ input {
   display: block;
 }
 
-/* ---------- Lembrar / Esqueci ---------- */
+/* ---------- Esqueci minha senha ---------- */
 
 .login-linha {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 8px 12px;
   margin: 2px 0 clamp(12px, 2.5vh, 20px);
-}
-
-.lembrar {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--ink-soft);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.lembrar input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--brand);
-  cursor: pointer;
 }
 
 .link {

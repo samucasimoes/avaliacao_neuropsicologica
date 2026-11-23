@@ -6,7 +6,6 @@
   const form = document.getElementById("form-login");
   const email = document.getElementById("email");
   const senha = document.getElementById("senha");
-  const lembrar = document.getElementById("lembrar");
   const aviso = document.getElementById("aviso-login");
   const botaoEntrar = document.getElementById("btn-entrar");
 
@@ -90,7 +89,7 @@
     });
   }
 
-  /* Já entrou antes (Lembrar meu acesso): vai direto para o sistema
+  /* Já entrou nesta aba (por exemplo, recarregou a página): vai direto para o sistema
      (ou para a troca de senha, se ainda não trocou a provisória). */
   let entrando = false;
   Banco.aoMudarUsuario(function (usuario) {
@@ -109,7 +108,7 @@
     if (!senha.value) { mostrar("Digite a senha."); senha.focus(); return; }
     entrando = true;
     ocupado(botaoEntrar, true, "Entrando…");
-    Banco.entrar(email.value.trim(), senha.value, lembrar.checked)
+    Banco.entrar(email.value.trim(), senha.value)
       .then(seguir)
       .catch(function (erro) {
         entrando = false;
@@ -139,7 +138,7 @@
       .catch(function (erro) {
         ocupado(botaoSalvar, false, "Salvar senha e entrar");
         if (erro && erro.code === "auth/requires-recent-login") {
-          /* Sessão antiga (Lembrar meu acesso): precisa entrar de novo para trocar a senha. */
+          /* Acesso feito há muito tempo: precisa entrar de novo para trocar a senha. */
           voltarAoLogin();
           mostrar("Por segurança, entre de novo com a senha que você recebeu para criar a sua.");
           return;

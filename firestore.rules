@@ -29,9 +29,8 @@ service cloud.firestore {
         && liberado(get(/databases/$(database)/documents/profissionais/$(request.auth.uid)).data));
     }
 
-    // Cada avaliação fica 6 meses (180 dias) depois da última alteração e então pode ser
-    // apagada (o sistema apaga sozinho ao entrar). Antes disso, só quem iniciou a avaliação
-    // (responsavelUid) pode excluir, pelas Avaliações Pendentes.
+    // As avaliações ficam guardadas sem prazo. Só quem iniciou a avaliação (responsavelUid)
+    // pode excluir.
     match /avaliacoes/{id} {
       allow read: if autorizado();
       allow create: if autorizado()
@@ -39,9 +38,8 @@ service cloud.firestore {
       // Qualquer profissional edita, mas ninguém troca o dono.
       allow update: if autorizado()
         && request.resource.data.responsavelUid == resource.data.responsavelUid;
-      allow delete: if autorizado() && (
-        resource.data.responsavelUid == request.auth.uid
-        || resource.data.atualizadoEm < request.time - duration.value(180, 'd'));
+      allow delete: if autorizado()
+        && resource.data.responsavelUid == request.auth.uid;
     }
 
     // Acessos ao sistema. Só o administrador cria, desativa, reativa e exclui.

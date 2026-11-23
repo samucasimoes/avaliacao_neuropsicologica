@@ -65,8 +65,6 @@
         document.getElementById("menu-admin").hidden = !Banco.ehAdmin();
         window.Formulario.ativarBanco(perfil ? perfil.nome : "");
         irPara(viewDoEndereco());
-        /* Apaga de vez as que passaram de 6 meses sem alteração. */
-        Banco.apagarExpiradas().catch(function (erro) { console.warn("Limpeza das avaliações:", erro); });
       })
       .catch(function () { /* indo para o login */ });
   });
@@ -207,7 +205,6 @@
   const ICONE_SETA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
   const ICONE_RELOGIO = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   const ICONE_OK = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 3 3 5-6"/></svg>';
-  const ICONE_ALERTA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5"/><path d="M12 16h.01"/></svg>';
   const ICONE_BAIXAR = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
   const ICONE_LIXEIRA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
   const ICONE_EDITAR = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16Z"/><path d="m13.5 6.5 4 4"/></svg>';
@@ -321,54 +318,6 @@
       });
   }
 
-  /* ---------- Prazo até a exclusão ----------
-     Contagem regressiva ("Será apagada em 179d 23h 59min 08s") e o nível do alerta (cor).
-     Atualiza a cada segundo enquanto Pendentes ou Concluídas está aberta. */
-
-  function textoPrazo(restante) {
-    if (restante <= 0) return "Prazo vencido: será apagada no próximo acesso";
-    const total = Math.floor(restante / 1000);
-    const dias = Math.floor(total / 86400);
-    const horas = Math.floor((total % 86400) / 3600);
-    const minutos = Math.floor((total % 3600) / 60);
-    const segundos = total % 60;
-    const dois = function (n) { return String(n).padStart(2, "0"); };
-    return "Será apagada em " + (dias ? dias + "d " : "") + dois(horas) + "h " +
-      dois(minutos) + "min " + dois(segundos) + "s";
-  }
-
-  function nivelPrazo(restante) {
-    const dias = restante / 86400000;
-    return dias <= 7 ? "urgente" : dias <= 30 ? "atencao" : "normal";
-  }
-
-  function prazo(av) {
-    const expira = Banco.expiraEm(av).getTime();
-    const restante = expira - Date.now();
-    return { expira: expira, texto: textoPrazo(restante), nivel: nivelPrazo(restante) };
-  }
-
-  let relogio = null;
-
-  function atualizarPrazos() {
-    const aberta = Object.keys(listas).filter(function (nome) { return !views[nome].hidden; })[0];
-    if (!aberta) {
-      clearInterval(relogio);
-      relogio = null;
-      return;
-    }
-    const agora = Date.now();
-    listas[aberta].ul.querySelectorAll(".prazo[data-expira]").forEach(function (el) {
-      const restante = Number(el.dataset.expira) - agora;
-      el.querySelector("span").textContent = textoPrazo(restante);
-      el.className = "prazo prazo-" + nivelPrazo(restante);
-    });
-  }
-
-  function ligarRelogio() {
-    if (!relogio) relogio = setInterval(atualizarPrazos, 1000);
-  }
-
   /* ---------- Avaliações Pendentes e Concluídas ---------- */
 
   const listas = {};
@@ -400,23 +349,18 @@
     const li = document.createElement("li");
     li.className = "historico-item";
     const nome = av.paciente || "Paciente sem nome";
-    const p = prazo(av);
     li.dataset.busca = normalizar(nome);
 
     li.innerHTML =
       '<div class="historico-info">' +
         '<p class="historico-nome">' + ICONE_PESSOA + '<span></span></p>' +
         '<p class="historico-detalhes"></p>' +
-        '<div class="historico-selos">' + seloStatus(av) +
-          '<span class="prazo prazo-' + p.nivel + '" data-expira="' + p.expira + '" title="Apagada de vez ' + Banco.DIAS_GUARDADA + ' dias (6 meses) depois da última alteração">' +
-            ICONE_ALERTA + "<span></span></span>" +
-        "</div>" +
+        '<div class="historico-selos">' + seloStatus(av) + "</div>" +
       "</div>" +
       '<div class="historico-acoes"></div>';
     li.querySelector(".historico-nome span").textContent = nome;
     li.querySelector(".historico-detalhes").textContent =
       "Atualizada em " + dataHora(av.atualizadoEm) + " · Responsável: " + (av.responsavelNome || "—");
-    li.querySelector(".prazo span").textContent = p.texto;
     const acoes = li.querySelector(".historico-acoes");
 
     if (lista.nome === "pendentes") {
@@ -503,7 +447,6 @@
         const itens = todas.filter(function (av) { return concluida(av) === (nome === "concluidas"); });
         lista.ul.replaceChildren.apply(lista.ul, itens.map(function (av) { return itemLista(av, lista); }));
         filtrar(lista);
-        ligarRelogio();
       })
       .catch(function (erro) {
         if (pedido !== lista.pedido) return;

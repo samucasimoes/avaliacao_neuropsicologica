@@ -59,13 +59,11 @@ Uma avaliação fica **Concluída** sozinha quando todas as etapas estão 100% p
 verde no menu de etapas), a mesma regra do "Concluído" no nome do PDF. O status é gravado a cada
 salvamento, e as listas conferem e corrigem no banco as avaliações antigas.
 
-### 6 meses no banco
+### Guardadas sem prazo
 
-Cada avaliação fica guardada por **6 meses (180 dias) depois da última alteração** e depois é
-**apagada de vez**. A limpeza é feita pelo próprio sistema sempre que alguém entra, e as regras
-do Firestore (`firestore.rules`) só deixam apagar as que já passaram do prazo — publique as regras
-de novo depois desta mudança. Cada avaliação também tem o campo `expiraEm`: se quiser, dá para
-criar uma política de TTL no Firestore com esse campo (opcional).
+As avaliações ficam guardadas no banco **sem prazo para exclusão**: nada é apagado sozinho. Só
+quem iniciou a avaliação pode excluí-la (as regras do Firestore, `firestore.rules`, conferem) —
+publique as regras de novo depois desta mudança.
 
 ## Firebase
 

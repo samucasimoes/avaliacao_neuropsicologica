@@ -639,7 +639,7 @@ body.aguardando-login .toast {
 /* ---------- Histórico de Avaliações ---------- */
 
 .aviso-retencao {
-  display: flex;
+  display: none;
   align-items: flex-start;
   gap: 12px;
   margin: 6px 0 18px;

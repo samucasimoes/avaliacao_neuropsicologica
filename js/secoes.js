@@ -605,6 +605,8 @@ const Secoes = (function () {
           const th = criar("th", coluna.estreita ? "estreita" : coluna.tipo === "classe" ? "classe" : "", coluna.rotulo);
           cabecalho.appendChild(th);
         });
+        /* Coluna da caixa "Incapaz de realizar" (só na tela). */
+        if (b.incapaz) cabecalho.appendChild(criar("th", "", ""));
         thead.appendChild(cabecalho);
         tabela.appendChild(thead);
 
@@ -613,7 +615,11 @@ const Secoes = (function () {
           const tr = criar("tr", linha.destaque ? "destaque" : "");
           const th = criar("th", "", linha.rotulo);
           th.scope = "row";
+          tr.appendChild(th);
+          /* A caixa fica na última coluna da linha (montada depois das colunas). */
+          let tdIncapaz = null;
           if (b.incapaz) {
+            tdIncapaz = criar("td", "td-incapaz");
             const label = criar("label", "check-incapaz");
             label.title = linha.rotulo + ": o paciente não conseguiu realizar (o tempo sai como \"" +
               b.incapaz.texto + "\")";
@@ -623,10 +629,9 @@ const Secoes = (function () {
             caixa.value = "sim";
             label.appendChild(caixa);
             label.appendChild(criar("span", "", b.incapaz.texto));
-            th.appendChild(label);
+            tdIncapaz.appendChild(label);
             caixasIncapaz.push({ linha: linha, caixa: caixa });
           }
-          tr.appendChild(th);
           b.colunas.forEach(function (coluna, c) {
             const td = criar("td", coluna.estreita ? "estreita" : "");
             const rotulo = linha.rotulo + " – " + coluna.rotulo;
@@ -711,6 +716,7 @@ const Secoes = (function () {
             }
             tr.appendChild(td);
           });
+          if (tdIncapaz) tr.appendChild(tdIncapaz);
           tbody.appendChild(tr);
         });
         tabela.appendChild(tbody);

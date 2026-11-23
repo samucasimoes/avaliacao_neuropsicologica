@@ -2049,13 +2049,13 @@ td.estreita .input-tabela {
   min-width: 76px;
 }
 
-/* "Incapaz de realizar" (Teste das Trilhas): caixa embaixo do nome da forma. */
+/* "Incapaz de realizar" (Teste das Trilhas): caixa na última coluna da linha. */
 .check-incapaz {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 4px;
-  font-size: 12.5px;
+  white-space: nowrap;
+  font-size: 13px;
   font-weight: 400;
   color: var(--ink-soft);
   cursor: pointer;

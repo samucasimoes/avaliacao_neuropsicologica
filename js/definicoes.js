@@ -1017,7 +1017,7 @@ const DEFINICOES = [
         /* Fica dentro de Trilhas: na impressão, letra 10 (os outros subtítulos têm 13). */
         tamanhoTitulo: 10,
         colunaRotulo: "Forma",
-        /* Caixa "Incapaz de realizar" em cada forma: o tempo sai como esse texto (tela e
+        /* Caixa "Incapaz de realizar" no fim da linha de cada forma: o tempo sai como esse texto (tela e
            impressão), sem percentil, e a Trilha B da Atenção alternada também recebe o texto. */
         incapaz: { coluna: 1, texto: "Incapaz de realizar" },
         colunas: [
@@ -1034,7 +1034,7 @@ const DEFINICOES = [
       {
         tipo: "nota",
         soTela: true,
-        texto: "O percentil é calculado pela idade do paciente e pelo tempo em segundos (Davies, 1968). Faixas: 20 a 39, 40 a 49, 50 a 59, 60 a 69 e 70 a 79 anos; acima de 79 anos usa a faixa de 70 a 79. Mais lento que o percentil 10 aparece como \"< 10\". Sem a idade do paciente, o percentil não é calculado. Se o paciente não conseguiu fazer uma das formas, marque \"Incapaz de realizar\" abaixo do nome dela: o tempo sai com esse texto."
+        texto: "O percentil é calculado pela idade do paciente e pelo tempo em segundos (Davies, 1968). Faixas: 20 a 39, 40 a 49, 50 a 59, 60 a 69 e 70 a 79 anos; acima de 79 anos usa a faixa de 70 a 79. Mais lento que o percentil 10 aparece como \"< 10\". Sem a idade do paciente, o percentil não é calculado. Se o paciente não conseguiu fazer uma das formas, marque \"Incapaz de realizar\" no fim da linha dela: o tempo sai com esse texto."
       },
       { tipo: "subtitulo", texto: "Atenção" },
       {

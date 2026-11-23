@@ -99,7 +99,7 @@ const Relatorio = (function () {
   ];
 
   /* Já aparecem no cabeçalho e no cartão do paciente. */
-  const EXIBIDOS_NO_TOPO = ["Nome", "Idade", "Data de Nascimento", "Data da Avaliação"];
+  const EXIBIDOS_NO_TOPO = ["Nome", "Idade", "Data de Nascimento"];
 
   /* Palavras que ficam em minúsculo no meio de um rótulo ("Data da Avaliação"). */
   const PARTICULAS = ["a", "as", "o", "os", "da", "das", "de", "do", "dos", "e", "em"];
@@ -786,40 +786,33 @@ const Relatorio = (function () {
 
     /* Primeira folha: cabeçalho, paciente, identificação e informações clínicas. */
     function folhaDados() {
-      /* Cabeçalho: título centralizado (14) e, pequena no canto superior direito,
-         a data da avaliação (o rótulo em cima e a data embaixo). */
+      /* Cabeçalho: título centralizado (14). */
       doc.setFont("helvetica", "bold");
       doc.setFontSize(TAMANHO_TITULO);
       cor(COR.escuro);
       y = 15;
       textoCentralizado([TITULO.toUpperCase()], 0, 0.3);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      cor(COR.suave);
-      doc.text("Data da Avaliação", largura - margem, 10, { align: "right" });
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      cor(COR.escuro);
-      doc.text(dados["Data da Avaliação"] || "—", largura - margem, 14.2, { align: "right" });
 
-      /* Paciente numa linha só: nome, idade e nascimento */
+      /* Paciente: nome, idade e nascimento. O nome sai inteiro, como foi digitado: se não
+         couber na linha, quebra e o cartão cresce. */
       y = 21;
-      const alturaCartao = e(12);
-      borda(margem, y, util, alturaCartao);
       fonte("normal", COR.suave);
-      doc.text("Paciente:", margem + 4, y + e(7.8));
       const xNome = margem + 4 + doc.getTextWidth("Paciente:") + 3;
       const resumo = [
         dados["Idade"] ? "Idade: " + dados["Idade"] : "",
         dados["Data de Nascimento"] ? "Nascimento: " + dados["Data de Nascimento"] : ""
       ].filter(Boolean).join("   •   ");
       const larguraResumo = resumo ? doc.getTextWidth(resumo) + 6 : 0;
-      if (resumo) doc.text(resumo, margem + util - 4, y + e(7.8), { align: "right" });
       fonte("bold");
-      /* O nome do paciente sai como foi digitado. */
       const nome = doc.splitTextToSize(textoPdf(dados["Nome"] || "—"),
-        Math.max(30, margem + util - 4 - larguraResumo - xNome))[0];
-      doc.text(nome, xNome, y + e(7.8));
+        Math.max(30, margem + util - 4 - larguraResumo - xNome));
+      const linhaNome = e(5.3);
+      const alturaCartao = e(12) + (nome.length - 1) * linhaNome;
+      borda(margem, y, util, alturaCartao);
+      doc.text(nome, xNome, y + e(7.8), { lineHeightFactor: linhaNome / (doc.getFontSize() * 25.4 / 72) });
+      fonte("normal", COR.suave);
+      doc.text("Paciente:", margem + 4, y + e(7.8));
+      if (resumo) doc.text(resumo, margem + util - 4, y + e(7.8), { align: "right" });
       y += alturaCartao + g(7);
 
       /* Identificação em três colunas por linha; os campos largos (Endereço) ocupam a linha toda. */

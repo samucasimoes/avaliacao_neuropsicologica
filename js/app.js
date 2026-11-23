@@ -6,7 +6,6 @@
   const campoNascimento = document.getElementById("nascimento");
   const campoIdade = document.getElementById("idade");
   const campoTelefone = document.getElementById("telefone");
-  const campoDataAvaliacao = document.getElementById("data-avaliacao");
   const selects = form.querySelectorAll("select");
   const toast = document.getElementById("toast");
   let timerToast = null;
@@ -40,9 +39,7 @@
     const valor = campoNascimento.value;
     if (!valor) return;
     const nascimento = new Date(valor + "T00:00:00");
-    const referencia = campoDataAvaliacao.value
-      ? new Date(campoDataAvaliacao.value + "T00:00:00")
-      : new Date();
+    const referencia = new Date();
     let idade = referencia.getFullYear() - nascimento.getFullYear();
     const mes = referencia.getMonth() - nascimento.getMonth();
     if (mes < 0 || (mes === 0 && referencia.getDate() < nascimento.getDate())) idade--;
@@ -294,8 +291,7 @@
       ["História Familiar", valor("historia-familiar")],
       ["Medicamentos em Uso", valor("medicamentos")],
       ["Informante", valor("informante")],
-      ["Avaliações", valor("avaliacoes")],
-      ["Data da Avaliação", formatarData(campoDataAvaliacao.value)]
+      ["Avaliações", valor("avaliacoes")]
     ];
   }
 
@@ -388,7 +384,6 @@
       }
       el.value = valorCampo;
     });
-    if (!campoDataAvaliacao.value) campoDataAvaliacao.value = hojeISO();
     mascararTelefone();
     limparIdade();
     capitalizarNome();
@@ -404,7 +399,7 @@
 
   function formularioPreenchido() {
     return Array.from(form.elements).some(function (el) {
-      if (el.readOnly || !el.name || el.id === "data-avaliacao") return false;
+      if (el.readOnly || !el.name) return false;
       if (el.type === "radio") return el.checked;
       if (el.type === "checkbox") return el.checked !== el.defaultChecked;
       if (el.defaultValue && el.value === el.defaultValue) return false;
@@ -482,7 +477,6 @@
     link.insertAdjacentHTML("beforeend", ICONE_COMPLETA);
   });
   campoNascimento.max = hojeISO();
-  campoDataAvaliacao.value = hojeISO();
   selects.forEach(atualizarSelect);
 
   campoNascimento.addEventListener("change", calcularIdade);
@@ -491,7 +485,6 @@
   ["input", "change"].forEach(function (tipo) {
     form.addEventListener(tipo, atualizarTitulo);
   });
-  campoDataAvaliacao.addEventListener("change", calcularIdade);
   campoTelefone.addEventListener("input", mascararTelefone);
   selects.forEach(function (select) {
     select.addEventListener("change", function () { atualizarSelect(select); });
@@ -576,7 +569,6 @@
   function esvaziarFormulario() {
     trocas++;
     form.reset();
-    campoDataAvaliacao.value = hojeISO();
     selects.forEach(atualizarSelect);
     atualizarTitulo();
     atualizarContadores();
@@ -951,18 +943,19 @@
         }));
       });
     },
-    /* Baixa o PDF direto (sem abrir a janela de impressão do navegador). ids: as páginas
-       escolhidas (sem ids, todas). */
+    /* Abre a impressão do navegador (como o Ctrl+P), sem baixar o PDF. ids: as páginas
+       escolhidas (sem ids, todas). Devolve false se o navegador bloquear a nova aba. */
     imprimir: function (campos, ids) {
-      comCampos(campos || {}, function () {
+      const endereco = comCampos(campos || {}, function () {
         let lista = secoesDoRelatorio();
         let semDados = false;
         if (ids) {
           semDados = ids.indexOf("dados") === -1;
           lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
         }
-        Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { semDados: semDados, situacao: situacaoArquivo() });
+        return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { semDados: semDados, imprimir: true });
       });
+      return !!window.open(endereco, "_blank");
     },
     /* Confere o status das avaliações da lista pelos campos salvos (todas as etapas 100% =
        Concluída) e corrige no banco as que estiverem erradas. Devolve a lista corrigida. */

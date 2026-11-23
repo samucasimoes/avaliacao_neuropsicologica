@@ -91,7 +91,7 @@
               <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
             </ol>
           </nav>
-          <button class="btn btn-carregar-lateral btn-imprimir-lateral" id="btn-imprimir-topo" type="button" title="Baixar a avaliação em PDF: todas as páginas ou só as escolhidas">
+          <button class="btn btn-carregar-lateral btn-imprimir-lateral" id="btn-imprimir-topo" type="button" title="Imprimir a avaliação (o mesmo que Ctrl+P)">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
             <span class="btn-imprimir-rotulo">Imprimir Avaliação</span>
           </button>
@@ -266,7 +266,7 @@
               </div>
             </div>
 
-            <div class="row row-c">
+            <div class="row row-half">
               <div class="field">
                 <label class="label" for="telefone">Telefone</label>
                 <input class="input" type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" inputmode="numeric" maxlength="15">
@@ -274,10 +274,6 @@
               <div class="field">
                 <label class="label" for="medico-solicitante">Médico solicitante</label>
                 <input class="input" type="text" id="medico-solicitante" maxlength="80" name="medicoSolicitante" placeholder="Digite o nome do médico">
-              </div>
-              <div class="field">
-                <label class="label" for="data-avaliacao">Data da avaliação</label>
-                <input class="input" type="date" id="data-avaliacao" name="dataAvaliacao">
               </div>
             </div>
 
@@ -470,7 +466,7 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p><strong>Imprimir Avaliação</strong>, no pé do menu lateral do formulário, baixa o PDF com todas as páginas ou só as escolhidas (Ctrl+P abre a impressão com tudo). Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> faz o mesmo, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p><strong>Imprimir Avaliação</strong>, no pé do menu lateral do formulário, abre a impressão com todas as páginas, o mesmo que Ctrl+P. Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> abre a impressão com todas as páginas ou só as escolhidas, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>
@@ -555,7 +551,7 @@
   <dialog class="modal modal-imprimir" id="modal-imprimir">
     <form class="modal-body" method="dialog">
       <h3 class="modal-title">Imprimir avaliação</h3>
-      <p class="modal-text">Avaliação de <strong id="imprimir-nome"></strong>. Escolha as páginas do PDF.</p>
+      <p class="modal-text">Avaliação de <strong id="imprimir-nome"></strong>. Escolha as páginas para imprimir.</p>
       <div class="imprimir-modo" role="radiogroup" aria-label="Páginas para imprimir">
         <label class="imprimir-opcao"><input type="radio" name="imprimir-modo" value="todas" checked> Todas as páginas</label>
         <label class="imprimir-opcao"><input type="radio" name="imprimir-modo" value="escolher"> Escolher as páginas</label>

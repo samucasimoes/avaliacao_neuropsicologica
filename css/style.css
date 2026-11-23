@@ -2049,6 +2049,36 @@ td.estreita .input-tabela {
   min-width: 76px;
 }
 
+/* "Incapaz de realizar" (Teste das Trilhas): caixa embaixo do nome da forma. */
+.check-incapaz {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  cursor: pointer;
+  width: fit-content;
+}
+
+.check-incapaz:has(.check-caixa:checked) {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+/* Campo do tempo travado, mostrando "Incapaz de realizar". */
+.input-tabela.input-incapaz {
+  background: var(--bg, #f3f6f6);
+  cursor: not-allowed;
+}
+
+.input-tabela.input-incapaz::placeholder {
+  color: var(--ink-soft);
+  font-weight: 600;
+  opacity: 1;
+}
+
 .calc {
   display: inline-block;
   min-width: 48px;

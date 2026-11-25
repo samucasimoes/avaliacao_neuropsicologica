@@ -825,7 +825,8 @@ const Secoes = (function () {
         area.id = nome;
         area.name = nome;
         area.placeholder = b.placeholder || "Digite aqui...";
-        area.maxLength = b.limite || (b.alto ? LIMITE_TEXTO_ALTO : LIMITE_TEXTO);
+        /* semLimite: sem limite de caracteres (e sem contador), ex.: Conclusão. */
+        if (!b.semLimite) area.maxLength = b.limite || (b.alto ? LIMITE_TEXTO_ALTO : LIMITE_TEXTO);
         area.title = b.rotulo;
         campo.appendChild(label);
         campo.appendChild(area);
@@ -1528,7 +1529,8 @@ const Secoes = (function () {
       subtitulo: secao.def.subtituloImpressao || "",
       blocos: blocos,
       juntarCom: impressao.juntarCom || null,
-      espacamento: impressao.espacamento || 1
+      espacamento: impressao.espacamento || 1,
+      variasFolhas: !!impressao.variasFolhas
     };
   }
 

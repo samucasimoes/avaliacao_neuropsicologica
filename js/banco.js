@@ -303,6 +303,12 @@ const Banco = (function () {
       .then(function (r) { return r.docs.map(lerDoc); });
   }
 
+  /* Grava só a etapa aberta (sem mudar a data nem quem alterou): usado quando a pessoa
+     só navega pela avaliação, sem mudar o conteúdo. */
+  function salvarSecao(id, secao) {
+    return colecao("avaliacoes").doc(id).update({ secao: secao });
+  }
+
   function abrirAvaliacao(id) {
     return colecao("avaliacoes").doc(id).get().then(function (doc) {
       if (!doc.exists) throw { code: "not-found" };
@@ -451,6 +457,7 @@ const Banco = (function () {
     perfil: perfil,
     alterarNome: alterarNome,
     salvarAvaliacao: salvarAvaliacao,
+    salvarSecao: salvarSecao,
     listarAvaliacoes: listarAvaliacoes,
     abrirAvaliacao: abrirAvaliacao,
     marcarStatus: marcarStatus,

@@ -266,8 +266,19 @@
     tdPaciente.appendChild(span);
     tr.appendChild(tdPaciente);
 
-    tr.appendChild(celula(dataHora(av.atualizadoEm)));
-    tr.appendChild(celula(av.responsavelNome || "—"));
+    /* Data da última alteração e, embaixo (cinza), quem alterou. As avaliações salvas antes
+       de existir atualizadoPorNome mostram quem iniciou. */
+    const tdAtualizacao = celula("", "col-atualizacao");
+    tdAtualizacao.appendChild(Object.assign(document.createElement("span"), {
+      className: "atualizacao-data", textContent: dataHora(av.atualizadoEm)
+    }));
+    const por = av.atualizadoPorNome || av.responsavelNome;
+    if (por) {
+      tdAtualizacao.appendChild(Object.assign(document.createElement("span"), {
+        className: "atualizacao-por", textContent: "Atualizada por " + por
+      }));
+    }
+    tr.appendChild(tdAtualizacao);
 
     const tdStatus = document.createElement("td");
     tdStatus.innerHTML = seloStatus(av);

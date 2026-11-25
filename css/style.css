@@ -564,6 +564,21 @@ body.aguardando-login .toast {
   color: var(--ink-soft);
 }
 
+/* Última atualização: a data (preto) e, embaixo, quem alterou (cinza). */
+.col-atualizacao span {
+  display: block;
+}
+
+.atualizacao-data {
+  color: var(--ink);
+}
+
+.atualizacao-por {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 .col-seta {
   width: 40px;
   text-align: right;

@@ -171,9 +171,10 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     para a profissional se basear: não sai na impressão.
 20. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
     tabela (domínio e resultado).
-21. **Conclusão** – texto (até 3.000 caracteres, quase a folha toda) e assinaturas dos
-    profissionais. Na impressão, "Rio de Janeiro, ___ de ___ de ___." (para escrever a data à
-    mão) e as assinaturas ficam no fim da folha.
+21. **Conclusão** – texto sem limite de caracteres e assinaturas dos profissionais. Na
+    impressão a letra não diminui: o texto longo continua na folha seguinte, e
+    "Rio de Janeiro, ___ de ___ de ___." (para escrever a data à mão) e as assinaturas ficam
+    no fim da última folha.
 
 O questionário completo do **IQCODE** (26 itens) está fora de uso: o código continua no
 projeto, mas a aba fica escondida (`display: none`) e não sai no relatório; o escore do

@@ -577,6 +577,8 @@
     Secoes.atualizar();
     atualizarEtapas();
     definirAvaliacao(null, "em_andamento");
+    conteudoSalvo = null;
+    secaoSalva = null;
     definirSomenteLeitura(false);
     alterado = false;
     marcarStatusSalvo("");
@@ -608,6 +610,8 @@
         trocas++;
         preencherCampos(campos);
         definirAvaliacao(null, "em_andamento");
+        conteudoSalvo = null;
+        secaoSalva = null;
         definirSomenteLeitura(false);
         mostrarSecao("dados");
         marcarAlterado();
@@ -633,6 +637,21 @@
   let responsavelNome = "";
   let alterado = false;
   let salvando = null;
+  /* Conteúdo (campos) como está no banco, e a etapa salva. Só abrir a avaliação, trocar de
+     etapa ou clicar em Próxima não muda a data da última alteração: ela só muda quando o
+     conteúdo muda (pelo menos um caractere ou uma marcação). null = desconhecido. */
+  let conteudoSalvo = null;
+  let secaoSalva = null;
+
+  function assinatura(campos) {
+    return JSON.stringify(campos || coletarCampos());
+  }
+
+  /* Depois de abrir a avaliação do banco: o que está na tela é o que está salvo. */
+  function marcarConteudoSalvo(secao) {
+    conteudoSalvo = assinatura();
+    secaoSalva = secao || null;
+  }
   /* Conta as trocas de avaliação no formulário (nova, abrir, carregar arquivo). Uma leitura
      do banco que chega depois de uma troca é ignorada, para não preencher o formulário
      novo com os dados da avaliação anterior. */
@@ -683,10 +702,24 @@
     alterado = false;
     const status = statusCalculado();
     const dados = { paciente: valor("nome"), campos: coletarCampos(), secao: secaoAtual, status: status };
+    const assinaturaAtual = assinatura(dados.campos);
+    /* Conteúdo igual ao do banco: não mexe na data da última alteração. Se só a etapa
+       aberta mudou, grava só a etapa. */
+    if (avaliacaoId && conteudoSalvo === assinaturaAtual) {
+      if (secaoAtual === secaoSalva) return Promise.resolve();
+      const secao = secaoAtual;
+      salvando = Banco.salvarSecao(avaliacaoId, secao)
+        .then(function () { secaoSalva = secao; })
+        .catch(function (erro) { console.warn("Etapa aberta:", erro); })
+        .then(function () { salvando = null; });
+      return salvando;
+    }
     marcarStatusSalvo("Salvando…");
     salvando = Banco.salvarAvaliacao(avaliacaoId, dados, responsavelNome)
       .then(function (id) {
         definirAvaliacao(id, status);
+        conteudoSalvo = assinaturaAtual;
+        secaoSalva = dados.secao;
         marcarStatusSalvo("Salvo às " + horaAgora());
       })
       .catch(function (erro) {
@@ -850,12 +883,14 @@
             if (!mesmaAvaliacao()) return;
             preencherCampos(dados.campos || {});
             definirAvaliacao(dados.id, dados.status);
+            marcarConteudoSalvo(dados.secao);
             gravarRascunho();
           })
           .catch(function (erro) {
             /* Apagada no banco: o que está na tela vira uma avaliação nova. */
             if (erro && erro.code === "not-found" && mesmaAvaliacao()) {
               definirAvaliacao(null, "em_andamento");
+              conteudoSalvo = null;
               marcarAlterado();
             }
           });
@@ -896,6 +931,7 @@
           if (troca !== trocas) throw new Error("cancelado");
           preencherCampos(dados.campos || {});
           definirAvaliacao(dados.id, dados.status);
+          marcarConteudoSalvo(dados.secao);
           definirSomenteLeitura(leitura);
           alterado = false;
           marcarStatusSalvo("");

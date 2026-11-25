@@ -939,7 +939,13 @@ const Relatorio = (function () {
     }
 
     folhas.forEach(function (folha) {
-      folhaUnica(function () {
+      /* Etapa com variasFolhas (Conclusão): letra normal, e o que não couber continua na
+         folha seguinte. As outras: uma folha só, diminuindo a letra se preciso. */
+      const variasFolhas = folha.partes.some(function (parte) { return parte.secao && parte.secao.variasFolhas; });
+      const desenharEm = variasFolhas
+        ? function (desenhar) { desenharFolha(desenhar, ESCALA_INICIAL, 1, false); k = 1; c = 1; }
+        : folhaUnica;
+      desenharEm(function () {
         folha.partes.forEach(function (parte) {
           if (parte.dados) {
             folhaDados();

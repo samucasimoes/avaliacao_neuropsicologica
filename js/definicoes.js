@@ -1291,8 +1291,11 @@ const DEFINICOES = [
     titulo: "Conclusão",
     descricao: "Conclusão da avaliação e assinatura dos profissionais.",
     sempreImprimir: true,
+    /* Conclusão sem limite de caracteres: na impressão, o texto longo continua na folha
+       seguinte (com a letra normal), em vez de diminuir a letra para caber numa folha só. */
+    impressao: { variasFolhas: true },
     blocos: [
-      { tipo: "texto", id: "texto", rotulo: "Conclusão", alto: true, folha: true, limite: 3000, placeholder: "Escreva a conclusão da avaliação..." },
+      { tipo: "texto", id: "texto", rotulo: "Conclusão", alto: true, folha: true, semLimite: true, placeholder: "Escreva a conclusão da avaliação..." },
       {
         tipo: "assinaturas",
         id: "assinaturas",

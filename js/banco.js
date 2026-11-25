@@ -1,7 +1,8 @@
 /* Firebase: login (Authentication) e banco de dados (Firestore).
    Coleções:
    - avaliacoes/{id}: paciente, campos (os mesmos nomes do formulário e do .json), secao,
-     status ("em_andamento" ou "concluida"), responsavelNome/Uid, criadoEm, atualizadoEm
+     status ("em_andamento" ou "concluida"), responsavelNome/Uid (quem iniciou), criadoEm,
+     atualizadoEm e atualizadoPorNome (quem fez a última alteração)
      (ficam guardadas sem prazo; só quem iniciou a avaliação pode excluí-la).
    - profissionais/{uid}: nome e e-mail de cada acesso (usado na saudação), senhaDefinida
      (true depois que a pessoa troca a senha provisória do primeiro acesso), ativo (false =
@@ -269,8 +270,11 @@ const Banco = (function () {
 
   /* Cria (sem id) ou atualiza a avaliação. Devolve o id. */
   function salvarAvaliacao(id, dados, responsavelNome) {
+    const nomeUsuario = responsavelNome || nomeDoEmail(usuario().email);
+    /* Quem fez a última alteração (mostrado no Início: "Atualizada por ..."). */
     const registro = Object.assign({}, dados, {
-      atualizadoEm: agora()
+      atualizadoEm: agora(),
+      atualizadoPorNome: nomeUsuario
     });
     if (id) {
       return colecao("avaliacoes").doc(id).update(registro)
@@ -285,7 +289,7 @@ const Banco = (function () {
       status: dados.status || "em_andamento",
       criadoEm: agora(),
       responsavelUid: usuario().uid,
-      responsavelNome: responsavelNome || nomeDoEmail(usuario().email)
+      responsavelNome: nomeUsuario
     });
     return colecao("avaliacoes").add(registro).then(function (ref) { return ref.id; });
   }

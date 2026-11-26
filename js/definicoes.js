@@ -765,37 +765,11 @@ const DEFINICOES = [
 
   {
     id: "cerad",
-    titulo: "Bateria do CERAD e Funções executivas",
-    tituloImpressao: "Consortium to Establish a Registry for Alzheimer's Disease",
-    descricao: "CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e Bateria de Avaliação Frontal (FAB).",
+    /* A tabela da Bateria do CERAD fica no fim da aba Linguagem (tela e impressão). */
+    titulo: "Funções executivas",
+    tituloImpressao: "Funções Executivas",
+    descricao: "Funções executivas e Bateria de Avaliação Frontal (FAB). Os testes da Bateria do CERAD ficam no fim da aba Linguagem.",
     blocos: [
-      {
-        tipo: "tabela",
-        id: "cerad",
-        titulo: "Bateria do CERAD",
-        colunaRotulo: "Teste",
-        /* Os escores puxados de outras abas aparecem já preenchidos, mas podem ser alterados. */
-        puxadoEditavel: true,
-        colunas: [
-          { rotulo: "Escore obtido", tipo: "numero" },
-          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
-        ],
-        linhas: [
-          /* "puxar": o escore vem de outra aba ([aba, bloco, linha, coluna]); aqui pode ser alterado.
-             Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia não têm escore em
-             outra aba (na Linguagem, a Nomeação de Boston é um texto) e são digitadas aqui. */
-          { rotulo: "Fluência verbal: Animais", puxar: { 0: ["linguagem", "semantica", "1", 0] } },
-          { rotulo: "Fluência verbal: Frutas", puxar: { 0: ["linguagem", "semantica", "2", 0] } },
-          { rotulo: "Nomeação de Boston" },
-          { rotulo: "MoCA (Montreal Cognitive Assessment)", puxar: { 0: ["moca", "dominios", "total", 0] } },
-          { rotulo: "Memória verbal (fixação)", puxar: { 0: ["ravlt", "tabela", "total", 0] } },
-          { rotulo: "Praxia construtiva" },
-          { rotulo: "Memória verbal (evocação)", puxar: { 0: ["ravlt", "tabela", "a7", 0] } },
-          { rotulo: "Memória verbal (reconhecimento)", puxar: { 0: ["ravlt", "tabela", "reconhecimento", 0] } },
-          { rotulo: "Evocação tardia da praxia" }
-        ]
-      },
-      { tipo: "subtitulo", texto: "Funções executivas" },
       {
         tipo: "paragrafo",
         texto: "Conjunto de habilidades e princípios de organização necessários para lidar com situações visando adoção de conduta apropriada, responsável e efetiva. Incluem formulação de objetivos e de conceitos, motivação, planejamento, autorregulação, “insight”, abstração, análise, manipulação de conhecimentos adquiridos e flexibilidade mental. (Testes analisados: __Stroop Test, Trilhas A e B, Semelhanças, Labirintos, Teste de Controle Mental, Teste de Fluência Verbal por categoria semântica e fonêmica, Teste do Relógio de Shulman, Teste dos Sinos, Interpretação de Provérbios__.)"
@@ -886,7 +860,30 @@ const DEFINICOES = [
       { tipo: "texto", id: "boston", rotulo: "Nomeação de Boston" },
       { tipo: "texto", id: "leitura", rotulo: "Leitura" },
       { tipo: "texto", id: "escrita", rotulo: "Escrita" },
-      { tipo: "texto", id: "compreensao", rotulo: "Compreensão" }
+      { tipo: "texto", id: "compreensao", rotulo: "Compreensão" },
+      /* Testes da Bateria do CERAD (Consortium to Establish a Registry for Alzheimer's Disease),
+         no fim da Linguagem. Os escores da lista de palavras vêm do RAVLT, mas podem ser
+         alterados aqui (apagando o valor digitado, volta o do RAVLT); os da praxia construtiva
+         são digitados aqui. */
+      {
+        tipo: "tabela",
+        id: "cerad",
+        titulo: "Testes da Bateria do CERAD",
+        tituloImpressao: "Testes da Bateria do CERAD *(Consortium to Establish a Registry for Alzheimer's Disease)*",
+        colunaRotulo: "Testes",
+        puxadoEditavel: true,
+        colunas: [
+          { rotulo: "Total", tipo: "numero" },
+          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
+        ],
+        linhas: [
+          { rotulo: "Memória da lista de palavras", puxar: { 0: ["ravlt", "tabela", "total", 0] } },
+          { rotulo: "Praxia construtiva" },
+          { rotulo: "Evocação da praxia construtiva" },
+          { rotulo: "Evocação da lista de palavras", puxar: { 0: ["ravlt", "tabela", "a7", 0] } },
+          { rotulo: "Reconhecimento da lista de palavras", puxar: { 0: ["ravlt", "tabela", "reconhecimento", 0] } }
+        ]
+      }
     ]
   },
 

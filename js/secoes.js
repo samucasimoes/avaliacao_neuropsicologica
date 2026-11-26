@@ -21,6 +21,34 @@ const Secoes = (function () {
     return el;
   }
 
+  /* Grade das tabelas da tela: todas ocupam a largura da aba e cada tipo de coluna tem
+     sempre a mesma largura (style.css, .tabela-grade), então as colunas de tabelas
+     diferentes ficam alinhadas umas com as outras. A primeira coluna (rótulos) é uma
+     porcentagem e a última ocupa o que sobra. Larguras mínimas (px) para a rolagem
+     lateral em telas estreitas. */
+  const LARGURA_COLUNA = { rotulo: 220, valor: 128, estreita: 84, calc: 104, classe: 244, incapaz: 180, faixa: 160, texto: 240 };
+
+  function gradeColunas(tabela, tipos) {
+    const colgroup = criar("colgroup");
+    let minimo = 0;
+    tipos.forEach(function (tipo, i) {
+      const ultima = i === tipos.length - 1 && i > 0;
+      colgroup.appendChild(criar("col", "col-" + (ultima ? "resto" : tipo)));
+      minimo += LARGURA_COLUNA[tipo] || 0;
+    });
+    tabela.classList.add("tabela-grade");
+    tabela.style.minWidth = minimo + "px";
+    tabela.insertBefore(colgroup, tabela.firstChild);
+  }
+
+  /* Tipo de coluna de uma tabela, para a grade. */
+  function tipoColuna(coluna) {
+    if (coluna.tipo === "classe") return "classe";
+    if (coluna.estreita) return "estreita";
+    if (coluna.tipo === "calculo" || coluna.tipo === "fixo" || coluna.tipo === "referencia") return "calc";
+    return "valor";
+  }
+
   function valorDe(nome) {
     const el = form.elements.namedItem(nome);
     if (!el) return "";
@@ -720,6 +748,7 @@ const Secoes = (function () {
           tbody.appendChild(tr);
         });
         tabela.appendChild(tbody);
+        gradeColunas(tabela, ["rotulo"].concat(b.colunas.map(tipoColuna), b.incapaz ? ["incapaz"] : []));
         rolagem.appendChild(tabela);
         container.appendChild(rolagem);
       },
@@ -869,7 +898,8 @@ const Secoes = (function () {
     return {
       montar: function (container) {
         if (b.entrada === false) return;
-        const campo = criar("div", "field campo-escore");
+        /* alinharTabela: o campo fica na coluna do escore da tabela de cima (IQCODE no MoCA). */
+        const campo = criar("div", "field campo-escore" + (b.alinharTabela ? " campo-escore-grade" : ""));
         const label = criar("label", "label", b.rotulo + ":");
         label.htmlFor = nome;
         input = criar("input", "input input-escore");
@@ -914,7 +944,7 @@ const Secoes = (function () {
       relatorio: function () {
         const proprio = b.entrada === false ? null : digitado();
         const valor = proprio !== null ? proprio : calculado();
-        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor) }];
+        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor), alinharTabela: !!b.alinharTabela }];
       }
     };
   }
@@ -942,6 +972,7 @@ const Secoes = (function () {
           tbody.appendChild(tr);
         });
         tabela.appendChild(tbody);
+        gradeColunas(tabela, ["faixa", "texto"]);
         container.appendChild(tabela);
       },
       preenchido: function () { return false; },
@@ -1272,6 +1303,9 @@ const Secoes = (function () {
           linhas.push({ item: item, saida: saida, selo: seloEl });
         });
         tabela.appendChild(tbody);
+        gradeColunas(tabela, ["rotulo", "calc", "classe"]);
+        /* Aba de uma tabela só, com nomes longos: rótulos mais largos. */
+        tabela.classList.add("tabela-rotulo-largo");
         rolagem.appendChild(tabela);
         container.appendChild(rolagem);
       },
@@ -1371,6 +1405,8 @@ const Secoes = (function () {
     paragrafo: blocoEstatico("paragrafo", "paragrafo"),
     nota: blocoEstatico("escala-legenda", "nota"),
     subtitulo: blocoEstatico("escala-grupo subtitulo", "subtitulo"),
+    /* Título no meio da aba (ex.: IQCODE, na aba MoCA / IQCODE): na impressão, como o das abas. */
+    titulo: blocoEstatico("escala-grupo subtitulo", "titulo"),
     frase: blocoFrase,
     grafico: blocoGrafico,
     resultados: blocoResultados,
@@ -1509,7 +1545,7 @@ const Secoes = (function () {
     const impressao = secao.def.impressao || {};
     const grupos = [[]];
     secao.blocos.forEach(function (bloco) {
-      if (bloco.tipo === "subtitulo") grupos.push([]);
+      if (bloco.tipo === "subtitulo" || bloco.tipo === "titulo") grupos.push([]);
       grupos[grupos.length - 1].push(bloco);
     });
     /* Blocos dos grupos indicados, na ordem dada; titulos dá um subtítulo a um grupo

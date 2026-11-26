@@ -130,12 +130,18 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
    BDI, IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Fica só na
    tela: não sai na impressão (o resultado e a legenda de cada escala saem na folha dela).
 
+Na tela, as tabelas seguem uma grade (`gradeColunas` em `js/secoes.js` e `.tabela-grade` em
+`css/style.css`): ocupam a largura da aba e cada tipo de coluna (rótulo, escore, coluna estreita,
+calculada, classificação) tem sempre a mesma largura, então as colunas de tabelas diferentes
+ficam alinhadas.
+
 Em todas as escalas, a legenda tem duas colunas: o escore à esquerda e a interpretação à
 direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da folha.
 10. **MoCA / IQCODE** – escore por domínio e total; valor acima do máximo fica em vermelho com
     aviso e não entra no total até ser corrigido. A coluna Escore máximo fica só na tela. Os
-    comentários sobre o Teste do Relógio de Shulman e, abaixo deles, o escore do IQCODE (aceita
-    decimal, ex.: 3,6) saem na mesma folha da tabela.
+    comentários sobre o Teste do Relógio de Shulman e, abaixo deles, o IQCODE (título como o
+    das abas e o escore, que aceita decimal, ex.: 3,6, na coluna do escore do MoCA) saem na
+    mesma folha da tabela.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
 12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna

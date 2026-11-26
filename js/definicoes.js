@@ -743,8 +743,10 @@ const DEFINICOES = [
         rotulo: "Comentários Sobre o Teste do Relógio de Shulman",
         alto: true
       },
-      /* IQCODE – Questionário do Declínio: só o escore (média de 1 a 5). */
-      { tipo: "escore", id: "iqcode", rotulo: "Escore do IQCODE", maximo: 5, decimal: true }
+      /* IQCODE – Questionário do Declínio: só o escore (média de 1 a 5). Na impressão, o
+         título sai como o das abas e o escore fica na coluna do escore do MoCA. */
+      { tipo: "titulo", texto: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*" },
+      { tipo: "escore", id: "iqcode", rotulo: "Escore do paciente", maximo: 5, decimal: true, alinharTabela: true }
     ],
     /* Resultado do IQCODE para o quadro de Humor e comportamento. */
     resultados: {

@@ -270,6 +270,25 @@ const Relatorio = (function () {
           }
           return;
         }
+        /* Palavra maior que a largura (ex.: comentário digitado sem espaços): quebra no
+           meio, letra a letra, em vez de passar da célula. */
+        if (w > larguraMax && pedaco.t.length > 1) {
+          let trecho = "";
+          Array.from(pedaco.t).forEach(function (letra) {
+            if (trecho && usada + doc.getTextWidth(trecho + letra) > larguraMax) {
+              linha.push(Object.assign({}, pedaco, { t: trecho, w: doc.getTextWidth(trecho) }));
+              linha = [];
+              linhasTexto.push(linha);
+              usada = 0;
+              trecho = "";
+            }
+            trecho += letra;
+          });
+          const wTrecho = doc.getTextWidth(trecho);
+          linha.push(Object.assign({}, pedaco, { t: trecho, w: wTrecho }));
+          usada += wTrecho;
+          return;
+        }
         if (usada + w > larguraMax && linha.some(function (p) { return !p.espaco; })) {
           aparar(linha);
           linha = [];
@@ -535,6 +554,27 @@ const Relatorio = (function () {
         });
       });
 
+      /* As colunas de valores (depois da primeira) nunca ficam mais estreitas que o próprio
+         conteúdo: um texto comprido na primeira coluna (ex.: comentário sem espaços) quebra
+         linha em vez de espremer o Escore. */
+      const estilosColunas = Object.assign({}, bloco.estilos || {});
+      if (colunas > 1) {
+        for (let i = 1; i < colunas; i++) {
+          const proprio = estilosColunas[i] || {};
+          if (proprio.cellWidth) continue;
+          doc.setFontSize(e(TAMANHO_TEXTO));
+          doc.setFont("helvetica", "bold");
+          let largura = doc.getTextWidth(textoPdf(semMarcas(bloco.cabecalho[i] || "")));
+          bloco.linhas.forEach(function (linha) {
+            if (linha.grupo) return;
+            String(textoPdf(semMarcas(celulasDe(linha)[i] || ""))).split("\n").forEach(function (parte) {
+              largura = Math.max(largura, doc.getTextWidth(parte));
+            });
+          });
+          estilosColunas[i] = Object.assign({}, proprio, { minCellWidth: Math.max(proprio.minCellWidth || 0, largura + 5.5) });
+        }
+      }
+
       garantirEspaco(e(16));
       doc.autoTable({
         startY: y,
@@ -573,7 +613,7 @@ const Relatorio = (function () {
             data.cell.styles.lineWidth = { bottom: 0.4 };
           }
         },
-        columnStyles: bloco.estilos || {},
+        columnStyles: estilosColunas,
         didDrawPage: faixaTopo,
         willDrawCell: function (data) {
           if (data.cell.raw && data.cell.raw.rico) data.cell.text = [""];

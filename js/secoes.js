@@ -850,7 +850,7 @@ const Secoes = (function () {
   }
 
   /* Escore do paciente no fim das questões ("ESCORE DO PACIENTE: 3" na impressão).
-     Digitado pelo profissional (Katz, GAI, GDS, BHS, IQCODE); em branco, a impressão usa o
+     Digitado pelo profissional (Katz, GAI, GDS, BHS, BDI, IQCODE); em branco, a impressão usa o
      valor calculado (b.calculado), mostrado como dica no campo. Com entrada: false não há
      campo na tela e sai só o valor calculado (Pfeffer). Com decimal, aceita vírgula (IQCODE). */
   function blocoEscore(secao, b) {
@@ -1217,7 +1217,7 @@ const Secoes = (function () {
     function resultadoDe(item, i) {
       if (item.origem) {
         if (contexto.origens[item.origem]) return contexto.origens[item.origem]();
-        return resultado(item.origem);
+        return resultado(item.origem, item.resultado);
       }
       const valor = valorDe(nome(i + 1));
       if (acimaDoMaximo(valor, item.maximo)) return null;
@@ -1474,10 +1474,13 @@ const Secoes = (function () {
     return !!secao && secao.blocos.every(function (bloco) { return bloco.completo(); });
   }
 
-  /* Resultado resumido da etapa (usado no quadro de Humor e comportamento). */
-  function resultado(id) {
+  /* Resultado resumido da etapa (usado no quadro de Humor e comportamento).
+     qual: um resultado à parte da etapa (ex.: o IQCODE, na aba MoCA / IQCODE). */
+  function resultado(id, qual) {
     const secao = porId[id];
-    if (!secao || !secao.def.resultado) return null;
+    if (!secao) return null;
+    if (qual) return secao.def.resultados && secao.def.resultados[qual] ? secao.def.resultados[qual](secao.api) : null;
+    if (!secao.def.resultado) return null;
     return secao.def.resultado(secao.api);
   }
 

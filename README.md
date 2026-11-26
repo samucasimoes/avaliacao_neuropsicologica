@@ -121,20 +121,21 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30. Na
    impressão o título é "Escalas, Inventários e Questionários", com o nome do questionário
    logo abaixo (letra 10, em itálico); o escore e a legenda saem no fim da folha.
-7. **GAI**, **GDS**, **Escala de Desesperança de Beck (BHS)** e **IQCODE** – uma aba para
-   cada, só com o campo Escore do paciente (o IQCODE aceita decimal, ex.: 3,6) e a legenda
-   (o IQCODE não tem legenda). Na impressão saem juntas numa folha, depois do Pfeffer.
+7. **GAI**, **GDS**, **Escala de Desesperança de Beck (BHS)** e **Inventário de Depressão de
+   Beck (BDI)** – uma aba para cada, só com o campo Escore do paciente e a legenda. Na
+   impressão saem juntas numa folha, depois do Pfeffer.
 8. **Escala Cornell** – escore e interpretação automáticos. Opções: Impossibilitado de
    avaliar, Ausente, Leve e Intenso. Na impressão o escore e a legenda saem no fim da folha.
 9. **Humor e comportamento** – quadro com os resultados de Katz, Pfeffer, GAI, GDS, BHS,
-   IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Fica só na
+   BDI, IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Fica só na
    tela: não sai na impressão (o resultado e a legenda de cada escala saem na folha dela).
 
 Em todas as escalas, a legenda tem duas colunas: o escore à esquerda e a interpretação à
 direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da folha.
-10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
-    e não entra no total até ser corrigido. Os comentários sobre o Teste do Relógio de Shulman
-    saem na mesma folha da tabela.
+10. **MoCA / IQCODE** – escore por domínio e total; valor acima do máximo fica em vermelho com
+    aviso e não entra no total até ser corrigido. A coluna Escore máximo fica só na tela. Os
+    comentários sobre o Teste do Relógio de Shulman e, abaixo deles, o escore do IQCODE (aceita
+    decimal, ex.: 3,6) saem na mesma folha da tabela.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
 12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna
@@ -178,16 +179,15 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 
 O questionário completo do **IQCODE** (26 itens) está fora de uso: o código continua no
 projeto, mas a aba fica escondida (`display: none`) e não sai no relatório; o escore do
-IQCODE é digitado na aba IQCODE (`iqcode-escore`). Para voltar com o questionário, remova a
+IQCODE é digitado na aba MoCA / IQCODE. Para voltar com o questionário, remova a
 classe `etapa-oculta` e o `style` da aba no `index.html`.
 
 O relatório segue a ordem dos números das etapas e só traz as etapas preenchidas.
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,
-Memória verbal e visual + Trilhas (com Atenção) e
+Memória verbal e visual + Atenção (da aba Trilhas), Stroop Test + Trilhas e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
-páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13 (o "Teste das
-Trilhas", que fica dentro de Trilhas, tem 10). Nas tabelas, a linha embaixo dos títulos das
+páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13. Nas tabelas, a linha embaixo dos títulos das
 colunas é cinza e a última linha é preta, separando uma escala da outra (na última tabela da
 aba, como o Resumo e as legendas no fim da folha, ela fica cinza-clara como as outras). As palavras em
 inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12; o título "Stroop Test",

@@ -189,6 +189,13 @@ function interpretarBhs(n) {
   return { texto: "Desesperança mínima", nivel: "baixo" };
 }
 
+function interpretarBdi(n) {
+  if (n >= 36) return { texto: "Depressão grave", nivel: "alto" };
+  if (n >= 20) return { texto: "Depressão moderada", nivel: "alto" };
+  if (n >= 12) return { texto: "Depressão leve", nivel: "medio" };
+  return { texto: "Depressão mínima", nivel: "baixo" };
+}
+
 const DEFINICOES = [
   {
     id: "resumo",
@@ -492,7 +499,7 @@ const DEFINICOES = [
     }
   },
 
-  /* GAI, GDS, BHS e IQCODE: só o escore digitado e a legenda. Na impressão saem
+  /* GAI, GDS, BHS e BDI: só o escore digitado e a legenda. Na impressão saem
      juntas numa folha, depois do Pfeffer. */
   {
     id: "gai",
@@ -559,15 +566,26 @@ const DEFINICOES = [
   },
 
   {
-    id: "iqcode-escore",
-    titulo: "IQCODE",
-    tituloImpressao: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*",
+    id: "bdi",
+    titulo: "Inventário de Depressão de Beck (BDI)",
+    tituloImpressao: "Inventário de Depressão de Beck *(Beck Depression Inventory)*",
     impressao: { juntarCom: ["gai", "gds", "bhs"] },
-    descricao: "Digite o escore do paciente no IQCODE – Questionário do Declínio (média de 1 a 5).",
+    descricao: "Digite o escore do paciente no Inventário de Depressão de Beck (0 a 63).",
     blocos: [
-      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 5, decimal: true }
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 63 },
+      {
+        tipo: "faixas",
+        id: "legenda",
+        linhas: [
+          ["0 a 11", "Depressão mínima"],
+          ["12 a 19", "Depressão leve"],
+          ["20 a 35", "Depressão moderada"],
+          ["36 a 63", "Depressão grave"]
+        ]
+      }
     ],
-    resultado: resultadoDigitado(null)
+    resultado: resultadoDigitado(interpretarBdi),
+    resumo: resumoDigitado
   },
 
   {
@@ -650,7 +668,7 @@ const DEFINICOES = [
   {
     id: "humor",
     titulo: "Humor e comportamento",
-    descricao: "Escalas, inventários e questionários: os resultados vêm das próprias abas (Katz, Pfeffer, GAI, GDS, BHS, IQCODE e Cornell). As legendas saem na folha de cada escala.",
+    descricao: "Escalas, inventários e questionários: os resultados vêm das próprias abas (Katz, Pfeffer, GAI, GDS, BHS, BDI, IQCODE e Cornell). As legendas saem na folha de cada escala.",
     blocos: [
       {
         tipo: "resultados",
@@ -661,7 +679,9 @@ const DEFINICOES = [
           { rotulo: "GAI (inventário de ansiedade) autorrelato", origem: "gai" },
           { rotulo: "GDS (Yesavage escala de depressão) autorrelato", origem: "gds" },
           { rotulo: "BHS (escala de desesperança) autorrelato", origem: "bhs" },
-          { rotulo: "IQCODE (questionário do declínio)", origem: "iqcode-escore" },
+          { rotulo: "BDI (inventário de depressão de Beck) autorrelato", origem: "bdi" },
+          /* O escore do IQCODE é digitado na aba MoCA / IQCODE. */
+          { rotulo: "IQCODE (questionário do declínio)", origem: "moca", resultado: "iqcode" },
           { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" }
         ]
       }
@@ -670,13 +690,13 @@ const DEFINICOES = [
 
   {
     id: "moca",
-    titulo: "Montreal Cognitive Assessment (MoCA)",
+    titulo: "MoCA / IQCODE",
     /* Em inglês: na impressão, em itálico e letra 12. */
     tituloImpressao: "*Montreal Cognitive Assessment (MoCA)*",
     /* Na impressão a tabela sai mais espaçada para ocupar melhor a folha
        (sem exagero: ainda cabe o comentário sobre o Relógio de Shulman). */
     impressao: { espacamento: 1.6 },
-    descricao: "Digite o escore do paciente em cada domínio. O total é calculado automaticamente.",
+    descricao: "Digite o escore do paciente em cada domínio do MoCA (o total é calculado automaticamente) e, no fim, o escore do IQCODE.",
     blocos: [
       {
         tipo: "tabela",
@@ -684,7 +704,8 @@ const DEFINICOES = [
         colunaRotulo: "Domínio",
         colunas: [
           { rotulo: "Escore do paciente", tipo: "numero" },
-          { rotulo: "Escore máximo", tipo: "fixo" }
+          /* Só na tela: não sai na impressão. */
+          { rotulo: "Escore máximo", tipo: "fixo", soTela: true }
         ],
         linhas: [
           { rotulo: "Visuoespacial / Funções executivas", chave: "visuo", maximo: 5, fixos: ["", "5"] },
@@ -721,8 +742,17 @@ const DEFINICOES = [
         id: "comentario",
         rotulo: "Comentários Sobre o Teste do Relógio de Shulman",
         alto: true
-      }
+      },
+      /* IQCODE – Questionário do Declínio: só o escore (média de 1 a 5). */
+      { tipo: "escore", id: "iqcode", rotulo: "Escore do IQCODE", maximo: 5, decimal: true }
     ],
+    /* Resultado do IQCODE para o quadro de Humor e comportamento. */
+    resultados: {
+      iqcode: function (s) {
+        const n = s.bloco("iqcode").valor();
+        return n === null ? null : { valor: formatarNumero(n), texto: "", nivel: "" };
+      }
+    },
     resumo: function (s) {
       const total = s.bloco("dominios").valor("total", 0);
       return [{ rotulo: "Escore total", valor: total === null ? "—" : total, de: "30" }];

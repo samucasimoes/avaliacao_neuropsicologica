@@ -306,7 +306,7 @@
 
   /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
      campos, suba a versão e converta os nomes antigos em migrarCampos. */
-  const VERSAO_CAMPOS = 7;
+  const VERSAO_CAMPOS = 8;
 
   /* Converte campos salvos antes da versão 3:
      - Encaminhador virou Médico solicitante;
@@ -319,7 +319,8 @@
      passaram da coluna 2, 3 e 4 para 3, 4 e 5.
      Na versão 6, a escolaridade "Pós-graduação" virou "Pós-graduação / MBA".
      Na versão 7, a Fluência fonêmica ganhou a coluna Média (a 1ª): F, A, S e Classificação
-     passaram uma coluna para a direita. */
+     passaram uma coluna para a direita.
+     Na versão 8, a aba IQCODE saiu: o escore dela passou para a aba MoCA / IQCODE. */
   function migrarCampos(campos) {
     const versao = Number(campos.versaoCampos) || 2;
     if (versao >= VERSAO_CAMPOS) return campos;
@@ -328,7 +329,9 @@
     Object.keys(campos).forEach(function (nome) {
       let novo = nome;
       let m;
-      if (versao < 7 && (m = /^linguagem-fonemica-(\d+)-(\d+)$/.exec(nome))) {
+      if (versao < 8 && nome === "iqcode-escore-escore") {
+        novo = "moca-iqcode";
+      } else if (versao < 7 && (m = /^linguagem-fonemica-(\d+)-(\d+)$/.exec(nome))) {
         novo = "linguagem-fonemica-" + m[1] + "-" + (Number(m[2]) + 1);
       } else if (versao < 5 && (m = /^stroop-fases-(\d+)-(\d+)$/.exec(nome)) && Number(m[2]) >= 2) {
         novo = "stroop-fases-" + m[1] + "-" + (Number(m[2]) + 1);

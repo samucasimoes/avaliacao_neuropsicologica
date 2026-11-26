@@ -21,6 +21,34 @@ const Secoes = (function () {
     return el;
   }
 
+  /* Grade das tabelas da tela: todas ocupam a largura da aba e cada tipo de coluna tem
+     sempre a mesma largura (style.css, .tabela-grade), então as colunas de tabelas
+     diferentes ficam alinhadas umas com as outras. A primeira coluna (rótulos) é uma
+     porcentagem e a última ocupa o que sobra. Larguras mínimas (px) para a rolagem
+     lateral em telas estreitas. */
+  const LARGURA_COLUNA = { rotulo: 220, valor: 128, estreita: 84, calc: 104, classe: 244, incapaz: 180, faixa: 160, texto: 240 };
+
+  function gradeColunas(tabela, tipos) {
+    const colgroup = criar("colgroup");
+    let minimo = 0;
+    tipos.forEach(function (tipo, i) {
+      const ultima = i === tipos.length - 1 && i > 0;
+      colgroup.appendChild(criar("col", "col-" + (ultima ? "resto" : tipo)));
+      minimo += LARGURA_COLUNA[tipo] || 0;
+    });
+    tabela.classList.add("tabela-grade");
+    tabela.style.minWidth = minimo + "px";
+    tabela.insertBefore(colgroup, tabela.firstChild);
+  }
+
+  /* Tipo de coluna de uma tabela, para a grade. */
+  function tipoColuna(coluna) {
+    if (coluna.tipo === "classe") return "classe";
+    if (coluna.estreita) return "estreita";
+    if (coluna.tipo === "calculo" || coluna.tipo === "fixo" || coluna.tipo === "referencia") return "calc";
+    return "valor";
+  }
+
   function valorDe(nome) {
     const el = form.elements.namedItem(nome);
     if (!el) return "";
@@ -512,6 +540,9 @@ const Secoes = (function () {
     /* Colunas da impressão: os valores (escores, tempos) centralizados. Nas tabelas com um
        valor e a classificação, as colunas têm sempre a mesma largura, para os escores e as
        classificações ficarem alinhados de uma tabela para a outra na mesma folha.
+       Com larguraValores, as colunas de valores têm todas a mesma largura (mm), para ficarem
+       igualmente espaçadas (ex.: Tempo, Média e Erros do Stroop); larguraRotulo fixa a da
+       primeira coluna, para a classificação caber numa linha.
        Com valores12, o corpo da tabela (nomes e resultados) fica sempre em letra 12
        (ex.: Praxias e Wechsler). */
     function estilosImpressao(impressas) {
@@ -521,6 +552,7 @@ const Secoes = (function () {
       impressas.forEach(function (c, i) {
         const estilo = {};
         if (b.colunas[c].tipo !== "classe") estilo.halign = "center";
+        if (b.larguraValores && b.colunas[c].tipo !== "classe") estilo.cellWidth = b.larguraValores;
         if (b.valores12) estilo.fontSize = 12;
         estilos[i + 1] = estilo;
       });
@@ -528,6 +560,7 @@ const Secoes = (function () {
         estilos[0] = { cellWidth: valores.length ? 80 : 115 };
         if (valores.length) estilos[1].cellWidth = 35;
       }
+      if (b.larguraRotulo) estilos[0] = Object.assign(estilos[0] || {}, { cellWidth: b.larguraRotulo });
       if (b.valores12) estilos[0] = Object.assign(estilos[0] || {}, { fontSize: 12 });
       return estilos;
     }
@@ -565,6 +598,8 @@ const Secoes = (function () {
     function linhaCompleta(linha) {
       /* Não conseguiu fazer: não há tempo nem erros para preencher. */
       if (incapaz(linha)) return true;
+      /* opcional: a linha não conta para a aba ficar 100%. */
+      if (linha.opcional) return true;
       return b.colunas.every(function (coluna, c) {
         return informativa(coluna) || coluna.tipo === "calculo" || calculado(linha, c) ||
           puxado(linha, c) || celula(linha, c) !== "";
@@ -613,7 +648,14 @@ const Secoes = (function () {
         const tbody = criar("tbody");
         linhas.forEach(function (linha) {
           const tr = criar("tr", linha.destaque ? "destaque" : "");
-          const th = criar("th", "", linha.rotulo);
+          const th = criar("th");
+          /* negrito: o começo do rótulo (ex.: nome do teste) em negrito. */
+          if (linha.negrito && linha.rotulo.indexOf(linha.negrito) === 0) {
+            th.appendChild(criar("strong", "", linha.negrito));
+            th.appendChild(document.createTextNode(linha.rotulo.slice(linha.negrito.length)));
+          } else {
+            th.textContent = linha.rotulo;
+          }
           th.scope = "row";
           tr.appendChild(th);
           /* A caixa fica na última coluna da linha (montada depois das colunas). */
@@ -720,6 +762,7 @@ const Secoes = (function () {
           tbody.appendChild(tr);
         });
         tabela.appendChild(tbody);
+        gradeColunas(tabela, ["rotulo"].concat(b.colunas.map(tipoColuna), b.incapaz ? ["incapaz"] : []));
         rolagem.appendChild(tabela);
         container.appendChild(rolagem);
       },
@@ -789,7 +832,9 @@ const Secoes = (function () {
         const impressas = [];
         b.colunas.forEach(function (coluna, c) { if (!coluna.soTela) impressas.push(c); });
         const corpo = linhas.filter(function (linha) { return !linha.soTela && linhaPreenchida(linha); }).map(function (linha) {
-          let rotulo = linha.rotuloImpressao || linha.rotulo;
+          let rotulo = linha.rotuloImpressao ||
+            (linha.negrito && linha.rotulo.indexOf(linha.negrito) === 0
+              ? "**" + linha.negrito + "**" + linha.rotulo.slice(linha.negrito.length) : linha.rotulo);
           if (b.quebrarParenteses) rotulo = rotulo.replace(/ \(/g, "\n(");
           const celulas = [rotulo].concat(impressas.map(function (c) {
             const valor = celula(linha, c);
@@ -802,7 +847,8 @@ const Secoes = (function () {
         if (!corpo.length) return [];
         const blocos = [];
         /* tamanhoTitulo: título da tabela menor na impressão. */
-        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.titulo, menor: true, tamanho: b.tamanhoTitulo });
+        /* tituloImpressao: título da tabela na impressão, com a parte em inglês entre asteriscos. */
+        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.tituloImpressao || b.titulo, menor: true, tamanho: b.tamanhoTitulo });
         blocos.push({
           tipo: "tabela",
           cabecalho: [b.colunaRotulo || ""].concat(impressas.map(function (c) { return b.colunas[c].rotulo; })),
@@ -850,7 +896,7 @@ const Secoes = (function () {
   }
 
   /* Escore do paciente no fim das questões ("ESCORE DO PACIENTE: 3" na impressão).
-     Digitado pelo profissional (Katz, GAI, GDS, BHS, IQCODE); em branco, a impressão usa o
+     Digitado pelo profissional (Katz, GAI, GDS, BHS, BDI, IQCODE); em branco, a impressão usa o
      valor calculado (b.calculado), mostrado como dica no campo. Com entrada: false não há
      campo na tela e sai só o valor calculado (Pfeffer). Com decimal, aceita vírgula (IQCODE). */
   function blocoEscore(secao, b) {
@@ -914,7 +960,7 @@ const Secoes = (function () {
       relatorio: function () {
         const proprio = b.entrada === false ? null : digitado();
         const valor = proprio !== null ? proprio : calculado();
-        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor) }];
+        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor), alinharTitulo: !!b.alinharTitulo }];
       }
     };
   }
@@ -942,6 +988,7 @@ const Secoes = (function () {
           tbody.appendChild(tr);
         });
         tabela.appendChild(tbody);
+        gradeColunas(tabela, ["faixa", "texto"]);
         container.appendChild(tabela);
       },
       preenchido: function () { return false; },
@@ -1272,6 +1319,9 @@ const Secoes = (function () {
           linhas.push({ item: item, saida: saida, selo: seloEl });
         });
         tabela.appendChild(tbody);
+        gradeColunas(tabela, ["rotulo", "calc", "classe"]);
+        /* Aba de uma tabela só, com nomes longos: rótulos mais largos. */
+        tabela.classList.add("tabela-rotulo-largo");
         rolagem.appendChild(tabela);
         container.appendChild(rolagem);
       },
@@ -1535,6 +1585,7 @@ const Secoes = (function () {
       subtitulo: secao.def.subtituloImpressao || "",
       blocos: blocos,
       juntarCom: impressao.juntarCom || null,
+      espacoAntes: impressao.espacoAntes || 0,
       /* Junto de outra etapa, sai sem o próprio título (ex.: Atenção, na folha da Memória). */
       semTituloJunto: !!impressao.semTituloJunto,
       espacamento: impressao.espacamento || 1,

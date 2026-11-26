@@ -121,20 +121,28 @@ As abas com todos os campos preenchidos ficam verdes, com um ícone de correto.
 6. **Pfeffer** – Questionário de Atividades Funcionais, escore do paciente de 0 a 30. Na
    impressão o título é "Escalas, Inventários e Questionários", com o nome do questionário
    logo abaixo (letra 10, em itálico); o escore e a legenda saem no fim da folha.
-7. **GAI**, **GDS**, **Escala de Desesperança de Beck (BHS)** e **IQCODE** – uma aba para
-   cada, só com o campo Escore do paciente (o IQCODE aceita decimal, ex.: 3,6) e a legenda
-   (o IQCODE não tem legenda). Na impressão saem juntas numa folha, depois do Pfeffer.
+7. **GAI**, **GDS**, **Escala de Desesperança de Beck (BHS)** e **Inventário de Depressão de
+   Beck (BDI)** – uma aba para cada, só com o campo Escore do paciente e a legenda. Na
+   impressão saem juntas numa folha, depois do Pfeffer.
 8. **Escala Cornell** – escore e interpretação automáticos. Opções: Impossibilitado de
    avaliar, Ausente, Leve e Intenso. Na impressão o escore e a legenda saem no fim da folha.
 9. **Humor e comportamento** – quadro com os resultados de Katz, Pfeffer, GAI, GDS, BHS,
-   IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Fica só na
+   BDI, IQCODE e Cornell, todos vindos das próprias abas, com interpretação na tela. Fica só na
    tela: não sai na impressão (o resultado e a legenda de cada escala saem na folha dela).
+
+Na tela, as tabelas seguem uma grade (`gradeColunas` em `js/secoes.js` e `.tabela-grade` em
+`css/style.css`): ocupam a largura da aba e cada tipo de coluna (rótulo, escore, coluna estreita,
+calculada, classificação) tem sempre a mesma largura, então as colunas de tabelas diferentes
+ficam alinhadas.
 
 Em todas as escalas, a legenda tem duas colunas: o escore à esquerda e a interpretação à
 direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da folha.
-10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com aviso
-    e não entra no total até ser corrigido. Os comentários sobre o Teste do Relógio de Shulman
-    saem na mesma folha da tabela.
+10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com
+    aviso e não entra no total até ser corrigido. A coluna Escore máximo fica só na tela. Os
+    comentários sobre o Teste do Relógio de Shulman saem na mesma folha da tabela.
+    **IQCODE** – aba logo depois do MoCA, só com o escore (aceita decimal, ex.: 3,6). Na
+    impressão sai no fim da folha do MoCA, com o título e o escore terminando junto com a
+    linha do título.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
 12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna
@@ -143,13 +151,13 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade e a média ficam só na
     tela, para a profissional se basear: não saem na impressão. Na impressão
     a explicação dos testes de fluência verbal tem letra 10.
-13. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
-    do CERAD vêm das abas já preenchidas (fluência Animais e Frutas da Linguagem, total do
-    MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o Reconhecimento),
-    mas podem ser alterados aqui (apagando o valor digitado, volta o da outra aba);
-    Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia são digitadas aqui
-    (só números). Na impressão o título é "Consortium to Establish a Registry for Alzheimer's
-    Disease", e os testes analisados das Funções executivas saem sublinhados.
+    No fim fica a tabela dos **Testes da Bateria do CERAD** (Consortium to Establish a Registry
+    for Alzheimer's Disease): Memória, Evocação e Reconhecimento da lista de palavras (vêm do
+    RAVLT: Total A1–A5, A7 e Reconhecimento, mas podem ser alterados), Praxia construtiva e
+    Evocação da praxia construtiva (digitadas), com Total e Classificação.
+13. **Funções executivas** – texto das funções executivas (testes analisados sublinhados) e
+    Bateria de Avaliação Frontal (FAB) e, abaixo dela, os testes complementares (provérbios,
+    cinco pontos, sinos, corte de linhas e labirintos); na impressão o título é "Funções Executivas".
 14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
@@ -164,7 +172,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     mais lento que o percentil 10, sai "< 10". Cada forma tem, no fim da linha, a caixa **Incapaz de realizar**:
     marcada, o tempo sai com esse texto (sem percentil), inclusive na Trilha B da Atenção
     alternada. 17. **Praxias**,
-    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares): a coluna
+    18. **Bateria Wechsler**, 19. **Stroop Test**: a coluna
     Referência é o tempo médio da Versão Victoria para a idade do paciente (1ª cartela =
     cores de estímulos, 2ª = palavras sem interferência, 3ª = com interferência),
     arredondado (tabela `STROOP_TEMPOS` em `js/definicoes.js`). A referência fica só na tela,
@@ -178,21 +186,19 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 
 O questionário completo do **IQCODE** (26 itens) está fora de uso: o código continua no
 projeto, mas a aba fica escondida (`display: none`) e não sai no relatório; o escore do
-IQCODE é digitado na aba IQCODE (`iqcode-escore`). Para voltar com o questionário, remova a
+IQCODE é digitado na aba IQCODE (`iqcode-escore`), logo depois do MoCA. Para voltar com o questionário, remova a
 classe `etapa-oculta` e o `style` da aba no `index.html`.
 
 O relatório segue a ordem dos números das etapas e só traz as etapas preenchidas.
 Na impressão, algumas abas saem juntas na mesma folha: dados do paciente + Resumo,
-Memória verbal e visual + Trilhas (com Atenção) e
+Memória verbal e visual + Atenção (da aba Trilhas), Stroop Test + Trilhas e
 Praxias + Bateria Wechsler.
 Na impressão os títulos ficam centralizados com letra 14 e o restante com letra 12; as
-páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13 (o "Teste das
-Trilhas", que fica dentro de Trilhas, tem 10). Nas tabelas, a linha embaixo dos títulos das
+páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13. Nas tabelas, a linha embaixo dos títulos das
 colunas é cinza e a última linha é preta, separando uma escala da outra (na última tabela da
 aba, como o Resumo e as legendas no fim da folha, ela fica cinza-clara como as outras). As palavras em
 inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12; o título "Stroop Test",
-todo em inglês, tem 14), menos na folha do
-CERAD; nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
+todo em inglês, tem 14); nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
 sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").
 Um valor digitado numa aba não é digitado de novo: os Dígitos da Wechsler vêm do Digit Span
 (Memória), a Trilha B da Atenção alternada vem do tempo da Forma B, e o Teste dos Sinos do

@@ -304,9 +304,11 @@
     ];
   }
 
-  /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
+  /* As duas versões do site (main e claude/peaceful-bell-rui5px) gravam no mesmo banco:
+     a numeração é a mesma nas duas (a 8 e a 9 são da claude/peaceful-bell-rui5px).
+     Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
      campos, suba a versão e converta os nomes antigos em migrarCampos. */
-  const VERSAO_CAMPOS = 7;
+  const VERSAO_CAMPOS = 11;
 
   /* Converte campos salvos antes da versão 3:
      - Encaminhador virou Médico solicitante;
@@ -319,7 +321,9 @@
      passaram da coluna 2, 3 e 4 para 3, 4 e 5.
      Na versão 6, a escolaridade "Pós-graduação" virou "Pós-graduação / MBA".
      Na versão 7, a Fluência fonêmica ganhou a coluna Média (a 1ª): F, A, S e Classificação
-     passaram uma coluna para a direita. */
+     passaram uma coluna para a direita.
+     Na versão 8, o escore do IQCODE passou para a aba MoCA (moca-iqcode); na versão 9,
+     voltou para a aba IQCODE (iqcode-escore-escore). */
   function migrarCampos(campos) {
     const versao = Number(campos.versaoCampos) || 2;
     if (versao >= VERSAO_CAMPOS) return campos;
@@ -328,7 +332,18 @@
     Object.keys(campos).forEach(function (nome) {
       let novo = nome;
       let m;
-      if (versao < 7 && (m = /^linguagem-fonemica-(\d+)-(\d+)$/.exec(nome))) {
+      if (versao < 11 && (m = /^stroop-complementares-(.+)$/.exec(nome))) {
+        /* Versão 11: os Testes complementares saíram do Stroop e foram para Funções executivas. */
+        novo = "cerad-complementares-" + m[1];
+      } else if (versao < 10 && (m = /^cerad-cerad-(\d+)-(\d+)(-manual)?$/.exec(nome))) {
+        /* Versão 10: a Bateria do CERAD foi para o fim da Linguagem, só com a lista de
+           palavras e a praxia construtiva (as linhas de fluência, Boston e MoCA saíram). */
+        const linhaNova = { 5: 1, 6: 2, 9: 3, 7: 4, 8: 5 }[m[1]];
+        if (!linhaNova) return;
+        novo = "linguagem-cerad-" + linhaNova + "-" + m[2] + (m[3] || "");
+      } else if (versao < 9 && nome === "moca-iqcode") {
+        novo = "iqcode-escore-escore";
+      } else if (versao < 7 && (m = /^linguagem-fonemica-(\d+)-(\d+)$/.exec(nome))) {
         novo = "linguagem-fonemica-" + m[1] + "-" + (Number(m[2]) + 1);
       } else if (versao < 5 && (m = /^stroop-fases-(\d+)-(\d+)$/.exec(nome)) && Number(m[2]) >= 2) {
         novo = "stroop-fases-" + m[1] + "-" + (Number(m[2]) + 1);

@@ -2047,6 +2047,38 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   white-space: nowrap;
 }
 
+/* Grade (secoes.js, gradeColunas): a tabela ocupa a largura da aba e cada tipo de coluna
+   tem sempre a mesma largura, para as colunas de tabelas diferentes ficarem alinhadas.
+   A coluna dos rótulos é uma porcentagem; a última coluna fica com o que sobra. */
+.tabela-teste.tabela-grade {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.tabela-grade col.col-rotulo { width: 30%; }
+.tabela-rotulo-largo col.col-rotulo { width: 44%; }
+.tabela-grade col.col-valor { width: 128px; }
+.tabela-grade col.col-estreita { width: 84px; }
+.tabela-grade col.col-calc { width: 104px; }
+.tabela-grade col.col-classe { width: 244px; }
+.tabela-grade col.col-incapaz { width: 180px; }
+.tabela-grade col.col-faixa { width: 160px; }
+
+.tabela-grade tbody th {
+  min-width: 0;
+  max-width: none;
+  padding-right: 16px;
+}
+
+.tabela-grade thead th {
+  white-space: normal;
+  vertical-align: bottom;
+}
+
+.tabela-grade .input-tabela {
+  max-width: 112px;
+}
+
 .tabela-teste tr.destaque th,
 .tabela-teste tr.destaque .calc {
   font-weight: 700;
@@ -2635,10 +2667,6 @@ td.estreita .input-tabela {
 }
 
 /* Legenda das escalas (escore e interpretação), montada em secoes.js */
-.tabela-faixas {
-  max-width: 640px;
-}
-
 .tabela-faixas th[scope="row"] {
   white-space: nowrap;
   font-weight: 600;

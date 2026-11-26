@@ -802,7 +802,8 @@ const Secoes = (function () {
         if (!corpo.length) return [];
         const blocos = [];
         /* tamanhoTitulo: título da tabela menor na impressão. */
-        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.titulo, menor: true, tamanho: b.tamanhoTitulo });
+        /* tituloImpressao: título da tabela na impressão, com a parte em inglês entre asteriscos. */
+        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.tituloImpressao || b.titulo, menor: true, tamanho: b.tamanhoTitulo });
         blocos.push({
           tipo: "tabela",
           cabecalho: [b.colunaRotulo || ""].concat(impressas.map(function (c) { return b.colunas[c].rotulo; })),

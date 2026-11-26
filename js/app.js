@@ -304,9 +304,11 @@
     ];
   }
 
-  /* Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
+  /* As duas versões do site (main e claude/peaceful-bell-rui5px) gravam no mesmo banco:
+     a numeração é a mesma nas duas (a 8 e a 9 são da claude/peaceful-bell-rui5px).
+     Versão dos nomes dos campos (rascunho e backup .json). Ao renomear ou remover
      campos, suba a versão e converta os nomes antigos em migrarCampos. */
-  const VERSAO_CAMPOS = 7;
+  const VERSAO_CAMPOS = 10;
 
   /* Converte campos salvos antes da versão 3:
      - Encaminhador virou Médico solicitante;
@@ -328,7 +330,13 @@
     Object.keys(campos).forEach(function (nome) {
       let novo = nome;
       let m;
-      if (versao < 7 && (m = /^linguagem-fonemica-(\d+)-(\d+)$/.exec(nome))) {
+      if (versao < 10 && (m = /^cerad-cerad-(\d+)-(\d+)(-manual)?$/.exec(nome))) {
+        /* Versão 10: a Bateria do CERAD foi para o fim da Linguagem, só com a lista de
+           palavras e a praxia construtiva (as linhas de fluência, Boston e MoCA saíram). */
+        const linhaNova = { 5: 1, 6: 2, 9: 3, 7: 4, 8: 5 }[m[1]];
+        if (!linhaNova) return;
+        novo = "linguagem-cerad-" + linhaNova + "-" + m[2] + (m[3] || "");
+      } else if (versao < 7 && (m = /^linguagem-fonemica-(\d+)-(\d+)$/.exec(nome))) {
         novo = "linguagem-fonemica-" + m[1] + "-" + (Number(m[2]) + 1);
       } else if (versao < 5 && (m = /^stroop-fases-(\d+)-(\d+)$/.exec(nome)) && Number(m[2]) >= 2) {
         novo = "stroop-fases-" + m[1] + "-" + (Number(m[2]) + 1);

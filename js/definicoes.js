@@ -1001,21 +1001,23 @@ const DEFINICOES = [
     id: "trilhas",
     titulo: "Trilhas",
     descricao: "Teste das Trilhas (formas A e B) e testes de atenção.",
-    /* Na impressão sai na folha de Memória verbal e visual: primeiro Atenção, depois Trilhas. */
-    impressao: { juntarCom: "memoria", ordemGrupos: [1, 0], tituloGrupos: { 0: "Trilhas" } },
+    /* Na impressão: Atenção sai na folha de Memória verbal e visual (sem o título Trilhas);
+       Trilhas e o Teste das Trilhas saem abaixo do Stroop Test, com as letras padrão. */
+    impressao: {
+      juntarCom: "memoria",
+      ordemGrupos: [1],
+      semTituloJunto: true,
+      aparte: { grupos: [0], titulo: "Trilhas", juntarCom: "stroop" }
+    },
     blocos: [
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor (letra 10). */
-        tamanho: 10,
         texto: "Estes testes se referem à capacidade atentiva, destreza visuomotora, rapidez de processamento, capacidade de alternar continuamente conceitos distintos, flexibilidade cognitiva, resistência à interferência e rapidez na tomada de decisão."
       },
       {
         tipo: "tabela",
         id: "formas",
         titulo: "Teste das Trilhas",
-        /* Fica dentro de Trilhas: na impressão, letra 10 (os outros subtítulos têm 13). */
-        tamanhoTitulo: 10,
         colunaRotulo: "Forma",
         /* Caixa "Incapaz de realizar" no fim da linha de cada forma: o tempo sai como esse texto (tela e
            impressão), sem percentil, e a Trilha B da Atenção alternada também recebe o texto. */

@@ -401,7 +401,7 @@ const Relatorio = (function () {
       y += 2.5 + g(menor ? 1.5 : 3.5);
       garantirEspaco(e(16) + 6);
       doc.setFont("helvetica", "bold");
-      /* tamanho: subtítulo dentro de outro (ex.: Teste das Trilhas, dentro de Trilhas), letra 10. */
+      /* tamanho: subtítulo com letra própria (padrão 13). */
       doc.setFontSize(tamanho || TAMANHO_SUBTITULO);
       cor(COR.escuro);
       y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);
@@ -951,8 +951,9 @@ const Relatorio = (function () {
             folhaDados();
             return;
           }
-          /* Junto de outra etapa, a Trilhas sai sem o título próprio (os subtítulos bastam). */
-          const comSubtitulos = parte.blocos.some(function (b) { return b.soJunto; });
+          /* Junto de outra etapa, sai sem o título próprio quando os subtítulos bastam
+             (ex.: Atenção, da aba Trilhas, na folha da Memória verbal e visual). */
+          const comSubtitulos = parte.secao.semTituloJunto || parte.blocos.some(function (b) { return b.soJunto; });
           espacamento = parte.secao.espacamento || 1;
           if (parte.junto) y += g(4);
           if (!parte.continuacao && (!parte.junto || !comSubtitulos)) {
@@ -972,11 +973,17 @@ const Relatorio = (function () {
        Não há rodapé nem numeração das páginas. */
     doc.deletePage(1);
 
+    /* O título do PDF é o nome do arquivo: na impressão (que abre numa aba, sem baixar),
+       o navegador usa ele como nome ao salvar ("Maria da Silva - 30-10-2026 - Pendente"). */
+    const arquivo = nomeArquivo(nomePaciente, "pdf", opcoes && opcoes.situacao);
+    doc.setProperties({ title: arquivo.replace(/\.pdf$/, "") });
+    doc.viewerPreferences({ DisplayDocTitle: true });
+
     if (opcoes && opcoes.imprimir) {
       doc.autoPrint();
       return doc.output("bloburl");
     }
-    doc.save(nomeArquivo(nomePaciente, "pdf", opcoes && opcoes.situacao));
+    doc.save(arquivo);
     return null;
   }
 

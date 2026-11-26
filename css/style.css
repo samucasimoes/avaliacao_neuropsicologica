@@ -1662,6 +1662,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-variant-numeric: tabular-nums;
 }
 
+/* Contador de um campo de uma linha (ex.: comentário dentro da tabela). */
+.contador.contador-campo {
+  display: block;
+  margin-top: 3px;
+  text-align: right;
+}
+
 .contador.no-limite {
   color: var(--danger);
   font-weight: 600;

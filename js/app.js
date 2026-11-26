@@ -453,13 +453,15 @@
     });
   }
 
-  /* Contador de caracteres nos textos longos ("120 / 700"), para o texto caber na folha. */
+  /* Contador de caracteres nos textos longos ("120 / 700"), para o texto caber na folha.
+     Também nos campos de uma linha marcados com "com-contador" (ex.: comentários dos testes
+     complementares e domínios da Interpretação dos resultados). */
   const contadores = [];
 
   function criarContadores() {
-    form.querySelectorAll("textarea[maxlength]").forEach(function (area) {
+    form.querySelectorAll("textarea[maxlength], input.com-contador[maxlength]").forEach(function (area) {
       const contador = document.createElement("span");
-      contador.className = "contador";
+      contador.className = "contador" + (area.tagName === "INPUT" ? " contador-campo" : "");
       contador.setAttribute("aria-live", "polite");
       area.insertAdjacentElement("afterend", contador);
       contadores.push({ area: area, el: contador });

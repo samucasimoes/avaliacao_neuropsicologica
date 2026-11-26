@@ -545,7 +545,7 @@ const DEFINICOES = [
   {
     id: "bhs",
     titulo: "Escala de Desesperança de Beck (BHS)",
-    tituloImpressao: "Escala de Desesperança de Beck *(Beck Hopelessness Scale)*",
+    tituloImpressao: "Escala de Desesperança de Beck (BHS) *(Beck Hopelessness Scale)*",
     impressao: { juntarCom: ["gai", "gds"] },
     descricao: "Digite o escore do paciente na Escala de Desesperança de Beck (0 a 20).",
     blocos: [
@@ -568,7 +568,7 @@ const DEFINICOES = [
   {
     id: "bdi",
     titulo: "Inventário de Depressão de Beck (BDI)",
-    tituloImpressao: "Inventário de Depressão de Beck *(Beck Depression Inventory)*",
+    tituloImpressao: "Inventário de Depressão de Beck (BDI) *(Beck Depression Inventory)*",
     impressao: { juntarCom: ["gai", "gds", "bhs"] },
     descricao: "Digite o escore do paciente no Inventário de Depressão de Beck (0 a 63).",
     blocos: [

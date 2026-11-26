@@ -944,7 +944,7 @@ const Secoes = (function () {
       relatorio: function () {
         const proprio = b.entrada === false ? null : digitado();
         const valor = proprio !== null ? proprio : calculado();
-        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor), alinharTabela: !!b.alinharTabela }];
+        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor), alinharTitulo: !!b.alinharTabela }];
       }
     };
   }

@@ -140,7 +140,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 10. **MoCA / IQCODE** – escore por domínio e total; valor acima do máximo fica em vermelho com
     aviso e não entra no total até ser corrigido. A coluna Escore máximo fica só na tela. Os
     comentários sobre o Teste do Relógio de Shulman e, abaixo deles, o IQCODE (título como o
-    das abas e o escore, que aceita decimal, ex.: 3,6, na coluna do escore do MoCA) saem na
+    das abas e o escore, que aceita decimal, ex.: 3,6, terminando junto com a linha do título) saem na
     mesma folha da tabela.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.

@@ -164,8 +164,6 @@ const Relatorio = (function () {
     const meio = largura / 2;
     /* Borda direita do "ESCORE DO PACIENTE": a margem menos o recuo das células. */
     const DIREITA_VALORES = margem + util - 2.5;
-    /* Posição da última coluna da última tabela desenhada (veja escore com alinharTabela). */
-    let ultimaColuna = null;
     /* Sem rodapé (não há numeração das páginas): o conteúdo vai até 16 mm do fim da folha. */
     const limite = altura - 16;
     linhas = linhas.map(function (linha) { return [linha[0], formatarDado(linha[0], linha[1])]; });
@@ -583,10 +581,6 @@ const Relatorio = (function () {
         }
       });
       y = doc.lastAutoTable.finalY + depoisDeBloco();
-      /* Última coluna da tabela, para um escore alinhado a ela (ex.: IQCODE no fim do MoCA). */
-      const cols = doc.lastAutoTable.columns;
-      const larguraAntes = cols.slice(0, -1).reduce(function (soma, col) { return soma + col.width; }, 0);
-      ultimaColuna = { x: margem + larguraAntes, largura: cols[cols.length - 1].width };
     }
 
     /* Lista em tópicos. Com preencherFolha, os itens se espalham para ocupar a folha toda. */
@@ -680,13 +674,9 @@ const Relatorio = (function () {
       garantirEspaco(passo() + depoisDeBloco());
       y += g(1);
       fonte("bold", COR.escuro);
-      if (bloco.alinharTabela && ultimaColuna) {
-        /* Valor no meio da última coluna da tabela de cima e o rótulo colado nele. */
-        const centro = ultimaColuna.x + ultimaColuna.largura / 2;
-        const valor = textoPdf(bloco.valor);
-        const inicioValor = centro - doc.getTextWidth(valor) / 2;
-        doc.text(valor, inicioValor, y);
-        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": ", inicioValor, y, { align: "right" });
+      if (bloco.alinharTitulo) {
+        /* Termina junto com a linha cinza embaixo do título (IQCODE no fim do MoCA). */
+        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), margem + util, y, { align: "right" });
       } else {
         /* Alinhado à direita da folha. */
         doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), DIREITA_VALORES, y, { align: "right" });
@@ -760,7 +750,7 @@ const Relatorio = (function () {
           break;
         case "titulo":
           /* Mais afastado do bloco de cima, para separar bem as duas partes da folha. */
-          y += 8;
+          y += 16;
           tituloSecao(bloco.texto);
           break;
         case "paragrafo":

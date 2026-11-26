@@ -744,7 +744,8 @@ const DEFINICOES = [
         alto: true
       },
       /* IQCODE – Questionário do Declínio: só o escore (média de 1 a 5). Na impressão, o
-         título sai como o das abas e o escore fica na coluna do escore do MoCA. */
+         título sai como o das abas e o escore termina junto com a linha embaixo dele
+         (na tela, o campo fica na coluna do escore do MoCA). */
       { tipo: "titulo", texto: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*" },
       { tipo: "escore", id: "iqcode", rotulo: "Escore do paciente", maximo: 5, decimal: true, alinharTabela: true }
     ],

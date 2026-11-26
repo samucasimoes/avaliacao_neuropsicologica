@@ -402,11 +402,21 @@ const Relatorio = (function () {
     function subtitulo(texto, menor, tamanho) {
       y += 2.5 + g(menor ? 1.5 : 3.5);
       garantirEspaco(e(16) + 6);
+      /* A parte em inglês (*...*) sai numa linha abaixo, em itálico e letra 12
+         (ex.: Testes da Bateria do CERAD e, embaixo, "(Consortium to Establish...)"). */
+      const portugues = String(texto).replace(/\*[^*]+\*/g, " ").replace(/\s+/g, " ").trim();
+      const ingles = (String(texto).match(/\*[^*]+\*/g) || []).map(function (m) { return m.slice(1, -1); }).join(" ");
       doc.setFont("helvetica", "bold");
       /* tamanho: subtítulo com letra própria (padrão 13). */
       doc.setFontSize(tamanho || TAMANHO_SUBTITULO);
       cor(COR.escuro);
-      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);
+      y += textoCentralizado(quebrarLinhas(textoPdf(portugues).toUpperCase(), util, 0), 6, 0);
+      if (ingles) {
+        y += 5.4;
+        doc.setFont("helvetica", "bolditalic");
+        doc.setFontSize(TAMANHO_TEXTO);
+        y += textoCentralizado(quebrarLinhas(textoPdf(ingles).toUpperCase(), util, 0), 5.2, 0);
+      }
       y += menor ? 4.2 : 5 + g(2);
     }
 

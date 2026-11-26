@@ -765,37 +765,11 @@ const DEFINICOES = [
 
   {
     id: "cerad",
-    titulo: "Bateria do CERAD e Funções executivas",
-    tituloImpressao: "Consortium to Establish a Registry for Alzheimer's Disease",
-    descricao: "CERAD (Consortium to Establish a Registry for Alzheimer's Disease) e Bateria de Avaliação Frontal (FAB).",
+    /* A tabela da Bateria do CERAD fica no fim da aba Linguagem (tela e impressão). */
+    titulo: "Funções executivas",
+    tituloImpressao: "Funções Executivas",
+    descricao: "Funções executivas, Bateria de Avaliação Frontal (FAB) e testes complementares. Os testes da Bateria do CERAD ficam no fim da aba Linguagem.",
     blocos: [
-      {
-        tipo: "tabela",
-        id: "cerad",
-        titulo: "Bateria do CERAD",
-        colunaRotulo: "Teste",
-        /* Os escores puxados de outras abas aparecem já preenchidos, mas podem ser alterados. */
-        puxadoEditavel: true,
-        colunas: [
-          { rotulo: "Escore obtido", tipo: "numero" },
-          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
-        ],
-        linhas: [
-          /* "puxar": o escore vem de outra aba ([aba, bloco, linha, coluna]); aqui pode ser alterado.
-             Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia não têm escore em
-             outra aba (na Linguagem, a Nomeação de Boston é um texto) e são digitadas aqui. */
-          { rotulo: "Fluência verbal: Animais", puxar: { 0: ["linguagem", "semantica", "1", 0] } },
-          { rotulo: "Fluência verbal: Frutas", puxar: { 0: ["linguagem", "semantica", "2", 0] } },
-          { rotulo: "Nomeação de Boston" },
-          { rotulo: "MoCA (Montreal Cognitive Assessment)", puxar: { 0: ["moca", "dominios", "total", 0] } },
-          { rotulo: "Memória verbal (fixação)", puxar: { 0: ["ravlt", "tabela", "total", 0] } },
-          { rotulo: "Praxia construtiva" },
-          { rotulo: "Memória verbal (evocação)", puxar: { 0: ["ravlt", "tabela", "a7", 0] } },
-          { rotulo: "Memória verbal (reconhecimento)", puxar: { 0: ["ravlt", "tabela", "reconhecimento", 0] } },
-          { rotulo: "Evocação tardia da praxia" }
-        ]
-      },
-      { tipo: "subtitulo", texto: "Funções executivas" },
       {
         tipo: "paragrafo",
         texto: "Conjunto de habilidades e princípios de organização necessários para lidar com situações visando adoção de conduta apropriada, responsável e efetiva. Incluem formulação de objetivos e de conceitos, motivação, planejamento, autorregulação, “insight”, abstração, análise, manipulação de conhecimentos adquiridos e flexibilidade mental. (Testes analisados: __Stroop Test, Trilhas A e B, Semelhanças, Labirintos, Teste de Controle Mental, Teste de Fluência Verbal por categoria semântica e fonêmica, Teste do Relógio de Shulman, Teste dos Sinos, Interpretação de Provérbios__.)"
@@ -815,6 +789,31 @@ const DEFINICOES = [
           { rotulo: "Séries motoras (sequência motora de Luria)" },
           { rotulo: "Instruções conflitantes (sensibilidade à interferência)" },
           { rotulo: "Preensão" }
+        ]
+      },
+      /* Testes complementares: abaixo da FAB (tela e impressão). */
+      { tipo: "subtitulo", texto: "Testes complementares" },
+      {
+        tipo: "tabela",
+        id: "complementares",
+        colunaRotulo: "Teste",
+        colunas: [
+          { rotulo: "Escore", tipo: "texto" }
+        ],
+        /* Cada teste tem uma linha de comentário embaixo (na impressão, abaixo do nome). */
+        comentarios: true,
+        /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão.
+           indice: guarda o número de antes nos campos salvos (Procurar Símbolos era o 6º e
+           Labirintos o 5º), para a troca de ordem não misturar os escores. */
+        linhas: [
+          { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento", negrito: "Teste de interpretação de Provérbios:" },
+          { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora", negrito: "Teste dos Cinco Pontos:" },
+          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
+          { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
+          { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
+          /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */
+          { indice: 6, chave: "6", rotulo: "Teste de Procurar Símbolos", negrito: "Teste de Procurar Símbolos", opcional: true },
+          { indice: 5, chave: "5", rotulo: "Teste dos Labirintos: envolve planejamento e previsão", negrito: "Teste dos Labirintos:" }
         ]
       }
     ]
@@ -886,7 +885,30 @@ const DEFINICOES = [
       { tipo: "texto", id: "boston", rotulo: "Nomeação de Boston" },
       { tipo: "texto", id: "leitura", rotulo: "Leitura" },
       { tipo: "texto", id: "escrita", rotulo: "Escrita" },
-      { tipo: "texto", id: "compreensao", rotulo: "Compreensão" }
+      { tipo: "texto", id: "compreensao", rotulo: "Compreensão" },
+      /* Testes da Bateria do CERAD (Consortium to Establish a Registry for Alzheimer's Disease),
+         no fim da Linguagem. Os escores da lista de palavras vêm do RAVLT, mas podem ser
+         alterados aqui (apagando o valor digitado, volta o do RAVLT); os da praxia construtiva
+         são digitados aqui. */
+      {
+        tipo: "tabela",
+        id: "cerad",
+        titulo: "Testes da Bateria do CERAD",
+        tituloImpressao: "Testes da Bateria do CERAD *(Consortium to Establish a Registry for Alzheimer's Disease)*",
+        colunaRotulo: "Testes",
+        puxadoEditavel: true,
+        colunas: [
+          { rotulo: "Total", tipo: "numero" },
+          { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_2_INVERTIDA }
+        ],
+        linhas: [
+          { rotulo: "Memória da lista de palavras", puxar: { 0: ["ravlt", "tabela", "total", 0] } },
+          { rotulo: "Praxia construtiva" },
+          { rotulo: "Evocação da praxia construtiva" },
+          { rotulo: "Evocação da lista de palavras", puxar: { 0: ["ravlt", "tabela", "a7", 0] } },
+          { rotulo: "Reconhecimento da lista de palavras", puxar: { 0: ["ravlt", "tabela", "reconhecimento", 0] } }
+        ]
+      }
     ]
   },
 
@@ -1223,7 +1245,7 @@ const DEFINICOES = [
     /* Em inglês: na impressão, em itálico, com letra 14 como os outros títulos. */
     tituloImpressao: "*Stroop Test*",
     tamanhoTituloIngles: 14,
-    descricao: "Stroop Test e testes complementares (provérbios, cinco pontos, sinos, corte de linhas e labirintos).",
+    descricao: "Stroop Test. Os testes complementares ficam na aba Funções executivas.",
     blocos: [
       {
         tipo: "paragrafo",
@@ -1235,6 +1257,10 @@ const DEFINICOES = [
         colunaRotulo: "Fases",
         /* Na impressão, o que está entre parênteses vai para a linha de baixo. */
         quebrarParenteses: true,
+        /* Tempo do paciente, Média e Erros com a mesma largura na impressão (a Referência, só
+           na tela, não sai): a Média fica no meio, entre o Tempo e os Erros. */
+        larguraValores: 25,
+        larguraRotulo: 56,
         colunas: [
           { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
           /* Calculada pela idade do paciente (veja referenciaStroop). Só na tela, para a
@@ -1254,30 +1280,6 @@ const DEFINICOES = [
         tipo: "nota",
         soTela: true,
         texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada. A referência fica só na tela: não sai na impressão."
-      },
-      { tipo: "subtitulo", texto: "Testes complementares" },
-      {
-        tipo: "tabela",
-        id: "complementares",
-        colunaRotulo: "Teste",
-        colunas: [
-          { rotulo: "Escore", tipo: "texto" }
-        ],
-        /* Cada teste tem uma linha de comentário embaixo (na impressão, abaixo do nome). */
-        comentarios: true,
-        /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão.
-           indice: guarda o número de antes nos campos salvos (Procurar Símbolos era o 6º e
-           Labirintos o 5º), para a troca de ordem não misturar os escores. */
-        linhas: [
-          { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento", negrito: "Teste de interpretação de Provérbios:" },
-          { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora", negrito: "Teste dos Cinco Pontos:" },
-          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
-          { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
-          { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
-          /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */
-          { indice: 6, chave: "6", rotulo: "Teste de Procurar Símbolos", negrito: "Teste de Procurar Símbolos", opcional: true },
-          { indice: 5, chave: "5", rotulo: "Teste dos Labirintos: envolve planejamento e previsão", negrito: "Teste dos Labirintos:" }
-        ]
       }
     ]
   },

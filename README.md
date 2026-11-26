@@ -151,13 +151,13 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     tabela `FAS_MEDIANAS` em `js/definicoes.js`). O tempo de escolaridade e a média ficam só na
     tela, para a profissional se basear: não saem na impressão. Na impressão
     a explicação dos testes de fluência verbal tem letra 10.
-13. **CERAD / Funções executivas** – CERAD e Bateria de Avaliação Frontal (FAB). Os escores
-    do CERAD vêm das abas já preenchidas (fluência Animais e Frutas da Linguagem, total do
-    MoCA, e do RAVLT o Total A1–A5 como fixação, o A7 como evocação e o Reconhecimento),
-    mas podem ser alterados aqui (apagando o valor digitado, volta o da outra aba);
-    Nomeação de Boston, Praxia construtiva e Evocação tardia da praxia são digitadas aqui
-    (só números). Na impressão o título é "Consortium to Establish a Registry for Alzheimer's
-    Disease", e os testes analisados das Funções executivas saem sublinhados.
+    No fim fica a tabela dos **Testes da Bateria do CERAD** (Consortium to Establish a Registry
+    for Alzheimer's Disease): Memória, Evocação e Reconhecimento da lista de palavras (vêm do
+    RAVLT: Total A1–A5, A7 e Reconhecimento, mas podem ser alterados), Praxia construtiva e
+    Evocação da praxia construtiva (digitadas), com Total e Classificação.
+13. **Funções executivas** – texto das funções executivas (testes analisados sublinhados) e
+    Bateria de Avaliação Frontal (FAB) e, abaixo dela, os testes complementares (provérbios,
+    cinco pontos, sinos, corte de linhas e labirintos); na impressão o título é "Funções Executivas".
 14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
@@ -172,7 +172,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     mais lento que o percentil 10, sai "< 10". Cada forma tem, no fim da linha, a caixa **Incapaz de realizar**:
     marcada, o tempo sai com esse texto (sem percentil), inclusive na Trilha B da Atenção
     alternada. 17. **Praxias**,
-    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares): a coluna
+    18. **Bateria Wechsler**, 19. **Stroop Test**: a coluna
     Referência é o tempo médio da Versão Victoria para a idade do paciente (1ª cartela =
     cores de estímulos, 2ª = palavras sem interferência, 3ª = com interferência),
     arredondado (tabela `STROOP_TEMPOS` em `js/definicoes.js`). A referência fica só na tela,
@@ -198,8 +198,7 @@ páginas não são numeradas. Os subtítulos ficam em caixa alta, com letra 13. 
 colunas é cinza e a última linha é preta, separando uma escala da outra (na última tabela da
 aba, como o Resumo e as legendas no fim da folha, ela fica cinza-clara como as outras). As palavras em
 inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12; o título "Stroop Test",
-todo em inglês, tem 14), menos na folha do
-CERAD; nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
+todo em inglês, tem 14); nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
 sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").
 Um valor digitado numa aba não é digitado de novo: os Dígitos da Wechsler vêm do Digit Span
 (Memória), a Trilha B da Atenção alternada vem do tempo da Forma B, e o Teste dos Sinos do

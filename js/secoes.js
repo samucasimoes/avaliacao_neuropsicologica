@@ -540,6 +540,9 @@ const Secoes = (function () {
     /* Colunas da impressão: os valores (escores, tempos) centralizados. Nas tabelas com um
        valor e a classificação, as colunas têm sempre a mesma largura, para os escores e as
        classificações ficarem alinhados de uma tabela para a outra na mesma folha.
+       Com larguraValores, as colunas de valores têm todas a mesma largura (mm), para ficarem
+       igualmente espaçadas (ex.: Tempo, Média e Erros do Stroop); larguraRotulo fixa a da
+       primeira coluna, para a classificação caber numa linha.
        Com valores12, o corpo da tabela (nomes e resultados) fica sempre em letra 12
        (ex.: Praxias e Wechsler). */
     function estilosImpressao(impressas) {
@@ -549,6 +552,7 @@ const Secoes = (function () {
       impressas.forEach(function (c, i) {
         const estilo = {};
         if (b.colunas[c].tipo !== "classe") estilo.halign = "center";
+        if (b.larguraValores && b.colunas[c].tipo !== "classe") estilo.cellWidth = b.larguraValores;
         if (b.valores12) estilo.fontSize = 12;
         estilos[i + 1] = estilo;
       });
@@ -556,6 +560,7 @@ const Secoes = (function () {
         estilos[0] = { cellWidth: valores.length ? 80 : 115 };
         if (valores.length) estilos[1].cellWidth = 35;
       }
+      if (b.larguraRotulo) estilos[0] = Object.assign(estilos[0] || {}, { cellWidth: b.larguraRotulo });
       if (b.valores12) estilos[0] = Object.assign(estilos[0] || {}, { fontSize: 12 });
       return estilos;
     }
@@ -870,7 +875,8 @@ const Secoes = (function () {
         if (!corpo.length) return [];
         const blocos = [];
         /* tamanhoTitulo: título da tabela menor na impressão. */
-        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.titulo, menor: true, tamanho: b.tamanhoTitulo });
+        /* tituloImpressao: título da tabela na impressão, com a parte em inglês entre asteriscos. */
+        if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.tituloImpressao || b.titulo, menor: true, tamanho: b.tamanhoTitulo });
         blocos.push({
           tipo: "tabela",
           cabecalho: [b.colunaRotulo || ""].concat(impressas.map(function (c) { return b.colunas[c].rotulo; })),

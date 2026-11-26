@@ -734,7 +734,7 @@ const DEFINICOES = [
     /* A tabela da Bateria do CERAD fica no fim da aba Linguagem (tela e impressão). */
     titulo: "Funções executivas",
     tituloImpressao: "Funções Executivas",
-    descricao: "Funções executivas e Bateria de Avaliação Frontal (FAB). Os testes da Bateria do CERAD ficam no fim da aba Linguagem.",
+    descricao: "Funções executivas, Bateria de Avaliação Frontal (FAB) e testes complementares. Os testes da Bateria do CERAD ficam no fim da aba Linguagem.",
     blocos: [
       {
         tipo: "paragrafo",
@@ -755,6 +755,24 @@ const DEFINICOES = [
           { rotulo: "Séries motoras (sequência motora de Luria)" },
           { rotulo: "Instruções conflitantes (sensibilidade à interferência)" },
           { rotulo: "Preensão" }
+        ]
+      },
+      /* Testes complementares: abaixo da FAB (tela e impressão). */
+      { tipo: "subtitulo", texto: "Testes complementares" },
+      {
+        tipo: "tabela",
+        id: "complementares",
+        colunaRotulo: "Teste",
+        colunas: [
+          { rotulo: "Escore", tipo: "texto" }
+        ],
+        linhas: [
+          { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento" },
+          { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora" },
+          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
+          { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda" },
+          { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda" },
+          { rotulo: "Teste dos Labirintos: envolve planejamento e previsão" }
         ]
       }
     ]
@@ -1186,7 +1204,7 @@ const DEFINICOES = [
     /* Em inglês: na impressão, em itálico, com letra 14 como os outros títulos. */
     tituloImpressao: "*Stroop Test*",
     tamanhoTituloIngles: 14,
-    descricao: "Stroop Test e testes complementares (provérbios, cinco pontos, sinos, corte de linhas e labirintos).",
+    descricao: "Stroop Test. Os testes complementares ficam na aba Funções executivas.",
     blocos: [
       {
         tipo: "paragrafo",
@@ -1217,23 +1235,6 @@ const DEFINICOES = [
         tipo: "nota",
         soTela: true,
         texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada. A referência fica só na tela: não sai na impressão."
-      },
-      { tipo: "subtitulo", texto: "Testes complementares" },
-      {
-        tipo: "tabela",
-        id: "complementares",
-        colunaRotulo: "Teste",
-        colunas: [
-          { rotulo: "Escore", tipo: "texto" }
-        ],
-        linhas: [
-          { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento" },
-          { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora" },
-          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
-          { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda" },
-          { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda" },
-          { rotulo: "Teste dos Labirintos: envolve planejamento e previsão" }
-        ]
       }
     ]
   },

@@ -1216,6 +1216,10 @@ const DEFINICOES = [
         colunaRotulo: "Fases",
         /* Na impressão, o que está entre parênteses vai para a linha de baixo. */
         quebrarParenteses: true,
+        /* Tempo do paciente, Média e Erros com a mesma largura na impressão (a Referência, só
+           na tela, não sai): a Média fica no meio, entre o Tempo e os Erros. */
+        larguraValores: 25,
+        larguraRotulo: 56,
         colunas: [
           { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
           /* Calculada pela idade do paciente (veja referenciaStroop). Só na tela, para a

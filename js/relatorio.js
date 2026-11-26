@@ -973,11 +973,17 @@ const Relatorio = (function () {
        Não há rodapé nem numeração das páginas. */
     doc.deletePage(1);
 
+    /* O título do PDF é o nome do arquivo: na impressão (que abre numa aba, sem baixar),
+       o navegador usa ele como nome ao salvar ("Maria da Silva - 30-10-2026 - Pendente"). */
+    const arquivo = nomeArquivo(nomePaciente, "pdf", opcoes && opcoes.situacao);
+    doc.setProperties({ title: arquivo.replace(/\.pdf$/, "") });
+    doc.viewerPreferences({ DisplayDocTitle: true });
+
     if (opcoes && opcoes.imprimir) {
       doc.autoPrint();
       return doc.output("bloburl");
     }
-    doc.save(nomeArquivo(nomePaciente, "pdf", opcoes && opcoes.situacao));
+    doc.save(arquivo);
     return null;
   }
 

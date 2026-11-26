@@ -555,7 +555,7 @@
   function imprimirRelatorio() {
     let endereco;
     try {
-      endereco = Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio(), { imprimir: true });
+      endereco = Relatorio.gerarPdf(coletarDados(), valor("nome"), secoesDoRelatorio(), { imprimir: true, situacao: situacaoArquivo() });
     } catch (erro) {
       console.error(erro);
       mostrarAviso("Não foi possível abrir a impressão. Tente novamente.");
@@ -1004,7 +1004,7 @@
           semDados = ids.indexOf("dados") === -1;
           lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
         }
-        return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { semDados: semDados, imprimir: true });
+        return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { semDados: semDados, imprimir: true, situacao: situacaoArquivo() });
       });
       return !!window.open(endereco, "_blank");
     },

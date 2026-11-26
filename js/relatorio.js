@@ -681,10 +681,12 @@ const Relatorio = (function () {
       y += g(1);
       fonte("bold", COR.escuro);
       if (bloco.alinharTabela && ultimaColuna) {
-        /* Valor no meio da última coluna da tabela de cima e o rótulo logo antes dela. */
+        /* Valor no meio da última coluna da tabela de cima e o rótulo colado nele. */
         const centro = ultimaColuna.x + ultimaColuna.largura / 2;
-        doc.text(textoPdf(bloco.valor), centro, y, { align: "center" });
-        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ":", ultimaColuna.x, y, { align: "right" });
+        const valor = textoPdf(bloco.valor);
+        const inicioValor = centro - doc.getTextWidth(valor) / 2;
+        doc.text(valor, inicioValor, y);
+        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": ", inicioValor, y, { align: "right" });
       } else {
         /* Alinhado à direita da folha. */
         doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), DIREITA_VALORES, y, { align: "right" });
@@ -757,6 +759,8 @@ const Relatorio = (function () {
           subtitulo(bloco.texto, bloco.menor, bloco.tamanho);
           break;
         case "titulo":
+          /* Mais afastado do bloco de cima, para separar bem as duas partes da folha. */
+          y += 8;
           tituloSecao(bloco.texto);
           break;
         case "paragrafo":

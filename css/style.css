@@ -1905,8 +1905,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-top: 10px;
 }
 
+/* Rótulo colado no campo, como na impressão. */
 .campo-escore-grade .label {
-  padding-left: 8px;
+  justify-self: end;
+  padding-right: 4px;
 }
 
 .campo-escore-grade .input-escore {

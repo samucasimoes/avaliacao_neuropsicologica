@@ -812,7 +812,7 @@ const DEFINICOES = [
           { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
           /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */
-          { indice: 6, chave: "6", rotulo: "Teste de Procurar Símbolos", negrito: "Teste de Procurar Símbolos", opcional: true },
+          { indice: 6, chave: "6", rotulo: "Teste de Procurar Símbolos: analisa velocidade de processamento de informações visuais, memória de curto prazo e atenção sustentada", negrito: "Teste de Procurar Símbolos:", opcional: true },
           { indice: 5, chave: "5", rotulo: "Teste dos Labirintos: envolve planejamento e previsão", negrito: "Teste dos Labirintos:" }
         ]
       }

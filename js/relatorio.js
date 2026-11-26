@@ -41,20 +41,21 @@ const Relatorio = (function () {
   }
 
   /* Marcas nos textos da impressão (em definicoes.js):
-     *texto* = palavras em inglês, em itálico; __texto__ = sublinhado.
+     *texto* = palavras em inglês, em itálico; **texto** = negrito; __texto__ = sublinhado.
      O "≥" também passa por aqui, porque é desenhado (a fonte do PDF não tem o sinal). */
-  const MARCAS = /(\*[^*]+\*|__[^_]+__)/;
+  const MARCAS = /(\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__)/;
 
   function temMarcas(texto) {
     return /\*[^*]+\*|__[^_]+__|≥/.test(String(texto));
   }
 
   function semMarcas(texto) {
-    return String(texto).replace(/\*([^*]+)\*/g, "$1").replace(/__([^_]+)__/g, "$1");
+    return String(texto).replace(/\*\*([^*]+)\*\*/g, "$1").replace(/\*([^*]+)\*/g, "$1").replace(/__([^_]+)__/g, "$1");
   }
 
   function segmentos(texto) {
     return String(texto).split(MARCAS).filter(Boolean).map(function (parte) {
+      if (/^\*\*[^*]+\*\*$/.test(parte)) return { t: parte.slice(2, -2), negrito: true };
       if (/^\*[^*]+\*$/.test(parte)) return { t: parte.slice(1, -1), italico: true };
       if (/^__[^_]+__$/.test(parte)) return { t: parte.slice(2, -2), sublinhado: true };
       return { t: parte };
@@ -211,9 +212,10 @@ const Relatorio = (function () {
 
     /* ---------- Texto com marcas (inglês em itálico, sublinhado e o sinal ≥) ---------- */
 
-    function estiloFonte(base, italico) {
-      if (!italico) return base || "normal";
-      return base === "bold" ? "bolditalic" : "italic";
+    function estiloFonte(base, italico, negrito) {
+      const bold = base === "bold" || negrito;
+      if (!italico) return bold ? "bold" : base || "normal";
+      return bold ? "bolditalic" : "italic";
     }
 
     function emMm(tamanho) {
@@ -241,8 +243,8 @@ const Relatorio = (function () {
         seg.t.split(/( +|\n)/).forEach(function (parte) {
           if (!parte) return;
           if (parte === "\n") pedacos.push({ quebra: true });
-          else if (!parte.trim()) pedacos.push({ espaco: true, italico: seg.italico, sublinhado: seg.sublinhado });
-          else pedacos.push({ t: parte === "≥" ? parte : parte.replace(/≥/g, ">="), italico: seg.italico, sublinhado: seg.sublinhado });
+          else if (!parte.trim()) pedacos.push({ espaco: true, italico: seg.italico, negrito: seg.negrito, sublinhado: seg.sublinhado });
+          else pedacos.push({ t: parte === "≥" ? parte : parte.replace(/≥/g, ">="), italico: seg.italico, negrito: seg.negrito, sublinhado: seg.sublinhado });
         });
       });
       const linhasTexto = [[]];
@@ -257,7 +259,7 @@ const Relatorio = (function () {
           usada = 0;
           return;
         }
-        doc.setFont("helvetica", estiloFonte(base, pedaco.italico));
+        doc.setFont("helvetica", estiloFonte(base, pedaco.italico, pedaco.negrito));
         doc.setFontSize(tamanho);
         const w = pedaco.t === "≥" ? larguraMaiorIgual(tamanho) : doc.getTextWidth(pedaco.espaco ? " " : pedaco.t);
         let linha = linhasTexto[linhasTexto.length - 1];
@@ -290,7 +292,7 @@ const Relatorio = (function () {
     function desenharLinhaRica(linha, x, yBase, base, tamanho, rgb) {
       let cx = x;
       linha.forEach(function (p) {
-        doc.setFont("helvetica", estiloFonte(base, p.italico));
+        doc.setFont("helvetica", estiloFonte(base, p.italico, p.negrito));
         doc.setFontSize(tamanho);
         cor(rgb);
         cor(rgb, "draw");
@@ -511,7 +513,13 @@ const Relatorio = (function () {
         return celulasDe(linha).map(function (valor) {
           /* Com marcas (inglês, sublinhado, ≥): a tabela mede o texto simples e o texto
              com as marcas é desenhado por cima (didDrawCell). */
-          if (temMarcas(valor)) return { content: textoPdf(semMarcas(valor)), rico: String(valor), styles: estilo || {} };
+          /* Com trecho em negrito (**...**), a tabela mede o texto todo em negrito, para a
+             célula ficar alta o bastante; o desenho usa a letra normal fora do negrito. */
+          if (temMarcas(valor)) {
+            const negrito = /\*\*[^*]+\*\*/.test(String(valor));
+            const estiloCelula = Object.assign({}, estilo || {}, negrito ? { fontStyle: "bold" } : {});
+            return { content: textoPdf(semMarcas(valor)), rico: String(valor), base: estilo && estilo.fontStyle, styles: estiloCelula };
+          }
           const texto = textoPdf(valor);
           return estilo ? { content: texto, styles: estilo } : texto;
         });
@@ -564,7 +572,7 @@ const Relatorio = (function () {
           const cell = data.cell;
           if (!cell.raw || !cell.raw.rico) return;
           const tamanho = cell.styles.fontSize;
-          const base = cell.styles.fontStyle;
+          const base = /\*\*[^*]+\*\*/.test(cell.raw.rico) ? cell.raw.base || "normal" : cell.styles.fontStyle;
           const rgb = Array.isArray(cell.styles.textColor) ? cell.styles.textColor
             : [cell.styles.textColor, cell.styles.textColor, cell.styles.textColor];
           const linhasCelula = linhasRicas(cell.raw.rico, cell.width - cell.padding("left") - cell.padding("right"), base, tamanho);

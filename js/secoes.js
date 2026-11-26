@@ -593,6 +593,8 @@ const Secoes = (function () {
     function linhaCompleta(linha) {
       /* Não conseguiu fazer: não há tempo nem erros para preencher. */
       if (incapaz(linha)) return true;
+      /* opcional: a linha não conta para a aba ficar 100%. */
+      if (linha.opcional) return true;
       return b.colunas.every(function (coluna, c) {
         return informativa(coluna) || coluna.tipo === "calculo" || calculado(linha, c) ||
           puxado(linha, c) || celula(linha, c) !== "";
@@ -641,7 +643,14 @@ const Secoes = (function () {
         const tbody = criar("tbody");
         linhas.forEach(function (linha) {
           const tr = criar("tr", linha.destaque ? "destaque" : "");
-          const th = criar("th", "", linha.rotulo);
+          const th = criar("th");
+          /* negrito: o começo do rótulo (ex.: nome do teste) em negrito. */
+          if (linha.negrito && linha.rotulo.indexOf(linha.negrito) === 0) {
+            th.appendChild(criar("strong", "", linha.negrito));
+            th.appendChild(document.createTextNode(linha.rotulo.slice(linha.negrito.length)));
+          } else {
+            th.textContent = linha.rotulo;
+          }
           th.scope = "row";
           tr.appendChild(th);
           /* A caixa fica na última coluna da linha (montada depois das colunas). */
@@ -818,7 +827,9 @@ const Secoes = (function () {
         const impressas = [];
         b.colunas.forEach(function (coluna, c) { if (!coluna.soTela) impressas.push(c); });
         const corpo = linhas.filter(function (linha) { return !linha.soTela && linhaPreenchida(linha); }).map(function (linha) {
-          let rotulo = linha.rotuloImpressao || linha.rotulo;
+          let rotulo = linha.rotuloImpressao ||
+            (linha.negrito && linha.rotulo.indexOf(linha.negrito) === 0
+              ? "**" + linha.negrito + "**" + linha.rotulo.slice(linha.negrito.length) : linha.rotulo);
           if (b.quebrarParenteses) rotulo = rotulo.replace(/ \(/g, "\n(");
           const celulas = [rotulo].concat(impressas.map(function (c) {
             const valor = celula(linha, c);

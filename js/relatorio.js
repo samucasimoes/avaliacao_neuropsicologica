@@ -308,13 +308,15 @@ const Relatorio = (function () {
       return linha.reduce(function (total, p) { return total + p.w; }, 0);
     }
 
-    function desenharLinhaRica(linha, x, yBase, base, tamanho, rgb) {
+    /* rgbNegrito: cor própria para os trechos em negrito (ex.: "Comentário:" escuro no texto cinza). */
+    function desenharLinhaRica(linha, x, yBase, base, tamanho, rgb, rgbNegrito) {
       let cx = x;
       linha.forEach(function (p) {
+        const corTrecho = p.negrito && rgbNegrito ? rgbNegrito : rgb;
         doc.setFont("helvetica", estiloFonte(base, p.italico, p.negrito));
         doc.setFontSize(tamanho);
-        cor(rgb);
-        cor(rgb, "draw");
+        cor(corTrecho);
+        cor(corTrecho, "draw");
         if (p.t === "≥") desenharMaiorIgual(cx, yBase, tamanho, base === "bold");
         else if (!p.espaco) doc.text(p.t, cx, yBase);
         if (p.sublinhado) {
@@ -643,7 +645,7 @@ const Relatorio = (function () {
           const pos = cell.getTextPos();
           const l = emMm(tamanho);
           const a = l * doc.getLineHeightFactor();
-          /* Comentário: letra menor, cinza, com "Comentário:" em negrito, um pouco afastado. */
+          /* Comentário: letra menor, cinza, com "Comentário:" em negrito escuro, um pouco afastado. */
           const tamanhoComentario = tamanho * 0.85;
           const aComentario = emMm(tamanhoComentario) * doc.getLineHeightFactor();
           const folgaComentario = 1.3;
@@ -659,7 +661,7 @@ const Relatorio = (function () {
           });
           const topoComentario = topo + (linhasCelula.length - 1) * a + folgaComentario + aComentario;
           linhasComentario.forEach(function (linha, i) {
-            desenharLinhaRica(linha, pos.x, topoComentario + i * aComentario, "normal", tamanhoComentario, COR.suave);
+            desenharLinhaRica(linha, pos.x, topoComentario + i * aComentario, "normal", tamanhoComentario, COR.suave, COR.escuro);
           });
         }
       });

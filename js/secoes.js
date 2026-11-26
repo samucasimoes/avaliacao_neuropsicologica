@@ -861,10 +861,10 @@ const Secoes = (function () {
             (linha.negrito && linha.rotulo.indexOf(linha.negrito) === 0
               ? "**" + linha.negrito + "**" + linha.rotulo.slice(linha.negrito.length) : linha.rotulo);
           if (b.quebrarParenteses) rotulo = rotulo.replace(/ \(/g, "\n(");
-          /* Comentário logo abaixo do nome do teste (sem asteriscos, que são marcas do PDF). */
+          /* Comentário logo abaixo do nome do teste, em letra menor e cinza (sem asteriscos,
+             que são marcas do PDF). */
           const texto = comentario(linha).replace(/\*/g, "").replace(/_{2,}/g, "_");
-          if (texto) rotulo += "\nComentário: " + texto;
-          const celulas = [rotulo].concat(impressas.map(function (c) {
+          const celulas = [texto ? { texto: rotulo, comentario: texto } : rotulo].concat(impressas.map(function (c) {
             const valor = celula(linha, c);
             if (!valor) return "—";
             const tempo = b.colunas[c].tempo || (linha.tempo && b.colunas[c].tipo !== "classe");

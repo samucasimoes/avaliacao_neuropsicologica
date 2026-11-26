@@ -540,6 +540,18 @@ const Relatorio = (function () {
         const estilo = linha.destaque ? { fontStyle: "bold" }
           : linha.suave ? { fontStyle: "italic", textColor: COR.suave } : null;
         return celulasDe(linha).map(function (valor) {
+          /* Rótulo com comentário embaixo (ex.: testes complementares): a tabela mede os dois
+             juntos e o desenho (didDrawCell) põe o comentário em letra menor e cinza. */
+          if (valor && typeof valor === "object" && valor.comentario) {
+            const negritoRotulo = /\*\*[^*]+\*\*/.test(valor.texto);
+            return {
+              content: textoPdf(semMarcas(valor.texto)) + "\nComentário: " + textoPdf(valor.comentario),
+              rico: String(valor.texto),
+              comentario: String(valor.comentario),
+              base: estilo && estilo.fontStyle,
+              styles: Object.assign({}, estilo || {}, negritoRotulo ? { fontStyle: "bold" } : {})
+            };
+          }
           /* Com marcas (inglês, sublinhado, ≥): a tabela mede o texto simples e o texto
              com as marcas é desenhado por cima (didDrawCell). */
           /* Com trecho em negrito (**...**), a tabela mede o texto todo em negrito, para a
@@ -625,16 +637,29 @@ const Relatorio = (function () {
           const base = /\*\*[^*]+\*\*/.test(cell.raw.rico) ? cell.raw.base || "normal" : cell.styles.fontStyle;
           const rgb = Array.isArray(cell.styles.textColor) ? cell.styles.textColor
             : [cell.styles.textColor, cell.styles.textColor, cell.styles.textColor];
-          const linhasCelula = linhasRicas(cell.raw.rico, cell.width - cell.padding("left") - cell.padding("right"), base, tamanho);
+          const larguraTexto = cell.width - cell.padding("left") - cell.padding("right");
+          const linhasCelula = linhasRicas(cell.raw.rico, larguraTexto, base, tamanho);
           /* Mesma posição que a tabela usaria para o texto (centro vertical da célula). */
           const pos = cell.getTextPos();
           const l = emMm(tamanho);
           const a = l * doc.getLineHeightFactor();
-          const topo = pos.y + l * (2 - 1.15) - linhasCelula.length / 2 * a;
+          /* Comentário: letra menor, cinza, com "Comentário:" em negrito, um pouco afastado. */
+          const tamanhoComentario = tamanho * 0.85;
+          const aComentario = emMm(tamanhoComentario) * doc.getLineHeightFactor();
+          const folgaComentario = 1.3;
+          const linhasComentario = cell.raw.comentario
+            ? linhasRicas("**Comentário:** " + cell.raw.comentario, larguraTexto, "normal", tamanhoComentario) : [];
+          const alturaTotal = linhasCelula.length * a +
+            (linhasComentario.length ? folgaComentario + linhasComentario.length * aComentario : 0);
+          const topo = pos.y + l * (2 - 1.15) - alturaTotal / 2;
           linhasCelula.forEach(function (linha, i) {
             const w = larguraLinhaRica(linha);
             const x = cell.styles.halign === "center" ? pos.x - w / 2 : cell.styles.halign === "right" ? pos.x - w : pos.x;
             desenharLinhaRica(linha, x, topo + i * a, base, tamanho, rgb);
+          });
+          const topoComentario = topo + (linhasCelula.length - 1) * a + folgaComentario + aComentario;
+          linhasComentario.forEach(function (linha, i) {
+            desenharLinhaRica(linha, pos.x, topoComentario + i * aComentario, "normal", tamanhoComentario, COR.suave);
           });
         }
       });

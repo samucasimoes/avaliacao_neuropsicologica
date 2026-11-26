@@ -1263,16 +1263,20 @@ const DEFINICOES = [
         colunas: [
           { rotulo: "Escore", tipo: "texto" }
         ],
-        /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão. */
+        /* Cada teste tem uma linha de comentário embaixo (na impressão, abaixo do nome). */
+        comentarios: true,
+        /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão.
+           indice: guarda o número de antes nos campos salvos (Procurar Símbolos era o 6º e
+           Labirintos o 5º), para a troca de ordem não misturar os escores. */
         linhas: [
           { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento", negrito: "Teste de interpretação de Provérbios:" },
           { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora", negrito: "Teste dos Cinco Pontos:" },
           /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
           { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
-          { rotulo: "Teste dos Labirintos: envolve planejamento e previsão", negrito: "Teste dos Labirintos:" },
-          /* Linha nova: opcional, para as avaliações já concluídas não voltarem a pendentes. */
-          { rotulo: "Teste de Procurar Símbolos", negrito: "Teste de Procurar Símbolos", opcional: true }
+          /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */
+          { indice: 6, chave: "6", rotulo: "Teste de Procurar Símbolos", negrito: "Teste de Procurar Símbolos", opcional: true },
+          { indice: 5, chave: "5", rotulo: "Teste dos Labirintos: envolve planejamento e previsão", negrito: "Teste dos Labirintos:" }
         ]
       }
     ]

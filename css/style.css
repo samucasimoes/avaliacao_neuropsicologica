@@ -2079,6 +2079,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   max-width: 112px;
 }
 
+/* Linha de comentário embaixo de cada teste (ex.: testes complementares do Stroop):
+   o teste e o comentário ficam juntos, com a divisória só depois do comentário. */
+.tabela-teste tr.tem-comentario th,
+.tabela-teste tr.tem-comentario td {
+  border-bottom: 0;
+  padding-bottom: 2px;
+}
+
+.tabela-teste tr.linha-comentario td {
+  padding-top: 2px;
+  padding-bottom: 10px;
+}
+
+.input-comentario {
+  width: 100%;
+  height: 32px;
+  font-size: 13px;
+}
+
 .tabela-teste tr.destaque th,
 .tabela-teste tr.destaque .calc {
   font-weight: 700;

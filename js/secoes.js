@@ -583,8 +583,17 @@ const Secoes = (function () {
       return acimaDoMaximo(valor, linha.maximo) ? "" : valor;
     }
 
+    /* Linha de comentário embaixo de cada linha da tabela (b.comentarios). */
+    function nomeComentario(linha) {
+      return secao.id + "-" + b.id + "-" + linha.indice + "-comentario";
+    }
+
+    function comentario(linha) {
+      return b.comentarios ? valorDe(nomeComentario(linha)) : "";
+    }
+
     function linhaPreenchida(linha) {
-      return b.colunas.some(function (coluna, c) {
+      return comentario(linha) !== "" || b.colunas.some(function (coluna, c) {
         return !informativa(coluna) && celula(linha, c) !== "";
       });
     }
@@ -602,7 +611,7 @@ const Secoes = (function () {
     }
 
     function linhaDigitada(linha) {
-      if (incapaz(linha)) return true;
+      if (incapaz(linha) || comentario(linha) !== "") return true;
       return b.colunas.some(function (coluna, c) {
         if (digitadoAMao(linha, c)) return celula(linha, c) !== "";
         return !informativa(coluna) && !calculado(linha, c) && !puxado(linha, c) && celula(linha, c) !== "";
@@ -755,6 +764,22 @@ const Secoes = (function () {
           });
           if (tdIncapaz) tr.appendChild(tdIncapaz);
           tbody.appendChild(tr);
+          if (b.comentarios) {
+            tr.classList.add("tem-comentario");
+            const trComentario = criar("tr", "linha-comentario");
+            const td = criar("td");
+            td.colSpan = 1 + b.colunas.length + (b.incapaz ? 1 : 0);
+            const input = criar("input", "input input-comentario");
+            input.type = "text";
+            input.name = nomeComentario(linha);
+            input.maxLength = LIMITE_CAMPO;
+            input.autocomplete = "off";
+            input.placeholder = "Comentário";
+            input.setAttribute("aria-label", (linha.negrito || linha.rotulo).replace(/:$/, "") + " – comentário");
+            td.appendChild(input);
+            trComentario.appendChild(td);
+            tbody.appendChild(trComentario);
+          }
         });
         tabela.appendChild(tbody);
         gradeColunas(tabela, ["rotulo"].concat(b.colunas.map(tipoColuna), b.incapaz ? ["incapaz"] : []));
@@ -831,6 +856,9 @@ const Secoes = (function () {
             (linha.negrito && linha.rotulo.indexOf(linha.negrito) === 0
               ? "**" + linha.negrito + "**" + linha.rotulo.slice(linha.negrito.length) : linha.rotulo);
           if (b.quebrarParenteses) rotulo = rotulo.replace(/ \(/g, "\n(");
+          /* Comentário logo abaixo do nome do teste (sem asteriscos, que são marcas do PDF). */
+          const texto = comentario(linha).replace(/\*/g, "").replace(/_{2,}/g, "_");
+          if (texto) rotulo += "\nComentário: " + texto;
           const celulas = [rotulo].concat(impressas.map(function (c) {
             const valor = celula(linha, c);
             if (!valor) return "—";

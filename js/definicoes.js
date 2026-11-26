@@ -680,8 +680,7 @@ const DEFINICOES = [
           { rotulo: "GDS (Yesavage escala de depressão) autorrelato", origem: "gds" },
           { rotulo: "BHS (escala de desesperança) autorrelato", origem: "bhs" },
           { rotulo: "BDI (inventário de depressão de Beck) autorrelato", origem: "bdi" },
-          /* O escore do IQCODE é digitado na aba MoCA / IQCODE. */
-          { rotulo: "IQCODE (questionário do declínio)", origem: "moca", resultado: "iqcode" },
+          { rotulo: "IQCODE (questionário do declínio)", origem: "iqcode-escore" },
           { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" }
         ]
       }
@@ -690,13 +689,13 @@ const DEFINICOES = [
 
   {
     id: "moca",
-    titulo: "MoCA / IQCODE",
+    titulo: "Montreal Cognitive Assessment (MoCA)",
     /* Em inglês: na impressão, em itálico e letra 12. */
     tituloImpressao: "*Montreal Cognitive Assessment (MoCA)*",
     /* Na impressão a tabela sai mais espaçada para ocupar melhor a folha
        (sem exagero: ainda cabe o comentário sobre o Relógio de Shulman). */
     impressao: { espacamento: 1.6 },
-    descricao: "Digite o escore do paciente em cada domínio do MoCA (o total é calculado automaticamente) e, no fim, o escore do IQCODE.",
+    descricao: "Digite o escore do paciente em cada domínio. O total é calculado automaticamente.",
     blocos: [
       {
         tipo: "tabela",
@@ -742,24 +741,26 @@ const DEFINICOES = [
         id: "comentario",
         rotulo: "Comentários Sobre o Teste do Relógio de Shulman",
         alto: true
-      },
-      /* IQCODE – Questionário do Declínio: só o escore (média de 1 a 5). Na impressão, o
-         título sai como o das abas e o escore termina junto com a linha embaixo dele
-         (na tela, o campo fica na coluna do escore do MoCA). */
-      { tipo: "titulo", texto: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*" },
-      { tipo: "escore", id: "iqcode", rotulo: "Escore do paciente", maximo: 5, decimal: true, alinharTabela: true }
-    ],
-    /* Resultado do IQCODE para o quadro de Humor e comportamento. */
-    resultados: {
-      iqcode: function (s) {
-        const n = s.bloco("iqcode").valor();
-        return n === null ? null : { valor: formatarNumero(n), texto: "", nivel: "" };
       }
-    },
+    ],
     resumo: function (s) {
       const total = s.bloco("dominios").valor("total", 0);
       return [{ rotulo: "Escore total", valor: total === null ? "—" : total, de: "30" }];
     }
+  },
+
+  {
+    id: "iqcode-escore",
+    titulo: "IQCODE",
+    tituloImpressao: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*",
+    /* Na impressão sai no fim da folha do MoCA, bem afastado dos comentários (espacoAntes, mm),
+       com o escore terminando junto com a linha embaixo do título. */
+    impressao: { juntarCom: "moca", espacoAntes: 16 },
+    descricao: "Digite o escore do paciente no IQCODE – Questionário do Declínio (média de 1 a 5).",
+    blocos: [
+      { tipo: "escore", id: "escore", rotulo: "Escore do paciente", maximo: 5, decimal: true, alinharTitulo: true }
+    ],
+    resultado: resultadoDigitado(null)
   },
 
   {

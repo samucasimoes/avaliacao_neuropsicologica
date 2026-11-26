@@ -675,7 +675,7 @@ const Relatorio = (function () {
       y += g(1);
       fonte("bold", COR.escuro);
       if (bloco.alinharTitulo) {
-        /* Termina junto com a linha cinza embaixo do título (IQCODE no fim do MoCA). */
+        /* Termina junto com a linha cinza embaixo do título (IQCODE). */
         doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), margem + util, y, { align: "right" });
       } else {
         /* Alinhado à direita da folha. */
@@ -747,11 +747,6 @@ const Relatorio = (function () {
         case "assinaturas": assinaturas(bloco); break;
         case "subtitulo":
           subtitulo(bloco.texto, bloco.menor, bloco.tamanho);
-          break;
-        case "titulo":
-          /* Mais afastado do bloco de cima, para separar bem as duas partes da folha. */
-          y += 16;
-          tituloSecao(bloco.texto);
           break;
         case "paragrafo":
           /* tamanho: letra menor (ex.: 10); cinza: texto explicativo em cinza. */
@@ -965,7 +960,8 @@ const Relatorio = (function () {
              (ex.: Atenção, da aba Trilhas, na folha da Memória verbal e visual). */
           const comSubtitulos = parte.secao.semTituloJunto || parte.blocos.some(function (b) { return b.soJunto; });
           espacamento = parte.secao.espacamento || 1;
-          if (parte.junto) y += g(4);
+          /* espacoAntes: folga maior, em mm (ex.: IQCODE no fim da folha do MoCA). */
+          if (parte.junto) y += parte.secao.espacoAntes || g(4);
           if (!parte.continuacao && (!parte.junto || !comSubtitulos)) {
             tituloSecao(parte.secao.titulo, parte.secao.tamanhoTituloIngles);
             if (parte.secao.subtitulo) subtituloSecao(parte.secao.subtitulo);

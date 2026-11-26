@@ -898,8 +898,7 @@ const Secoes = (function () {
     return {
       montar: function (container) {
         if (b.entrada === false) return;
-        /* alinharTabela: o campo fica na coluna do escore da tabela de cima (IQCODE no MoCA). */
-        const campo = criar("div", "field campo-escore" + (b.alinharTabela ? " campo-escore-grade" : ""));
+        const campo = criar("div", "field campo-escore");
         const label = criar("label", "label", b.rotulo + ":");
         label.htmlFor = nome;
         input = criar("input", "input input-escore");
@@ -944,7 +943,7 @@ const Secoes = (function () {
       relatorio: function () {
         const proprio = b.entrada === false ? null : digitado();
         const valor = proprio !== null ? proprio : calculado();
-        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor), alinharTitulo: !!b.alinharTabela }];
+        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor), alinharTitulo: !!b.alinharTitulo }];
       }
     };
   }
@@ -1248,7 +1247,7 @@ const Secoes = (function () {
     function resultadoDe(item, i) {
       if (item.origem) {
         if (contexto.origens[item.origem]) return contexto.origens[item.origem]();
-        return resultado(item.origem, item.resultado);
+        return resultado(item.origem);
       }
       const valor = valorDe(nome(i + 1));
       if (acimaDoMaximo(valor, item.maximo)) return null;
@@ -1405,8 +1404,6 @@ const Secoes = (function () {
     paragrafo: blocoEstatico("paragrafo", "paragrafo"),
     nota: blocoEstatico("escala-legenda", "nota"),
     subtitulo: blocoEstatico("escala-grupo subtitulo", "subtitulo"),
-    /* Título no meio da aba (ex.: IQCODE, na aba MoCA / IQCODE): na impressão, como o das abas. */
-    titulo: blocoEstatico("escala-grupo subtitulo", "titulo"),
     frase: blocoFrase,
     grafico: blocoGrafico,
     resultados: blocoResultados,
@@ -1510,13 +1507,10 @@ const Secoes = (function () {
     return !!secao && secao.blocos.every(function (bloco) { return bloco.completo(); });
   }
 
-  /* Resultado resumido da etapa (usado no quadro de Humor e comportamento).
-     qual: um resultado à parte da etapa (ex.: o IQCODE, na aba MoCA / IQCODE). */
-  function resultado(id, qual) {
+  /* Resultado resumido da etapa (usado no quadro de Humor e comportamento). */
+  function resultado(id) {
     const secao = porId[id];
-    if (!secao) return null;
-    if (qual) return secao.def.resultados && secao.def.resultados[qual] ? secao.def.resultados[qual](secao.api) : null;
-    if (!secao.def.resultado) return null;
+    if (!secao || !secao.def.resultado) return null;
     return secao.def.resultado(secao.api);
   }
 
@@ -1545,7 +1539,7 @@ const Secoes = (function () {
     const impressao = secao.def.impressao || {};
     const grupos = [[]];
     secao.blocos.forEach(function (bloco) {
-      if (bloco.tipo === "subtitulo" || bloco.tipo === "titulo") grupos.push([]);
+      if (bloco.tipo === "subtitulo") grupos.push([]);
       grupos[grupos.length - 1].push(bloco);
     });
     /* Blocos dos grupos indicados, na ordem dada; titulos dá um subtítulo a um grupo
@@ -1574,6 +1568,7 @@ const Secoes = (function () {
       subtitulo: secao.def.subtituloImpressao || "",
       blocos: blocos,
       juntarCom: impressao.juntarCom || null,
+      espacoAntes: impressao.espacoAntes || 0,
       /* Junto de outra etapa, sai sem o próprio título (ex.: Atenção, na folha da Memória). */
       semTituloJunto: !!impressao.semTituloJunto,
       espacamento: impressao.espacamento || 1,

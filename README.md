@@ -137,11 +137,12 @@ ficam alinhadas.
 
 Em todas as escalas, a legenda tem duas colunas: o escore à esquerda e a interpretação à
 direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da folha.
-10. **MoCA / IQCODE** – escore por domínio e total; valor acima do máximo fica em vermelho com
+10. **MoCA** – escore por domínio e total; valor acima do máximo fica em vermelho com
     aviso e não entra no total até ser corrigido. A coluna Escore máximo fica só na tela. Os
-    comentários sobre o Teste do Relógio de Shulman e, abaixo deles, o IQCODE (título como o
-    das abas e o escore, que aceita decimal, ex.: 3,6, terminando junto com a linha do título) saem na
-    mesma folha da tabela.
+    comentários sobre o Teste do Relógio de Shulman saem na mesma folha da tabela.
+    **IQCODE** – aba logo depois do MoCA, só com o escore (aceita decimal, ex.: 3,6). Na
+    impressão sai no fim da folha do MoCA, com o título e o escore terminando junto com a
+    linha do título.
 11. **Relógio de Shulman** – só o título e "Marque no relógio 11 horas e 10 minutos";
     fica só na tela, não sai no relatório.
 12. **Linguagem** – fluência fonêmica (F-A-S com total) e semântica, e textos. A coluna
@@ -185,7 +186,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
 
 O questionário completo do **IQCODE** (26 itens) está fora de uso: o código continua no
 projeto, mas a aba fica escondida (`display: none`) e não sai no relatório; o escore do
-IQCODE é digitado na aba MoCA / IQCODE. Para voltar com o questionário, remova a
+IQCODE é digitado na aba IQCODE (`iqcode-escore`), logo depois do MoCA. Para voltar com o questionário, remova a
 classe `etapa-oculta` e o `style` da aba no `index.html`.
 
 O relatório segue a ordem dos números das etapas e só traz as etapas preenchidas.

@@ -1897,25 +1897,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 140px;
 }
 
-/* Escore na coluna do escore da tabela de cima (mesma grade das tabelas: rótulos em 30%). */
-.campo-escore.campo-escore-grade {
-  display: grid;
-  grid-template-columns: 30% 120px;
-  gap: 0;
-  margin-top: 10px;
-}
-
-/* Rótulo colado no campo, como na impressão. */
-.campo-escore-grade .label {
-  justify-self: end;
-  padding-right: 4px;
-}
-
-.campo-escore-grade .input-escore {
-  width: 112px;
-  margin-left: 8px;
-}
-
 /* Escala de Katz: uma descrição por área (classes com o nome da aba, montadas em secoes.js) */
 .katz-item {
   display: flex;

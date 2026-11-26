@@ -156,7 +156,8 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     RAVLT: Total A1–A5, A7 e Reconhecimento, mas podem ser alterados), Praxia construtiva e
     Evocação da praxia construtiva (digitadas), com Total e Classificação.
 13. **Funções executivas** – texto das funções executivas (testes analisados sublinhados) e
-    Bateria de Avaliação Frontal (FAB); na impressão o título é "Funções Executivas".
+    Bateria de Avaliação Frontal (FAB) e, abaixo dela, os testes complementares (provérbios,
+    cinco pontos, sinos, corte de linhas e labirintos); na impressão o título é "Funções Executivas".
 14. **RAVLT** – total, interferências, esquecimento e curva de aprendizagem (gráfico);
     a classificação é escolhida pelo profissional. As colunas Referência e DP mostram o
     valor esperado e o desvio padrão conforme a idade (60 a 89 anos) e o sexo do paciente
@@ -171,7 +172,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     mais lento que o percentil 10, sai "< 10". Cada forma tem, no fim da linha, a caixa **Incapaz de realizar**:
     marcada, o tempo sai com esse texto (sem percentil), inclusive na Trilha B da Atenção
     alternada. 17. **Praxias**,
-    18. **Bateria Wechsler**, 19. **Stroop Test** (com testes complementares): a coluna
+    18. **Bateria Wechsler**, 19. **Stroop Test**: a coluna
     Referência é o tempo médio da Versão Victoria para a idade do paciente (1ª cartela =
     cores de estímulos, 2ª = palavras sem interferência, 3ª = com interferência),
     arredondado (tabela `STROOP_TEMPOS` em `js/definicoes.js`). A referência fica só na tela,

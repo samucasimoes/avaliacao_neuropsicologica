@@ -801,7 +801,7 @@ const Secoes = (function () {
         });
         if (!corpo.length) return [];
         const blocos = [];
-        /* tamanhoTitulo: título da tabela menor na impressão (ex.: Teste das Trilhas). */
+        /* tamanhoTitulo: título da tabela menor na impressão. */
         if (b.titulo) blocos.push({ tipo: "subtitulo", texto: b.titulo, menor: true, tamanho: b.tamanhoTitulo });
         blocos.push({
           tipo: "tabela",
@@ -1509,28 +1509,47 @@ const Secoes = (function () {
       if (bloco.tipo === "subtitulo") grupos.push([]);
       grupos[grupos.length - 1].push(bloco);
     });
-    /* A impressão pode trocar a ordem dos grupos e dar um subtítulo a um grupo
+    /* Blocos dos grupos indicados, na ordem dada; titulos dá um subtítulo a um grupo
        (usado quando a etapa sai junto com outra, sem o próprio título). */
-    const ordem = impressao.ordemGrupos || grupos.map(function (g, i) { return i; });
-    ordem.forEach(function (indice) {
-      const grupo = grupos[indice] || [];
-      const grupoPreenchido = grupo.some(function (bloco) { return bloco.preenchido(); });
-      const subtitulo = impressao.tituloGrupos && impressao.tituloGrupos[indice];
-      if (subtitulo && grupoPreenchido) blocos.push({ tipo: "subtitulo", texto: subtitulo, soJunto: true });
-      grupo.forEach(function (bloco) {
-        bloco.relatorio(grupoPreenchido).forEach(function (item) { blocos.push(item); });
+    function blocosDosGrupos(ordem, titulos, destino) {
+      ordem.forEach(function (indice) {
+        const grupo = grupos[indice] || [];
+        const grupoPreenchido = grupo.some(function (bloco) { return bloco.preenchido(); });
+        const subtitulo = titulos && titulos[indice];
+        if (subtitulo && grupoPreenchido) destino.push({ tipo: "subtitulo", texto: subtitulo, soJunto: true });
+        grupo.forEach(function (bloco) {
+          bloco.relatorio(grupoPreenchido).forEach(function (item) { destino.push(item); });
+        });
       });
-    });
+      return destino;
+    }
+    /* A impressão pode trocar a ordem dos grupos (ordemGrupos) e mandar alguns para
+       outra folha (aparte: ex.: o Teste das Trilhas sai abaixo do Stroop Test). */
+    blocosDosGrupos(impressao.ordemGrupos || grupos.map(function (g, i) { return i; }), impressao.tituloGrupos, blocos);
+    const aparte = impressao.aparte ? blocosDosGrupos(impressao.aparte.grupos, null, []) : [];
 
-    if (!blocos.length) return null;
+    if (!blocos.length && !aparte.length) return null;
     return {
       titulo: secao.def.tituloImpressao || secao.def.titulo,
       tamanhoTituloIngles: secao.def.tamanhoTituloIngles || null,
       subtitulo: secao.def.subtituloImpressao || "",
       blocos: blocos,
       juntarCom: impressao.juntarCom || null,
+      /* Junto de outra etapa, sai sem o próprio título (ex.: Atenção, na folha da Memória). */
+      semTituloJunto: !!impressao.semTituloJunto,
       espacamento: impressao.espacamento || 1,
-      variasFolhas: !!impressao.variasFolhas
+      variasFolhas: !!impressao.variasFolhas,
+      aparte: aparte.length ? {
+        titulo: impressao.aparte.titulo || secao.def.titulo,
+        tamanhoTituloIngles: null,
+        subtitulo: "",
+        blocos: aparte,
+        juntarCom: impressao.aparte.juntarCom || null,
+        /* Sai logo depois desta etapa (que precisa vir depois no menu). */
+        depoisDe: impressao.aparte.juntarCom || null,
+        espacamento: 1,
+        variasFolhas: false
+      } : null
     };
   }
 

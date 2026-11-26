@@ -260,14 +260,23 @@
       })
       .filter(function (etapa) { return FORA_DA_IMPRESSAO.indexOf(etapa.id) === -1; })
       .sort(function (a, b) { return a.numero - b.numero; });
-    return etapas
-      .map(function (etapa) {
-        const conteudo = etapa.id === "cornell" ? Cornell.relatorio()
-          : Secoes.relatorio(etapa.id);
-        if (conteudo) conteudo.id = etapa.id;
-        return conteudo;
-      })
-      .filter(Boolean);
+    /* Parte de uma etapa impressa noutro lugar (aparte: ex.: Teste das Trilhas abaixo do
+       Stroop Test) entra logo depois da etapa indicada, ou no fim se ela não estiver no menu. */
+    const lista = [];
+    const pendentes = [];
+    etapas.forEach(function (etapa) {
+      const conteudo = etapa.id === "cornell" ? Cornell.relatorio()
+        : Secoes.relatorio(etapa.id);
+      if (conteudo) {
+        conteudo.id = etapa.id;
+        if (conteudo.blocos.length) lista.push(conteudo);
+        if (conteudo.aparte) pendentes.push(Object.assign({ id: etapa.id }, conteudo.aparte));
+      }
+      for (let i = pendentes.length - 1; i >= 0; i--) {
+        if (pendentes[i].depoisDe === etapa.id) lista.push(pendentes.splice(i, 1)[0]);
+      }
+    });
+    return lista.concat(pendentes);
   }
 
   /* ---------- Dados para o relatório ---------- */
@@ -974,7 +983,13 @@
     /* Páginas que saem no relatório desta avaliação (para escolher o que imprimir). */
     paginas: function (campos) {
       return comCampos(campos || {}, function () {
-        return [{ id: "dados", titulo: "Dados do paciente" }].concat(secoesDoRelatorio().map(function (secao) {
+        /* Uma etapa com parte aparte (Trilhas) aparece uma vez só. */
+        const vistas = {};
+        return [{ id: "dados", titulo: "Dados do paciente" }].concat(secoesDoRelatorio().filter(function (secao) {
+          if (vistas[secao.id]) return false;
+          vistas[secao.id] = true;
+          return true;
+        }).map(function (secao) {
           return { id: secao.id, titulo: nomeEtapa(secao.id) };
         }));
       });

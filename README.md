@@ -167,7 +167,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     de Rey - (RAVLT)". A idade aparece ao lado do título, só na tela. Na impressão o B1 não
     aparece, o texto explicativo tem letra 10 e o comentário sai sem o rótulo.
 15. **Memória verbal e visual** – memória lógica e visual, e memória imediata e
-    operacional (Digit Span), com classificação.
+    operacional (Teste dos Dígitos), com classificação.
 16. **Trilhas** (com atenção sustentada, seletiva e alternada): o percentil do Teste das
     Trilhas é calculado pela idade do paciente e pelo tempo em segundos, pela tabela de Davies
     (1968) em `TRILHAS_TEMPOS` (`js/definicoes.js`); acima de 79 anos usa a faixa de 70 a 79 e,
@@ -202,8 +202,8 @@ aba, como o Resumo e as legendas no fim da folha, ela fica cinza-clara como as o
 inglês saem em itálico (nos títulos, numa linha abaixo, com letra 12; o título "Stroop Test",
 todo em inglês, tem 14); nos textos de `js/definicoes.js` elas ficam entre asteriscos (`*Stroop Test*`) e o
 sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").
-Um valor digitado numa aba não é digitado de novo: os Dígitos da Wechsler vêm do Digit Span
-(Memória), a Trilha B da Atenção alternada vem do tempo da Forma B, e o Teste dos Sinos do
+Um valor digitado numa aba não é digitado de novo: os Dígitos da Wechsler vêm do Teste dos Dígitos
+(Memória, mas podem ser alterados na Wechsler), a Trilha B da Atenção alternada vem do tempo da Forma B, e o Teste dos Sinos do
 Stroop vem da Atenção seletiva. No cabeçalho da primeira folha os rótulos ficam com a primeira
 letra de cada palavra em maiúscula (ex.: "Paciente", "Médico Solicitante").
 Os dados do paciente podem ser digitados em minúsculo: na impressão, nome, profissão, médico

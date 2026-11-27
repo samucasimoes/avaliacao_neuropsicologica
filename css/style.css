@@ -2069,6 +2069,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .tabela-grade col.col-calc { width: 104px; }
 .tabela-grade col.col-classe { width: 244px; }
 .tabela-grade col.col-incapaz { width: 180px; }
+.tabela-grade col.col-larga { width: 180px; }
 .tabela-grade col.col-faixa { width: 160px; }
 
 .tabela-grade tbody th {
@@ -2084,6 +2085,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .tabela-grade .input-tabela {
   max-width: 112px;
+}
+
+/* Coluna larga (ex.: Tempo do Teste das Trilhas): cabe o "Incapaz de realizar". */
+.tabela-grade td.larga .input-tabela {
+  max-width: 164px;
 }
 
 /* Linha de comentário embaixo de cada teste (ex.: testes complementares do Stroop):

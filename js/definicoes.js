@@ -1051,7 +1051,7 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Teste Digit Span", rotuloImpressao: "Teste *Digit Span*" },
+          { rotulo: "Teste dos Dígitos" },
           { rotulo: "Ordem Direta (Memória imediata)" },
           { rotulo: "Ordem Inversa (Memória Operacional)" }
         ]
@@ -1092,7 +1092,8 @@ const DEFINICOES = [
         incapaz: { coluna: 1, texto: "Incapaz de realizar" },
         colunas: [
           { rotulo: "Erros", tipo: "numero" },
-          { rotulo: "Tempo (segundos)", tipo: "numero", tempo: true },
+          /* larga: cabe o "Incapaz de realizar" no campo. */
+          { rotulo: "Tempo (segundos)", tipo: "numero", tempo: true, larga: true },
           /* Calculado pela idade do paciente e pelo tempo (veja percentilTrilhas). */
           { rotulo: "Percentil", tipo: "calculo" }
         ],
@@ -1196,7 +1197,7 @@ const DEFINICOES = [
     titulo: "Bateria Wechsler",
     /* Na impressão sai na mesma folha de Praxias, abaixo do texto dela. */
     impressao: { juntarCom: "praxias" },
-    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8 e o 8.1, Dígitos, são o Digit Span).",
+    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8 e o 8.1, Dígitos, vêm do Teste dos Dígitos).",
     blocos: [
       {
         tipo: "tabela",
@@ -1204,6 +1205,8 @@ const DEFINICOES = [
         colunaRotulo: "Subteste",
         /* Na impressão, os resultados sempre em letra 12. */
         valores12: true,
+        /* Os Dígitos (8 e 8.1) vêm da Memória, mas podem ser alterados aqui. */
+        puxadoEditavel: true,
         colunas: [
           { rotulo: "Escore", tipo: "texto" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
@@ -1216,7 +1219,7 @@ const DEFINICOES = [
           { rotulo: "5 - Cubos" },
           { rotulo: "6 - Códigos" },
           { rotulo: "7 - Procurar Símbolos" },
-          /* Os escores dos Dígitos vêm da Memória verbal e visual (Digit Span). */
+          /* Os escores dos Dígitos vêm da Memória verbal e visual (Teste dos Dígitos). */
           { rotulo: "8 - Dígitos (Ordem direta)", puxar: { 0: ["memoria", "digit-span", "2", 0] } },
           { rotulo: "8.1 - Dígitos (Ordem inversa)", puxar: { 0: ["memoria", "digit-span", "3", 0] } }
         ]
@@ -1278,13 +1281,14 @@ const DEFINICOES = [
            na tela, não sai): a Média fica no meio, entre o Tempo e os Erros. */
         larguraValores: 25,
         larguraRotulo: 56,
+        /* Na tela, Tempo, Média e Erros estreitos, para a classificação caber em telas menores. */
         colunas: [
-          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
+          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true, estreita: true },
           /* Calculada pela idade do paciente (veja referenciaStroop). Só na tela, para a
              profissional se basear: não sai na impressão. */
           { rotulo: "Referência", tipo: "calculo", tempo: true, informativa: true, soTela: true },
-          { rotulo: "Média", tipo: "texto", tempo: true },
-          { rotulo: "Erros", tipo: "numero" },
+          { rotulo: "Média", tipo: "texto", tempo: true, estreita: true },
+          { rotulo: "Erros", tipo: "numero", estreita: true },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [

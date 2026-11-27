@@ -26,7 +26,7 @@ const Secoes = (function () {
      diferentes ficam alinhadas umas com as outras. A primeira coluna (rótulos) é uma
      porcentagem e a última ocupa o que sobra. Larguras mínimas (px) para a rolagem
      lateral em telas estreitas. */
-  const LARGURA_COLUNA = { rotulo: 220, valor: 128, estreita: 84, calc: 104, classe: 244, incapaz: 180, faixa: 160, texto: 240 };
+  const LARGURA_COLUNA = { rotulo: 220, valor: 128, estreita: 84, calc: 104, classe: 244, incapaz: 180, larga: 180, faixa: 160, texto: 240 };
 
   function gradeColunas(tabela, tipos) {
     const colgroup = criar("colgroup");
@@ -45,6 +45,7 @@ const Secoes = (function () {
   function tipoColuna(coluna) {
     if (coluna.tipo === "classe") return "classe";
     if (coluna.estreita) return "estreita";
+    if (coluna.larga) return "larga";
     if (coluna.tipo === "calculo" || coluna.tipo === "fixo" || coluna.tipo === "referencia") return "calc";
     return "valor";
   }
@@ -707,7 +708,7 @@ const Secoes = (function () {
             caixasIncapaz.push({ linha: linha, caixa: caixa });
           }
           b.colunas.forEach(function (coluna, c) {
-            const td = criar("td", coluna.estreita ? "estreita" : "");
+            const td = criar("td", coluna.estreita ? "estreita" : coluna.larga ? "larga" : "");
             const rotulo = linha.rotulo + " – " + coluna.rotulo;
             if (editavel(linha, c)) {
               const input = criar("input", "input input-tabela input-puxado");
@@ -815,15 +816,21 @@ const Secoes = (function () {
         container.appendChild(rolagem);
       },
       atualizar: function () {
-        /* Incapaz de realizar: o campo do tempo fica travado, vazio, mostrando o texto. */
+        /* Incapaz de realizar: o campo do tempo fica travado, vazio, mostrando o texto;
+           os outros campos digitados da linha (ex.: Erros) ficam travados com o traço,
+           como o percentil. */
         caixasIncapaz.forEach(function (item) {
-          const campo = form.elements.namedItem(nome(item.linha, b.incapaz.coluna));
-          if (!campo) return;
           const marcado = item.caixa.checked;
-          if (marcado && campo.value) campo.value = "";
-          campo.disabled = marcado;
-          campo.placeholder = marcado ? b.incapaz.texto : "";
-          campo.classList.toggle("input-incapaz", marcado);
+          b.colunas.forEach(function (coluna, c) {
+            if (coluna.tipo !== "numero" && coluna.tipo !== "texto") return;
+            if (calculado(item.linha, c) || puxado(item.linha, c)) return;
+            const campo = form.elements.namedItem(nome(item.linha, c));
+            if (!campo) return;
+            if (marcado && campo.value) campo.value = "";
+            campo.disabled = marcado;
+            campo.placeholder = marcado ? (c === b.incapaz.coluna ? b.incapaz.texto : "—") : "";
+            campo.classList.toggle("input-incapaz", marcado);
+          });
         });
         editaveis.forEach(function (s) {
           const origem = origemPuxada(s.linha, s.coluna).secao;

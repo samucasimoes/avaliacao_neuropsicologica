@@ -216,12 +216,16 @@ const DEFINICOES = [
         itens: [
           "Histórico familiar de 1° grau para DA",
           "Baixa escolaridade",
-          /* Só aparece quando o sexo nos Dados do paciente é Feminino. A chave própria
-             mantém o nome dos campos dos outros itens (avaliações já salvas). */
+          /* Sempre aparece (na tela e na impressão) e é marcado sozinho pelo sexo nos Dados
+             do paciente: Feminino = Sim, Masculino = Não. A chave própria mantém o nome dos
+             campos dos outros itens (avaliações já salvas). */
           {
             chave: "sexo-feminino",
             texto: "Sexo feminino",
-            mostrarSe: function (paciente) { return paciente.sexo === "Feminino"; }
+            sempreNaImpressao: true,
+            automatico: function (paciente) {
+              return paciente.sexo === "Feminino" ? "sim" : paciente.sexo === "Masculino" ? "nao" : "";
+            }
           },
           "Hipertensão arterial",
           "Hiperlipidemia",
@@ -323,6 +327,7 @@ const DEFINICOES = [
 
   {
     id: "katz",
+    imprimirVazia: true,
     titulo: "Escala de Katz",
     tituloImpressao: "Escala de Katz (Escala de Independência para as Atividades de Alterações de Vida Diária)",
     descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
@@ -438,6 +443,7 @@ const DEFINICOES = [
 
   {
     id: "pfeffer",
+    imprimirVazia: true,
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
     tituloImpressao: "Escalas, Inventários e Questionários",
     subtituloImpressao: "Questionário de Atividades Funcionais (Pfeffer)",
@@ -503,6 +509,7 @@ const DEFINICOES = [
      juntas numa folha, depois do Pfeffer. */
   {
     id: "gai",
+    imprimirVazia: true,
     titulo: "Inventário de Ansiedade Geriátrica (GAI)",
     descricao: "Digite o escore do paciente no Inventário de Ansiedade Geriátrica (0 a 20).",
     blocos: [
@@ -522,6 +529,7 @@ const DEFINICOES = [
 
   {
     id: "gds",
+    imprimirVazia: true,
     titulo: "Escala de Depressão Geriátrica (GDS)",
     tituloImpressao: "Escala de Depressão Geriátrica (GDS) *(Geriatric Depression Scale)*",
     impressao: { juntarCom: ["gai"] },
@@ -544,6 +552,7 @@ const DEFINICOES = [
 
   {
     id: "bhs",
+    imprimirVazia: true,
     titulo: "Escala de Desesperança de Beck (BHS)",
     tituloImpressao: "Escala de Desesperança de Beck (BHS) *(Beck Hopelessness Scale)*",
     impressao: { juntarCom: ["gai", "gds"] },
@@ -567,6 +576,7 @@ const DEFINICOES = [
 
   {
     id: "bdi",
+    imprimirVazia: true,
     titulo: "Inventário de Depressão de Beck (BDI)",
     tituloImpressao: "Inventário de Depressão de Beck (BDI) *(Beck Depression Inventory)*",
     impressao: { juntarCom: ["gai", "gds", "bhs"] },
@@ -590,6 +600,7 @@ const DEFINICOES = [
 
   {
     id: "iqcode",
+    imprimirVazia: true,
     titulo: "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
     descricao: "Peça ao informante que se lembre de como o paciente estava há 10 anos e compare com o estado atual. Se a pessoa nunca fez a tarefa, marque “Não se aplica”; se o familiar não tiver certeza, marque “Não sabe”.",
     blocos: [
@@ -751,6 +762,7 @@ const DEFINICOES = [
 
   {
     id: "iqcode-escore",
+    imprimirVazia: true,
     titulo: "IQCODE",
     tituloImpressao: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*",
     /* Na impressão sai no fim da folha do MoCA, bem afastado dos comentários (espacoAntes, mm),
@@ -800,16 +812,20 @@ const DEFINICOES = [
         colunas: [
           { rotulo: "Escore", tipo: "texto" }
         ],
-        /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão. */
+        /* Cada teste tem uma linha de comentário embaixo (na impressão, abaixo do nome). */
+        comentarios: true,
+        /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão.
+           indice: guarda o número de antes nos campos salvos (Procurar Símbolos era o 6º e
+           Labirintos o 5º), para a troca de ordem não misturar os escores. */
         linhas: [
           { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento", negrito: "Teste de interpretação de Provérbios:" },
           { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora", negrito: "Teste dos Cinco Pontos:" },
           /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
           { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
-          { rotulo: "Teste dos Labirintos: envolve planejamento e previsão", negrito: "Teste dos Labirintos:" },
-          /* Linha nova: opcional, para as avaliações já concluídas não voltarem a pendentes. */
-          { rotulo: "Teste de Procurar Símbolos", negrito: "Teste de Procurar Símbolos", opcional: true }
+          /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */
+          { indice: 6, chave: "6", rotulo: "Teste de Procurar Símbolos: analisa velocidade de processamento de informações visuais, memória de curto prazo e atenção sustentada", negrito: "Teste de Procurar Símbolos:", opcional: true },
+          { indice: 5, chave: "5", rotulo: "Teste dos Labirintos: envolve planejamento e previsão", negrito: "Teste dos Labirintos:" }
         ]
       }
     ]
@@ -1093,8 +1109,9 @@ const DEFINICOES = [
       { tipo: "subtitulo", texto: "Atenção" },
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor (letra 10). */
-        tamanho: 10,
+        /* Na impressão: texto explicativo em letra 11, que não encolhe com a folha. */
+        tamanho: 11,
+        tamanhoFixo: true,
         texto: "Avaliada através de testes que aferem a capacidade de manter-se atento de forma continuada (atenção concentrada), de atentar seletivamente para informações relevantes a despeito de estímulos distratores (atenção seletiva), de ser capaz de ora manter o foco de atenção num estímulo ora em outro (atenção alternada / flexibilidade mental). Foram avaliados todos os aspectos da atenção: sustentação, seletividade e alternância."
       },
       {
@@ -1149,6 +1166,10 @@ const DEFINICOES = [
     blocos: [
       {
         tipo: "paragrafo",
+        /* Na impressão: letra 11, que não encolhe com a folha (a folha da Praxias costuma
+           encolher para caber junto com a Bateria Wechsler). */
+        tamanho: 11,
+        tamanhoFixo: true,
         texto: "As apraxias são perturbações da atividade gestual, quer se trate de movimentos adaptados a um fim, quer de manipulação real, quer de mímica de objetos, e que não são explicadas nem por um dano motor, nem por um dano sensitivo, nem por uma alteração intelectual, e que surgem quando da lesão de certas áreas cerebrais."
       },
       {

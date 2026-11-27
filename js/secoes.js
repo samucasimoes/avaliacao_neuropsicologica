@@ -143,9 +143,14 @@ const Secoes = (function () {
         chave: objeto.chave || String(++posicao),
         texto: objeto.texto,
         opcoes: objeto.opcoes || b.opcoes,
-        mostrarSe: objeto.mostrarSe || null
+        mostrarSe: objeto.mostrarSe || null,
+        automatico: objeto.automatico || null,
+        sempreNaImpressao: !!objeto.sempreNaImpressao,
+        ultimoAuto: ""
       };
     });
+    /* Escala com imprimirVazia: na impressão saem todos os itens, os sem resposta em branco. */
+    const todosNaImpressao = !!secao.def.imprimirVazia;
 
     function nome(chave) {
       return secao.id + "-" + b.id + "-" + chave;
@@ -190,8 +195,20 @@ const Secoes = (function () {
         });
         container.appendChild(lista);
       },
-      /* Mostra ou esconde os itens condicionais e renumera. */
+      /* Mostra ou esconde os itens condicionais e renumera. Itens com "automatico" (ex.:
+         Sexo feminino) são marcados pelos dados do paciente: quando o valor calculado muda
+         ou quando o item ainda está sem resposta (o profissional pode trocar depois). */
       atualizar: function () {
+        const p = contexto.paciente();
+        itens.forEach(function (item) {
+          if (!item.automatico) return;
+          const auto = item.automatico(p) || "";
+          if (auto && (auto !== item.ultimoAuto || !valorDe(nome(item.chave)))) {
+            const radio = form.querySelector('input[name="' + nome(item.chave) + '"][value="' + auto + '"]');
+            if (radio) radio.checked = true;
+          }
+          item.ultimoAuto = auto;
+        });
         const lista = visiveis();
         linhasTela.forEach(function (l) {
           const posicaoVisivel = lista.indexOf(l.item);
@@ -221,7 +238,13 @@ const Secoes = (function () {
         const linhas = [];
         visiveis().forEach(function (item, i) {
           const r = resposta(item);
-          if (!r) return;
+          if (!r) {
+            if (!todosNaImpressao && !item.sempreNaImpressao) return;
+            const vazia = [i + 1, item.texto, ""];
+            if (b.mostrarPontos) vazia.push("");
+            linhas.push(vazia);
+            return;
+          }
           const linha = [i + 1, item.texto, r.rotulo];
           if (b.mostrarPontos) linha.push(r.semPontos ? "—" : r.pontos);
           linhas.push(linha);
@@ -307,7 +330,7 @@ const Secoes = (function () {
       /* Na impressão sai como a folha de papel: todas as descrições de cada área,
          com a assinalada marcada. */
       relatorio: function () {
-        if (!this.preenchido()) return [];
+        if (!this.preenchido() && !secao.def.imprimirVazia) return [];
         return [{
           tipo: "escolhas",
           introducao: b.introducao || "",
@@ -588,8 +611,17 @@ const Secoes = (function () {
       return acimaDoMaximo(valor, linha.maximo) ? "" : valor;
     }
 
+    /* Linha de comentário embaixo de cada linha da tabela (b.comentarios). */
+    function nomeComentario(linha) {
+      return secao.id + "-" + b.id + "-" + linha.indice + "-comentario";
+    }
+
+    function comentario(linha) {
+      return b.comentarios ? valorDe(nomeComentario(linha)) : "";
+    }
+
     function linhaPreenchida(linha) {
-      return b.colunas.some(function (coluna, c) {
+      return comentario(linha) !== "" || b.colunas.some(function (coluna, c) {
         return !informativa(coluna) && celula(linha, c) !== "";
       });
     }
@@ -607,7 +639,7 @@ const Secoes = (function () {
     }
 
     function linhaDigitada(linha) {
-      if (incapaz(linha)) return true;
+      if (incapaz(linha) || comentario(linha) !== "") return true;
       return b.colunas.some(function (coluna, c) {
         if (digitadoAMao(linha, c)) return celula(linha, c) !== "";
         return !informativa(coluna) && !calculado(linha, c) && !puxado(linha, c) && celula(linha, c) !== "";
@@ -760,6 +792,22 @@ const Secoes = (function () {
           });
           if (tdIncapaz) tr.appendChild(tdIncapaz);
           tbody.appendChild(tr);
+          if (b.comentarios) {
+            tr.classList.add("tem-comentario");
+            const trComentario = criar("tr", "linha-comentario");
+            const td = criar("td");
+            td.colSpan = 1 + b.colunas.length + (b.incapaz ? 1 : 0);
+            const input = criar("input", "input input-comentario com-contador");
+            input.type = "text";
+            input.name = nomeComentario(linha);
+            input.maxLength = LIMITE_CAMPO;
+            input.autocomplete = "off";
+            input.placeholder = "Comentário";
+            input.setAttribute("aria-label", (linha.negrito || linha.rotulo).replace(/:$/, "") + " – comentário");
+            td.appendChild(input);
+            trComentario.appendChild(td);
+            tbody.appendChild(trComentario);
+          }
         });
         tabela.appendChild(tbody);
         gradeColunas(tabela, ["rotulo"].concat(b.colunas.map(tipoColuna), b.incapaz ? ["incapaz"] : []));
@@ -836,7 +884,10 @@ const Secoes = (function () {
             (linha.negrito && linha.rotulo.indexOf(linha.negrito) === 0
               ? "**" + linha.negrito + "**" + linha.rotulo.slice(linha.negrito.length) : linha.rotulo);
           if (b.quebrarParenteses) rotulo = rotulo.replace(/ \(/g, "\n(");
-          const celulas = [rotulo].concat(impressas.map(function (c) {
+          /* Comentário logo abaixo do nome do teste, em letra menor e cinza (sem asteriscos,
+             que são marcas do PDF). */
+          const texto = comentario(linha).replace(/\*/g, "").replace(/_{2,}/g, "_");
+          const celulas = [texto ? { texto: rotulo, comentario: texto } : rotulo].concat(impressas.map(function (c) {
             const valor = celula(linha, c);
             if (!valor) return "—";
             const tempo = b.colunas[c].tempo || (linha.tempo && b.colunas[c].tipo !== "classe");
@@ -960,7 +1011,9 @@ const Secoes = (function () {
       relatorio: function () {
         const proprio = b.entrada === false ? null : digitado();
         const valor = proprio !== null ? proprio : calculado();
-        return valor === null ? [] : [{ tipo: "escore", rotulo: b.rotulo, valor: formatarNumero(valor), alinharTitulo: !!b.alinharTitulo }];
+        /* Escala sem escore (imprimirVazia): sai o rótulo com o valor em branco. */
+        if (valor === null && !secao.def.imprimirVazia) return [];
+        return [{ tipo: "escore", rotulo: b.rotulo, valor: valor === null ? "" : formatarNumero(valor), alinharTitulo: !!b.alinharTitulo }];
       }
     };
   }
@@ -1063,7 +1116,7 @@ const Secoes = (function () {
           const campo = criar("div", "field");
           const label = criar("label", "label", rotulo);
           label.htmlFor = nome(i + 1);
-          const input = criar("input", "input");
+          const input = criar("input", "input com-contador");
           input.type = "text";
           input.id = nome(i + 1);
           input.name = nome(i + 1);
@@ -1112,7 +1165,8 @@ const Secoes = (function () {
             tipo: b.referencia ? "referencia" : b.legenda ? "legenda" : tipoRelatorio,
             texto: b.texto,
             tamanho: b.tamanho,
-            cinza: !!b.cinza
+            cinza: !!b.cinza,
+            tamanhoFixo: !!b.tamanhoFixo
           }];
         }
       };
@@ -1538,7 +1592,8 @@ const Secoes = (function () {
     const secao = porId[id];
     if (!secao) return null;
     const temDados = preenchida(id);
-    if (!temDados && !secao.def.sempreImprimir) return null;
+    /* imprimirVazia (escalas): sai sempre, mesmo sem nada preenchido, com o escore em branco. */
+    if (!temDados && !secao.def.sempreImprimir && !secao.def.imprimirVazia) return null;
 
     const blocos = [];
     const r = resultado(id);
@@ -1564,7 +1619,7 @@ const Secoes = (function () {
     function blocosDosGrupos(ordem, titulos, destino) {
       ordem.forEach(function (indice) {
         const grupo = grupos[indice] || [];
-        const grupoPreenchido = grupo.some(function (bloco) { return bloco.preenchido(); });
+        const grupoPreenchido = !!secao.def.imprimirVazia || grupo.some(function (bloco) { return bloco.preenchido(); });
         const subtitulo = titulos && titulos[indice];
         if (subtitulo && grupoPreenchido) destino.push({ tipo: "subtitulo", texto: subtitulo, soJunto: true });
         grupo.forEach(function (bloco) {

@@ -75,14 +75,16 @@ const Relatorio = (function () {
     suave: [112, 112, 112],
     linha: [214, 214, 214],
     /* Linhas que dividem as questões da Escala de Katz. */
-    divisoria: [120, 120, 120]
+    divisoria: [120, 120, 120],
+    /* Comentário dos testes complementares: cinza escuro, legível. */
+    comentario: [68, 68, 68]
   };
 
   /* Tamanhos da letra na impressão: títulos 14, subtítulos 13 e o restante 12.
-     O subtítulo logo abaixo do título da aba (ex.: Pfeffer) tem 2 a menos que o título, em itálico. */
+     O subtítulo logo abaixo do título da aba (ex.: Pfeffer) tem 13, em itálico. */
   const TAMANHO_TITULO = 14;
   const TAMANHO_SUBTITULO = 13;
-  const TAMANHO_SUBTITULO_ABA = TAMANHO_TITULO - 4;
+  const TAMANHO_SUBTITULO_ABA = 13;
   /* Textos menores (ex.: explicação da fluência verbal, textos da Memória verbal e visual). */
   const TAMANHO_MENOR = 10;
   const TAMANHO_TEXTO = 12;
@@ -270,6 +272,25 @@ const Relatorio = (function () {
           }
           return;
         }
+        /* Palavra maior que a largura (ex.: comentário digitado sem espaços): quebra no
+           meio, letra a letra, em vez de passar da célula. */
+        if (w > larguraMax && pedaco.t.length > 1) {
+          let trecho = "";
+          Array.from(pedaco.t).forEach(function (letra) {
+            if (trecho && usada + doc.getTextWidth(trecho + letra) > larguraMax) {
+              linha.push(Object.assign({}, pedaco, { t: trecho, w: doc.getTextWidth(trecho) }));
+              linha = [];
+              linhasTexto.push(linha);
+              usada = 0;
+              trecho = "";
+            }
+            trecho += letra;
+          });
+          const wTrecho = doc.getTextWidth(trecho);
+          linha.push(Object.assign({}, pedaco, { t: trecho, w: wTrecho }));
+          usada += wTrecho;
+          return;
+        }
         if (usada + w > larguraMax && linha.some(function (p) { return !p.espaco; })) {
           aparar(linha);
           linha = [];
@@ -289,13 +310,15 @@ const Relatorio = (function () {
       return linha.reduce(function (total, p) { return total + p.w; }, 0);
     }
 
-    function desenharLinhaRica(linha, x, yBase, base, tamanho, rgb) {
+    /* rgbNegrito: cor própria para os trechos em negrito (ex.: "Comentário:" escuro no texto cinza). */
+    function desenharLinhaRica(linha, x, yBase, base, tamanho, rgb, rgbNegrito) {
       let cx = x;
       linha.forEach(function (p) {
+        const corTrecho = p.negrito && rgbNegrito ? rgbNegrito : rgb;
         doc.setFont("helvetica", estiloFonte(base, p.italico, p.negrito));
         doc.setFontSize(tamanho);
-        cor(rgb);
-        cor(rgb, "draw");
+        cor(corTrecho);
+        cor(corTrecho, "draw");
         if (p.t === "≥") desenharMaiorIgual(cx, yBase, tamanho, base === "bold");
         else if (!p.espaco) doc.text(p.t, cx, yBase);
         if (p.sublinhado) {
@@ -387,13 +410,13 @@ const Relatorio = (function () {
     }
 
     /* Subtítulo logo abaixo do título da aba (ex.: Questionário de Atividades Funcionais):
-       4 a menos que o título (letra 10), em itálico. */
+       letra 13, em itálico. */
     function subtituloSecao(texto) {
       doc.setFont("helvetica", "bolditalic");
       doc.setFontSize(TAMANHO_SUBTITULO_ABA);
       cor(COR.escuro);
-      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 4.6, 0);
-      y += 7.5;
+      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);
+      y += 8;
     }
 
     /* Subtítulo dentro da folha: centralizado, em caixa alta, negrito, letra 13.
@@ -420,9 +443,12 @@ const Relatorio = (function () {
       y += menor ? 4.2 : 5 + g(2);
     }
 
-    function paragrafo(texto, estilo, rgb, tamanho) {
-      const tamanhoFonte = (tamanho || TAMANHO_TEXTO) * k;
-      const passoTexto = e((tamanho || TAMANHO_TEXTO) * 0.47);
+    /* fixo: a letra não encolhe quando a folha é refeita menor para caber (o resto da
+       folha encolhe no lugar dela). */
+    function paragrafo(texto, estilo, rgb, tamanho, fixo) {
+      const escalaTexto = fixo ? 1 : k;
+      const tamanhoFonte = (tamanho || TAMANHO_TEXTO) * escalaTexto;
+      const passoTexto = (tamanho || TAMANHO_TEXTO) * 0.47 * escalaTexto;
       if (temMarcas(texto)) {
         linhasRicas(texto, util, estilo, tamanhoFonte).forEach(function (linha) {
           garantirEspaco(passoTexto + 1);
@@ -432,6 +458,7 @@ const Relatorio = (function () {
         return;
       }
       fonte(estilo, rgb, tamanho);
+      doc.setFontSize(tamanhoFonte);
       const linhasTexto = doc.splitTextToSize(textoPdf(texto), util);
       linhasTexto.forEach(function (linhaTexto) {
         garantirEspaco(passoTexto + 1);
@@ -521,6 +548,18 @@ const Relatorio = (function () {
         const estilo = linha.destaque ? { fontStyle: "bold" }
           : linha.suave ? { fontStyle: "italic", textColor: COR.suave } : null;
         return celulasDe(linha).map(function (valor) {
+          /* Rótulo com comentário embaixo (ex.: testes complementares): a tabela mede os dois
+             juntos e o desenho (didDrawCell) põe o comentário em letra menor e cinza. */
+          if (valor && typeof valor === "object" && valor.comentario) {
+            const negritoRotulo = /\*\*[^*]+\*\*/.test(valor.texto);
+            return {
+              content: textoPdf(semMarcas(valor.texto)) + "\nComentário: " + textoPdf(valor.comentario),
+              rico: String(valor.texto),
+              comentario: String(valor.comentario),
+              base: estilo && estilo.fontStyle,
+              styles: Object.assign({}, estilo || {}, negritoRotulo ? { fontStyle: "bold" } : {})
+            };
+          }
           /* Com marcas (inglês, sublinhado, ≥): a tabela mede o texto simples e o texto
              com as marcas é desenhado por cima (didDrawCell). */
           /* Com trecho em negrito (**...**), a tabela mede o texto todo em negrito, para a
@@ -534,6 +573,30 @@ const Relatorio = (function () {
           return estilo ? { content: texto, styles: estilo } : texto;
         });
       });
+
+      /* As colunas de valores (depois da coluna de texto) nunca ficam mais estreitas que o
+         próprio conteúdo: um texto comprido na coluna de texto (ex.: comentário sem espaços)
+         quebra linha em vez de espremer o Escore. A coluna de texto é a primeira, ou a
+         segunda quando a primeira é o "Nº" (Pfeffer, IQCODE, Cornell, Resumo): ela nunca
+         ganha largura mínima, senão a tabela passa da margem e corta o texto à direita. */
+      const estilosColunas = Object.assign({}, bloco.estilos || {});
+      const colunaTexto = String(bloco.cabecalho[0]) === "Nº" ? 1 : 0;
+      if (colunas > 1) {
+        for (let i = colunaTexto + 1; i < colunas; i++) {
+          const proprio = estilosColunas[i] || {};
+          if (proprio.cellWidth) continue;
+          doc.setFontSize(e(TAMANHO_TEXTO));
+          doc.setFont("helvetica", "bold");
+          let largura = doc.getTextWidth(textoPdf(semMarcas(bloco.cabecalho[i] || "")));
+          bloco.linhas.forEach(function (linha) {
+            if (linha.grupo) return;
+            String(textoPdf(semMarcas(celulasDe(linha)[i] || ""))).split("\n").forEach(function (parte) {
+              largura = Math.max(largura, doc.getTextWidth(parte));
+            });
+          });
+          estilosColunas[i] = Object.assign({}, proprio, { minCellWidth: Math.max(proprio.minCellWidth || 0, largura + 5.5) });
+        }
+      }
 
       garantirEspaco(e(16));
       doc.autoTable({
@@ -573,7 +636,7 @@ const Relatorio = (function () {
             data.cell.styles.lineWidth = { bottom: 0.4 };
           }
         },
-        columnStyles: bloco.estilos || {},
+        columnStyles: estilosColunas,
         didDrawPage: faixaTopo,
         willDrawCell: function (data) {
           if (data.cell.raw && data.cell.raw.rico) data.cell.text = [""];
@@ -585,16 +648,29 @@ const Relatorio = (function () {
           const base = /\*\*[^*]+\*\*/.test(cell.raw.rico) ? cell.raw.base || "normal" : cell.styles.fontStyle;
           const rgb = Array.isArray(cell.styles.textColor) ? cell.styles.textColor
             : [cell.styles.textColor, cell.styles.textColor, cell.styles.textColor];
-          const linhasCelula = linhasRicas(cell.raw.rico, cell.width - cell.padding("left") - cell.padding("right"), base, tamanho);
+          const larguraTexto = cell.width - cell.padding("left") - cell.padding("right");
+          const linhasCelula = linhasRicas(cell.raw.rico, larguraTexto, base, tamanho);
           /* Mesma posição que a tabela usaria para o texto (centro vertical da célula). */
           const pos = cell.getTextPos();
           const l = emMm(tamanho);
           const a = l * doc.getLineHeightFactor();
-          const topo = pos.y + l * (2 - 1.15) - linhasCelula.length / 2 * a;
+          /* Comentário: letra menor, cinza, com "Comentário:" em negrito escuro, um pouco afastado. */
+          const tamanhoComentario = tamanho * 0.85;
+          const aComentario = emMm(tamanhoComentario) * doc.getLineHeightFactor();
+          const folgaComentario = 1.3;
+          const linhasComentario = cell.raw.comentario
+            ? linhasRicas("**Comentário:** " + cell.raw.comentario, larguraTexto, "normal", tamanhoComentario) : [];
+          const alturaTotal = linhasCelula.length * a +
+            (linhasComentario.length ? folgaComentario + linhasComentario.length * aComentario : 0);
+          const topo = pos.y + l * (2 - 1.15) - alturaTotal / 2;
           linhasCelula.forEach(function (linha, i) {
             const w = larguraLinhaRica(linha);
             const x = cell.styles.halign === "center" ? pos.x - w / 2 : cell.styles.halign === "right" ? pos.x - w : pos.x;
             desenharLinhaRica(linha, x, topo + i * a, base, tamanho, rgb);
+          });
+          const topoComentario = topo + (linhasCelula.length - 1) * a + folgaComentario + aComentario;
+          linhasComentario.forEach(function (linha, i) {
+            desenharLinhaRica(linha, pos.x, topoComentario + i * aComentario, "normal", tamanhoComentario, COR.comentario, COR.escuro);
           });
         }
       });
@@ -692,13 +768,13 @@ const Relatorio = (function () {
       garantirEspaco(passo() + depoisDeBloco());
       y += g(1);
       fonte("bold", COR.escuro);
-      if (bloco.alinharTitulo) {
-        /* Termina junto com a linha cinza embaixo do título (IQCODE). */
-        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), margem + util, y, { align: "right" });
-      } else {
-        /* Alinhado à direita da folha. */
-        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), DIREITA_VALORES, y, { align: "right" });
-      }
+      /* Termina junto com a linha cinza embaixo do título (IQCODE) ou alinhado à direita da folha. */
+      const direita = bloco.alinharTitulo ? margem + util : DIREITA_VALORES;
+      const valor = textoPdf(bloco.valor);
+      /* Escore em branco (escala não preenchida): o rótulo fica no mesmo lugar, com o
+         espaço do valor vazio. */
+      const espacoValor = valor ? 0 : doc.getTextWidth("00");
+      doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + valor, direita - espacoValor, y, { align: "right" });
       y += depoisDeBloco() + g(2);
     }
 
@@ -728,7 +804,10 @@ const Relatorio = (function () {
       const alturaAssinaturas = pessoas.length ? e(36) : 0;
       const alturaTotal = alturaLocal + alturaAssinaturas;
       garantirEspaco(alturaTotal + e(6));
-      y = Math.max(y + e(6), limite - alturaTotal);
+      /* No fim da folha: a última linha (registro, ou o local sem assinaturas) fica a 10 mm
+         da borda de baixo, abaixo do limite das outras folhas, para usar a folha inteira. */
+      const ateUltimaLinha = pessoas.length ? alturaLocal + e(22) + e(11) : 0;
+      y = Math.max(y + e(6), altura - 10 - ateUltimaLinha);
       if (bloco.local) {
         fonte("normal");
         doc.text(textoPdf(bloco.local) + ", _______ de ________________________ de __________.", margem, y);
@@ -768,7 +847,7 @@ const Relatorio = (function () {
           break;
         case "paragrafo":
           /* tamanho: letra menor (ex.: 10); cinza: texto explicativo em cinza. */
-          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho);
+          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho, bloco.tamanhoFixo);
           y += g(bloco.tamanho ? 3 : 4);
           break;
         case "nota":

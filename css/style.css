@@ -1662,6 +1662,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-variant-numeric: tabular-nums;
 }
 
+/* Contador de um campo de uma linha (ex.: comentário dentro da tabela). */
+.contador.contador-campo {
+  display: block;
+  margin-top: 3px;
+  text-align: right;
+}
+
 .contador.no-limite {
   color: var(--danger);
   font-weight: 600;
@@ -2077,6 +2084,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .tabela-grade .input-tabela {
   max-width: 112px;
+}
+
+/* Linha de comentário embaixo de cada teste (ex.: testes complementares do Stroop):
+   o teste e o comentário ficam juntos, com a divisória só depois do comentário. */
+.tabela-teste tr.tem-comentario th,
+.tabela-teste tr.tem-comentario td {
+  border-bottom: 0;
+  padding-bottom: 2px;
+}
+
+.tabela-teste tr.linha-comentario td {
+  padding-top: 2px;
+  padding-bottom: 10px;
+}
+
+.input-comentario {
+  width: 100%;
+  height: 32px;
+  font-size: 13px;
 }
 
 .tabela-teste tr.destaque th,

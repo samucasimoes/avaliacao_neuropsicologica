@@ -470,7 +470,7 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p><strong>Concluir e Imprimir Avaliação</strong>, no pé do menu lateral do formulário, conclui a avaliação (ela passa para <strong>Avaliações Concluídas</strong>) e abre a impressão com todas as páginas. O Ctrl+P só abre a impressão, sem concluir. Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> abre a impressão com todas as páginas ou só as escolhidas, <strong>Enviar por email</strong> manda o PDF (todas as páginas ou só as escolhidas) pelo Gmail ou pelo Outlook, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p><strong>Concluir e Imprimir Avaliação</strong>, no pé do menu lateral do formulário, conclui a avaliação (ela passa para <strong>Avaliações Concluídas</strong>) e abre a impressão com todas as páginas. O Ctrl+P só abre a impressão, sem concluir. Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> abre a impressão com todas as páginas ou só as escolhidas, <strong>Enviar por email</strong> abre o Gmail ou o Outlook na web com o destinatário, o assunto e a mensagem preenchidos e baixa o PDF (todas as páginas ou só as escolhidas) para anexar, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>
@@ -593,7 +593,7 @@
       </fieldset>
       <div class="email-campos">
         <label class="field">
-          <span class="label">Para</span>
+          <span class="label">Destinatário</span>
           <input class="input" type="text" id="email-para" inputmode="email" autocomplete="email" placeholder="email@exemplo.com (separe vários com vírgula)">
         </label>
         <label class="field">
@@ -605,11 +605,12 @@
           <textarea class="input textarea" id="email-mensagem" maxlength="5000"></textarea>
         </label>
       </div>
-      <p class="email-contas" id="email-contas"></p>
+      <p class="email-dica">Ao abrir o Outlook ou o Gmail, o PDF é baixado na hora. Arraste ele da barra de downloads para o email (ou clique em <strong>Anexar</strong>): o Gmail e o Outlook não deixam outro site anexar arquivos sozinho.</p>
       <div class="modal-actions email-acoes">
-        <button class="btn btn-light" value="cancelar">Cancelar</button>
-        <button class="btn btn-primary" type="button" data-provedor="outlook">Enviar pelo Outlook</button>
-        <button class="btn btn-primary" type="button" data-provedor="gmail">Enviar pelo Gmail</button>
+        <button class="btn btn-light" value="cancelar">Fechar</button>
+        <button class="btn btn-light" type="button" id="email-copiar">Copiar</button>
+        <button class="btn btn-primary" type="button" data-provedor="outlook">Outlook na Web</button>
+        <button class="btn btn-primary" type="button" data-provedor="gmail">Gmail</button>
       </div>
     </form>
   </dialog>
@@ -695,10 +696,6 @@
   <script src="js/shulman.js"></script>
   <script src="js/relatorio.js"></script>
   <script src="js/app.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async></script>
-  <script src="libs/msal-browser.min.js"></script>
-  <script src="js/email-config.js"></script>
-  <script src="js/email.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/painel.js"></script>
 </body>

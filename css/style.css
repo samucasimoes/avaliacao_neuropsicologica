@@ -948,19 +948,10 @@ body.somente-leitura .form .secao {
   height: 76px;
 }
 
-.email-contas {
+.email-dica {
   margin: 0 0 16px;
   font-size: 13px;
   color: var(--ink-soft);
-}
-
-.email-contas:empty {
-  display: none;
-}
-
-.email-contas .link {
-  font-size: 13px;
-  cursor: pointer;
 }
 
 .email-acoes {

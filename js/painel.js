@@ -407,7 +407,7 @@
         "Imprimir todas as páginas ou só as escolhidas da avaliação de " + nome,
         function (b) { escolherImpressao(av, b); }));
       acoes.appendChild(botao("btn-light", ICONE_EMAIL, "Enviar por email",
-        "Enviar o PDF da avaliação de " + nome + " pelo Gmail ou pelo Outlook",
+        "Abrir o Gmail ou o Outlook na web e baixar o PDF da avaliação de " + nome,
         function (b) { escolherEmail(av, b); }));
       acoes.appendChild(botao("btn-primary", ICONE_BAIXAR, "Salvar PDF e arquivo",
         "Baixar o PDF e o arquivo (.json) da avaliação de " + nome,
@@ -571,8 +571,9 @@
     if (pedido && modalImprimir.returnValue !== "confirmar") pedido.origem.focus();
   });
 
-  /* ---------- Enviar por email (Gmail ou Outlook, com o PDF anexado) ----------
-     O login de cada email fica salvo neste navegador para o usuário do sistema (js/email.js). */
+  /* ---------- Enviar por email (Gmail ou Outlook na web) ----------
+     Abre o email na web numa nova aba, já com destinatário, assunto e mensagem, e baixa o PDF
+     das páginas escolhidas para anexar (os links do Gmail e do Outlook não aceitam anexo). */
 
   const modalEmail = document.getElementById("modal-email");
   const listaEmail = document.getElementById("email-lista");
@@ -580,12 +581,7 @@
   const campoPara = document.getElementById("email-para");
   const campoAssunto = document.getElementById("email-assunto");
   const campoMensagem = document.getElementById("email-mensagem");
-  const linhaContas = document.getElementById("email-contas");
-  const botoesEnviar = Array.from(modalEmail.querySelectorAll("[data-provedor]"));
-  const TEXTO_BOTAO = {};
-  botoesEnviar.forEach(function (b) { TEXTO_BOTAO[b.dataset.provedor] = b.textContent; });
   let pendenteEmail = null;
-  let enviandoEmail = false;
 
   function modoEmail() {
     return modalEmail.querySelector('input[name="email-modo"]:checked').value;
@@ -599,30 +595,6 @@
     campoEmailPaginas.disabled = modoEmail() !== "escolher";
   }
 
-  /* "Gmail: fulano@gmail.com (trocar) · Outlook: ..." com as contas já salvas. */
-  function mostrarContasEmail() {
-    linhaContas.replaceChildren();
-    ["gmail", "outlook"].forEach(function (nome) {
-      const conta = Email.conta(nome);
-      if (!conta) return;
-      if (linhaContas.childNodes.length) linhaContas.appendChild(document.createTextNode(" · "));
-      linhaContas.appendChild(document.createTextNode(Email.nome(nome) + ": " + conta + " ("));
-      const trocar = document.createElement("button");
-      trocar.type = "button";
-      trocar.className = "link";
-      trocar.textContent = "trocar";
-      trocar.title = "Entrar com outra conta do " + Email.nome(nome);
-      trocar.addEventListener("click", function () {
-        Email.trocarConta(nome)
-          .then(function (email) { aviso(Email.nome(nome) + ": enviando como " + email + "."); })
-          .catch(function (erro) { if (erro.code !== "cancelado") console.error(erro); aviso(erro.message); })
-          .then(mostrarContasEmail);
-      });
-      linhaContas.appendChild(trocar);
-      linhaContas.appendChild(document.createTextNode(")"));
-    });
-  }
-
   function escolherEmail(av, origem) {
     const paginas = paginasDaAvaliacao(av);
     if (!paginas) return;
@@ -631,101 +603,76 @@
     document.getElementById("email-nome").textContent = nome;
     modalEmail.querySelector('input[value="todas"]').checked = true;
     preencherListaPaginas(listaEmail, paginas);
-    campoPara.value = "";
     campoAssunto.value = "Avaliação Neuropsicológica - " + (av.paciente || "Paciente");
     campoMensagem.value = "Segue em anexo a avaliação neuropsicológica de " + nome + ".";
     atualizarModalEmail();
-    mostrarContasEmail();
     modalEmail.returnValue = "";
     modalEmail.showModal();
     campoPara.focus();
   }
 
-  function destinatarios() {
-    return campoPara.value.split(/[,;\s]+/).map(function (e) { return e.trim(); }).filter(Boolean);
+  function baixarPdf(arquivo) {
+    const url = URL.createObjectURL(arquivo.blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = arquivo.nome;
+    /* Dentro do modal: com o modal aberto, o resto da página fica inerte. */
+    modalEmail.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
   }
 
-  function emailValido(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  function enderecoEmail(provedor, para, assunto, corpo) {
+    const e = encodeURIComponent;
+    if (provedor === "gmail") {
+      return "https://mail.google.com/mail/?view=cm&fs=1&to=" + e(para) + "&su=" + e(assunto) + "&body=" + e(corpo);
+    }
+    return "https://outlook.office.com/mail/deeplink/compose?to=" + e(para) + "&subject=" + e(assunto) + "&body=" + e(corpo);
   }
 
-  function travarEmail(provedor) {
-    enviandoEmail = !!provedor;
-    botoesEnviar.forEach(function (b) {
-      b.disabled = enviandoEmail;
-      b.textContent = b.dataset.provedor === provedor ? "Enviando…" : TEXTO_BOTAO[b.dataset.provedor];
-    });
-  }
-
-  botoesEnviar.forEach(function (botaoEnviar) {
-    botaoEnviar.addEventListener("click", function () {
+  modalEmail.querySelectorAll("[data-provedor]").forEach(function (botaoEmail) {
+    botaoEmail.addEventListener("click", function () {
       const pedido = pendenteEmail;
-      const provedor = botaoEnviar.dataset.provedor;
-      if (!pedido || enviandoEmail) return;
-      const para = destinatarios();
-      if (!para.length) {
-        aviso("Informe para quem enviar.");
-        campoPara.focus();
-        return;
-      }
-      const invalido = para.filter(function (e) { return !emailValido(e); })[0];
-      if (invalido) {
-        aviso("Email inválido: " + invalido);
-        campoPara.focus();
-        return;
-      }
+      if (!pedido) return;
       const ids = modoEmail() === "escolher" ? paginasEmail() : null;
       if (ids && !ids.length) {
         aviso("Marque pelo menos uma página.");
         return;
       }
-      if (!Email.configurado(provedor)) {
-        aviso("O envio pelo " + Email.nome(provedor) + " ainda não foi configurado (js/email-config.js).");
-        return;
-      }
-      let anexo;
+      const para = campoPara.value.split(/[,;\s]+/).filter(Boolean).join(",");
+      /* Abre a aba primeiro, ainda no clique (senão o navegador bloqueia), e depois baixa o PDF. */
+      window.open(enderecoEmail(botaoEmail.dataset.provedor, para, campoAssunto.value.trim(), campoMensagem.value), "_blank", "noopener");
       try {
-        anexo = window.Formulario.pdfArquivo(pedido.av.campos, ids);
+        baixarPdf(window.Formulario.pdfArquivo(pedido.av.campos, ids));
       } catch (erro) {
         console.error(erro);
         aviso("Não foi possível gerar o PDF. Tente novamente.");
         return;
       }
-      travarEmail(provedor);
-      /* Chamado ainda no clique: se precisar de login, a janela abre sem ser bloqueada. */
-      Email.enviar(provedor, {
-        para: para,
-        assunto: campoAssunto.value.trim() || "Avaliação Neuropsicológica",
-        mensagem: campoMensagem.value,
-        anexo: anexo
-      })
-        .then(function (remetente) {
-          travarEmail(null);
-          modalEmail.close("enviado");
-          aviso("Email enviado para " + para.join(", ") + (remetente ? " (de " + remetente + ")." : "."));
-        })
-        .catch(function (erro) {
-          travarEmail(null);
-          mostrarContasEmail();
-          if (erro.code !== "cancelado") console.error(erro);
-          aviso(erro.code === "cancelado" || erro.code === "sem-permissao" || erro.code === "email"
-            ? erro.message
-            : "Não foi possível enviar pelo " + Email.nome(provedor) + ": " + erro.message);
-        });
+      aviso("PDF baixado: arraste ele para o email para anexar.");
     });
   });
 
+  /* Copia a mensagem para colar onde preferir. */
+  document.getElementById("email-copiar").addEventListener("click", function () {
+    const texto = campoMensagem.value;
+    const ok = function () { aviso("Mensagem copiada."); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(ok, function () {
+        campoMensagem.select();
+        try { document.execCommand("copy"); ok(); } catch (e) { aviso("Não foi possível copiar."); }
+      });
+    } else {
+      campoMensagem.select();
+      try { document.execCommand("copy"); ok(); } catch (e) { aviso("Não foi possível copiar."); }
+    }
+  });
+
   modalEmail.addEventListener("change", atualizarModalEmail);
-  /* ENTER nos campos não fecha o modal (o primeiro botão do form é o Cancelar). */
+  /* ENTER nos campos não fecha o modal (o primeiro botão do form é o Fechar). */
   modalEmail.addEventListener("keydown", function (evento) {
     if (evento.key === "Enter" && evento.target.tagName === "INPUT") evento.preventDefault();
-  });
-  /* Enquanto envia, ESC não fecha. */
-  modalEmail.addEventListener("cancel", function (evento) {
-    if (enviandoEmail) evento.preventDefault();
-  });
-  modalEmail.querySelector('button[value="cancelar"]').addEventListener("click", function (evento) {
-    if (enviandoEmail) evento.preventDefault();
   });
   document.getElementById("email-marcar").addEventListener("click", function () {
     listaEmail.querySelectorAll("input").forEach(function (c) { c.checked = true; });
@@ -736,7 +683,7 @@
   modalEmail.addEventListener("close", function () {
     const pedido = pendenteEmail;
     pendenteEmail = null;
-    if (pedido && modalEmail.returnValue !== "enviado") pedido.origem.focus();
+    if (pedido) pedido.origem.focus();
   });
 
   /* ---------- Excluir (com confirmação) ---------- */

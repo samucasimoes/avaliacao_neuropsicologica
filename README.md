@@ -102,47 +102,11 @@ usuário em **Alterar nome**.
 
 ## Envio por email
 
-Em **Avaliações Concluídas**, **Enviar por email** manda o PDF (todas as páginas ou só as
-escolhidas) pelo Gmail ou pelo Outlook, direto do sistema. Na primeira vez abre a janela de
-login do Google ou da Microsoft; depois a conta fica salva neste navegador para aquele usuário
-do sistema (o link **trocar** no modal entra com outra conta). Os dois ids vão em
-`js/email-config.js`; o que ficar vazio avisa que falta configurar.
-
-### Gmail (Google Cloud)
-
-1. Em [console.cloud.google.com](https://console.cloud.google.com), escolha o projeto
-   `avaliacao-neuro` (o mesmo do Firebase).
-2. **APIs e serviços > Biblioteca**: ative a **Gmail API**.
-3. **APIs e serviços > Tela de consentimento OAuth** (ou **Google Auth Platform**): tipo
-   **Externo**, preencha nome e email de suporte. Em **Acesso a dados / Escopos**, adicione
-   `https://www.googleapis.com/auth/gmail.send`. Em **Público-alvo / Usuários de teste**,
-   adicione os emails que vão enviar (até 100).
-4. **APIs e serviços > Credenciais > Criar credenciais > ID do cliente OAuth**, tipo
-   **Aplicativo da Web**. Em **Origens JavaScript autorizadas**, adicione
-   `https://avaliacao-neuro.web.app`, `https://avaliacao-neuro.firebaseapp.com` e
-   `http://localhost:8000` (testes). Copie o **ID do cliente** para `googleClientId`.
-
-Enquanto o app não for verificado pelo Google, a janela de login mostra o aviso "O Google não
-verificou este app" (clique em **Avançado > Acessar**). Para tirar o aviso, peça a verificação
-na tela de consentimento.
-
-### Outlook (Microsoft / Azure)
-
-1. Em [portal.azure.com](https://portal.azure.com) (entre com uma conta Microsoft), abra
-   **Registros de aplicativo > Novo registro**.
-2. **Tipos de conta**: *Contas em qualquer diretório organizacional e contas pessoais da
-   Microsoft*.
-3. **URI de Redirecionamento**: plataforma **Aplicativo de página única (SPA)**, endereço
-   `https://avaliacao-neuro.web.app/email-retorno.html`. Depois, em **Autenticação**, adicione
-   também `https://avaliacao-neuro.firebaseapp.com/email-retorno.html` e
-   `http://localhost:8000/email-retorno.html`.
-4. **Permissões de API > Adicionar > Microsoft Graph > Permissões delegadas**: `Mail.Send` e
-   `User.Read`.
-5. Copie o **ID do aplicativo (cliente)** da Visão geral para `microsoftClientId`.
-
-Contas pessoais (Outlook.com, Hotmail) funcionam direto. Uma conta de empresa (Microsoft 365)
-pode precisar que o administrador da empresa aprove o app. O Outlook aceita PDF de até 3 MB; o
-Gmail, até 25 MB.
+Em **Avaliações Concluídas**, **Enviar por email** abre um modal com as páginas (todas ou só as
+escolhidas), destinatário, assunto e mensagem (tudo editável). **Outlook na Web** e **Gmail**
+abrem o email numa nova aba do navegador, na conta já logada, com esses campos preenchidos, e
+baixam o PDF na mesma hora. O PDF é anexado arrastando o arquivo baixado para o email: os links
+do Gmail e do Outlook não aceitam anexo. **Copiar** copia a mensagem. Não precisa configurar nada.
 
 ## Etapas do formulário
 
@@ -301,7 +265,4 @@ antigos são convertidos para os nomes de campos atuais (`migrarCampos` em `js/a
 - `js/shulman.js` – folha do Relógio de Shulman no relatório
 - `js/relatorio.js` – geração do PDF, do Excel e do backup `.json`
 - `assets/favicon/` – ícones da aba do navegador (Twemoji, licença CC-BY 4.0, ver `about.txt`)
-- `js/email-config.js` – ids do Google e da Microsoft para o envio por email (preencher)
-- `js/email.js` – envio do PDF pelo Gmail (API do Gmail) e pelo Outlook (Microsoft Graph)
-- `email-retorno.html` – página em branco para onde volta o login da Microsoft
-- `libs/` – jsPDF, jsPDF-AutoTable, ExcelJS e MSAL (login da Microsoft) (cópias locais)
+- `libs/` – jsPDF, jsPDF-AutoTable e ExcelJS (cópias locais)

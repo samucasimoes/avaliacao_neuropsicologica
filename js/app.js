@@ -156,12 +156,16 @@
     });
   }
 
-  /* Situação no nome do arquivo: Concluído só com todas as etapas 100% preenchidas. */
+  /* Marcada pelo Concluir e Imprimir Avaliação (vai junto com os campos para o banco e o .json). */
+  const campoFinalizada = document.getElementById("campo-finalizada");
+
+  /* Situação no nome do arquivo: Concluído quando a avaliação foi concluída pelo botão ou
+     tem todas as etapas 100% preenchidas. */
   function situacaoArquivo() {
-    return ordem.every(etapaCompleta) ? "Concluído" : "Pendente";
+    return campoFinalizada.checked || ordem.every(etapaCompleta) ? "Concluído" : "Pendente";
   }
 
-  /* Status no banco pela mesma regra: Concluída com todas as etapas 100% preenchidas. */
+  /* Status no banco pela mesma regra. */
   function statusCalculado() {
     return situacaoArquivo() === "Concluído" ? "concluida" : "em_andamento";
   }
@@ -550,12 +554,12 @@
     campoNome.focus({ preventScroll: true });
   });
 
-  /* O formulário não é enviado: o PDF sai pelo botão Imprimir Avaliação. */
+  /* O formulário não é enviado: o PDF sai pelo botão Concluir e Imprimir Avaliação. */
   form.addEventListener("submit", function (evento) {
     evento.preventDefault();
   });
 
-  /* ENTER não baixa o relatório: só o clique em Imprimir Avaliação gera o PDF.
+  /* ENTER não baixa o relatório: só o clique em Concluir e Imprimir Avaliação gera o PDF.
      Nos textos longos o ENTER continua quebrando a linha, e nos outros botões
      (Próxima, Anterior...) continua funcionando. */
   form.addEventListener("keydown", function (evento) {
@@ -579,7 +583,7 @@
       return;
     }
     if (!window.open(endereco, "_blank")) {
-      mostrarAviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir com Ctrl+P ou use Imprimir Avaliação.");
+      mostrarAviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir com Ctrl+P ou use Concluir e Imprimir Avaliação.");
     }
   }
 
@@ -879,6 +883,20 @@
     return comVariosCampos([{ campos: campos }], function () { return fazer(); })[0];
   }
 
+  /* Gera o PDF de outra avaliação (campos) só com as páginas escolhidas (ids; sem ids, todas). */
+  function pdfDasPaginas(campos, ids, opcoes) {
+    return comCampos(campos || {}, function () {
+      let lista = secoesDoRelatorio();
+      let semDados = false;
+      if (ids) {
+        semDados = ids.indexOf("dados") === -1;
+        lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
+      }
+      return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista,
+        Object.assign({ semDados: semDados, situacao: situacaoArquivo() }, opcoes));
+    });
+  }
+
   /* Avaliações já conferidas nesta sessão (id + data da última alteração). */
   const statusConferido = {};
 
@@ -993,9 +1011,24 @@
           });
         });
     },
-    /* Avaliação aberta no formulário (Imprimir Avaliação do topo). */
-    atual: function () {
-      return { paciente: valor("nome"), campos: coletarCampos() };
+    /* Concluir e Imprimir Avaliação: conclui a avaliação aberta, grava e abre a impressão com
+       todas as páginas. Com etapas incompletas, pergunta antes. Devolve false se a pessoa
+       cancelar. */
+    concluirEImprimir: function () {
+      if (!somenteLeitura && !campoFinalizada.checked) {
+        const faltam = ordem.filter(function (id) { return !etapaCompleta(id); }).map(nomeEtapa);
+        if (faltam.length && !window.confirm(
+          "Ainda há etapas incompletas: " + faltam.join(", ") + ".\n\nConcluir a avaliação mesmo assim?")) {
+          return false;
+        }
+        campoFinalizada.checked = true;
+        alterado = true;
+        gravarRascunho();
+        gravarNoBanco();
+        mostrarAviso("Avaliação concluída.");
+      }
+      imprimirRelatorio();
+      return true;
     },
     /* Páginas que saem no relatório desta avaliação (para escolher o que imprimir). */
     paginas: function (campos) {
@@ -1014,16 +1047,7 @@
     /* Abre a impressão do navegador (como o Ctrl+P), sem baixar o PDF. ids: as páginas
        escolhidas (sem ids, todas). Devolve false se o navegador bloquear a nova aba. */
     imprimir: function (campos, ids) {
-      const endereco = comCampos(campos || {}, function () {
-        let lista = secoesDoRelatorio();
-        let semDados = false;
-        if (ids) {
-          semDados = ids.indexOf("dados") === -1;
-          lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
-        }
-        return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { semDados: semDados, imprimir: true, situacao: situacaoArquivo() });
-      });
-      return !!window.open(endereco, "_blank");
+      return !!window.open(pdfDasPaginas(campos, ids, { imprimir: true }), "_blank");
     },
     /* Confere o status das avaliações da lista pelos campos salvos (todas as etapas 100% =
        Concluída) e corrige no banco as que estiverem erradas. Devolve a lista corrigida. */

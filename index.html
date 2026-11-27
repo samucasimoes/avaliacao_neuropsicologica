@@ -92,9 +92,9 @@
               <li><a class="step" href="#conclusao" data-secao="conclusao"><span class="step-num">21</span>Conclusão</a></li>
             </ol>
           </nav>
-          <button class="btn btn-carregar-lateral btn-imprimir-lateral" id="btn-imprimir-topo" type="button" title="Imprimir a avaliação (o mesmo que Ctrl+P)">
+          <button class="btn btn-carregar-lateral btn-imprimir-lateral" id="btn-imprimir-topo" type="button" title="Conclui a avaliação e abre a impressão com todas as páginas">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
-            <span class="btn-imprimir-rotulo">Imprimir Avaliação</span>
+            <span class="btn-imprimir-rotulo">Concluir e Imprimir Avaliação</span>
           </button>
           <input class="file-input" type="file" id="arquivo-backup" accept=".json,application/json" hidden>
         </div>
@@ -213,6 +213,9 @@
 
       <main class="card">
         <form class="form" id="form-avaliacao" novalidate autocomplete="off">
+          <!-- Marcada pelo botão Concluir e Imprimir Avaliação: a avaliação conta como Concluída
+               mesmo com etapas incompletas. -->
+          <input type="checkbox" name="finalizada" id="campo-finalizada" hidden tabindex="-1" aria-hidden="true">
           <section class="secao" id="secao-dados">
             <div class="card-head">
               <h2 class="card-title">Dados do paciente</h2>
@@ -467,7 +470,7 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p><strong>Imprimir Avaliação</strong>, no pé do menu lateral do formulário, abre a impressão com todas as páginas, o mesmo que Ctrl+P. Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> abre a impressão com todas as páginas ou só as escolhidas, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p><strong>Concluir e Imprimir Avaliação</strong>, no pé do menu lateral do formulário, conclui a avaliação (ela passa para <strong>Avaliações Concluídas</strong>) e abre a impressão com todas as páginas. O Ctrl+P só abre a impressão, sem concluir. Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> abre a impressão com todas as páginas ou só as escolhidas, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>
@@ -541,7 +544,7 @@
     <form class="modal-body" method="dialog">
       <h3 class="modal-title">Excluir avaliação?</h3>
       <p class="modal-text">A avaliação de <strong id="excluir-nome"></strong> será apagada de vez do banco de dados. Essa ação não pode ser desfeita.</p>
-      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e baixe antes pelo botão <strong>Salvar PDF e arquivo</strong> (Avaliações Concluídas) ou <strong>Imprimir Avaliação</strong> (formulário).</p>
+      <p class="modal-text modal-dica">Se quiser guardar uma cópia, cancele e baixe antes pelo botão <strong>Salvar PDF e arquivo</strong> (Avaliações Concluídas) ou <strong>Concluir e Imprimir Avaliação</strong> (formulário).</p>
       <div class="modal-actions">
         <button class="btn btn-light" value="cancelar" autofocus>Cancelar</button>
         <button class="btn btn-danger" value="confirmar">Excluir</button>
@@ -636,7 +639,7 @@
   <!-- Só aparece se a impressão for aberta pelo menu do navegador (veja @media print no CSS). -->
   <div class="aviso-impressao">
     Para imprimir o relatório, feche esta janela e use <strong>Ctrl+P</strong> (Cmd+P no Mac)
-    ou o botão <strong>Imprimir Avaliação</strong>.
+    ou o botão <strong>Concluir e Imprimir Avaliação</strong>.
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>

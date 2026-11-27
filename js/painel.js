@@ -8,7 +8,7 @@
   const TITULOS = {
     inicio: ["Início", "Resumo das avaliações em andamento"],
     pendentes: ["Avaliações Pendentes", "Avaliações em andamento, para continuar ou excluir"],
-    concluidas: ["Avaliações Concluídas", "Avaliações com todas as etapas preenchidas"],
+    concluidas: ["Avaliações Concluídas", "Avaliações concluídas ou com todas as etapas preenchidas"],
     ajuda: ["Ajuda", "Como usar o sistema"],
     admin: ["Administração", "Acessos ao sistema: criar, redefinir senha, desativar e excluir"]
   };
@@ -469,8 +469,9 @@
   }
 
   /* ---------- Imprimir: todas ou só as páginas escolhidas ----------
-     Usado no Imprimir das Avaliações Concluídas. O Imprimir Avaliação do formulário imprime
-     tudo direto, como o Ctrl+P. */
+     Usado no Imprimir das Avaliações Concluídas. O Concluir e Imprimir Avaliação do formulário
+     conclui a avaliação e imprime tudo direto, como o Ctrl+P. Em "Escolher as páginas" a
+     lista começa toda desmarcada. */
 
   const modalImprimir = document.getElementById("modal-imprimir");
   const listaPaginas = document.getElementById("imprimir-lista");
@@ -492,29 +493,39 @@
     botaoConfirmarImpressao.disabled = escolher && !paginasMarcadas().length;
   }
 
-  function escolherImpressao(av, origem) {
-    let paginas;
+  /* Páginas do relatório desta avaliação (null se não der para montar). */
+  function paginasDaAvaliacao(av) {
     try {
-      paginas = window.Formulario.paginas(av.campos);
+      return window.Formulario.paginas(av.campos);
     } catch (erro) {
       console.error(erro);
       aviso("Não foi possível montar as páginas desta avaliação.");
-      return;
+      return null;
     }
-    pendenteImpressao = { av: av, origem: origem };
-    document.getElementById("imprimir-nome").textContent = av.paciente || "paciente sem nome";
-    modalImprimir.querySelector('input[value="todas"]').checked = true;
-    listaPaginas.replaceChildren.apply(listaPaginas, paginas.map(function (pagina) {
+  }
+
+  /* Lista de caixas das páginas, todas desmarcadas. */
+  function preencherListaPaginas(lista, paginas) {
+    lista.replaceChildren.apply(lista, paginas.map(function (pagina) {
       const label = document.createElement("label");
       label.className = "imprimir-opcao";
       const caixa = document.createElement("input");
       caixa.type = "checkbox";
       caixa.value = pagina.id;
-      caixa.checked = true;
+      caixa.checked = false;
       label.appendChild(caixa);
       label.appendChild(document.createTextNode(" " + pagina.titulo));
       return label;
     }));
+  }
+
+  function escolherImpressao(av, origem) {
+    const paginas = paginasDaAvaliacao(av);
+    if (!paginas) return;
+    pendenteImpressao = { av: av, origem: origem };
+    document.getElementById("imprimir-nome").textContent = av.paciente || "paciente sem nome";
+    modalImprimir.querySelector('input[value="todas"]').checked = true;
+    preencherListaPaginas(listaPaginas, paginas);
     atualizarModalImpressao();
     modalImprimir.returnValue = "";
     modalImprimir.showModal();
@@ -522,14 +533,7 @@
 
   const botaoImprimirTopo = document.getElementById("btn-imprimir-topo");
   botaoImprimirTopo.addEventListener("click", function () {
-    try {
-      if (!window.Formulario.imprimir(window.Formulario.atual().campos)) {
-        aviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir.");
-      }
-    } catch (erro) {
-      console.error(erro);
-      aviso("Não foi possível abrir a impressão. Tente novamente.");
-    }
+    window.Formulario.concluirEImprimir();
   });
 
   modalImprimir.addEventListener("change", atualizarModalImpressao);

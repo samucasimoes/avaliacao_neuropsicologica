@@ -55,9 +55,11 @@ registro (criada por fora) é apagada do Authentication no próprio login.
 
 ### Status: pendente ou concluída
 
-Uma avaliação fica **Concluída** sozinha quando todas as etapas estão 100% preenchidas (o check
-verde no menu de etapas), a mesma regra do "Concluído" no nome do PDF. O status é gravado a cada
-salvamento, e as listas conferem e corrigem no banco as avaliações antigas.
+Uma avaliação fica **Concluída** quando é concluída pelo botão **Concluir e Imprimir
+Avaliação** (campo `finalizada` nos campos salvos) ou, sozinha, quando todas as etapas estão
+100% preenchidas (o check verde no menu de etapas), a mesma regra do "Concluído" no nome do PDF.
+O status é gravado a cada salvamento, e as listas conferem e corrigem no banco as avaliações
+antigas.
 
 ### Guardadas sem prazo
 

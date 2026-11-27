@@ -1283,14 +1283,14 @@ const DEFINICOES = [
            na tela, não sai): a Média fica no meio, entre o Tempo e os Erros. */
         larguraValores: 25,
         larguraRotulo: 56,
-        /* Na tela, Tempo, Média e Erros estreitos, para a classificação caber em telas menores. */
+        /* Na tela, Tempo, Média e Erros bem estreitos (poucos dígitos), para a classificação caber em telas menores. */
         colunas: [
-          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true, estreita: true },
+          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true, mini: true },
           /* Calculada pela idade do paciente (veja referenciaStroop). Só na tela, para a
              profissional se basear: não sai na impressão. */
           { rotulo: "Referência", tipo: "calculo", tempo: true, informativa: true, soTela: true },
-          { rotulo: "Média", tipo: "texto", tempo: true, estreita: true },
-          { rotulo: "Erros", tipo: "numero", estreita: true },
+          { rotulo: "Média", tipo: "texto", tempo: true, mini: true },
+          { rotulo: "Erros", tipo: "numero", mini: true },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [

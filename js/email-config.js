@@ -6,7 +6,7 @@
 window.EMAIL_CONFIG = {
   /* Google Cloud > APIs e serviços > Credenciais > ID do cliente OAuth (Aplicativo da Web).
      Ex.: "123456789-abc.apps.googleusercontent.com" */
-  googleClientId: "",
+  googleClientId: "929385474042-u05kfc3he30m4c3019p20clsrijd80f5.apps.googleusercontent.com",
 
   /* portal.azure.com > Registros de aplicativo > seu app > "ID do aplicativo (cliente)".
      Ex.: "00000000-0000-0000-0000-000000000000" */

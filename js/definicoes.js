@@ -52,12 +52,12 @@ const STROOP_TEMPOS = [
   { de: 80, ate: 200, cartelas: [19.31, 23.91, 56.98] }
 ];
 
-/* Referência da cartela (0, 1 ou 2) para a idade, arredondada para o inteiro mais
-   próximo (ex.: 12,84 -> 13). Sem idade ou abaixo de 17 anos, não calcula. */
+/* Referência da cartela (0, 1 ou 2) para a idade, como está na tabela, com duas casas
+   (ex.: 12,84; 27,20). Sem idade ou abaixo de 17 anos, não calcula. */
 function referenciaStroop(idade, cartela) {
   if (idade === null || idade === undefined) return null;
   const faixa = STROOP_TEMPOS.find(function (f) { return idade >= f.de && idade <= f.ate; });
-  return faixa ? Math.round(faixa.cartelas[cartela]) : null;
+  return faixa ? faixa.cartelas[cartela].toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
 }
 
 /* Fluência fonêmica (F-A-S): mediana por idade e tempo de escolaridade (anos de estudo). */
@@ -816,13 +816,15 @@ const DEFINICOES = [
         ],
         /* Cada teste tem uma linha de comentário embaixo (na impressão, abaixo do nome). */
         comentarios: true,
+        /* O Teste dos Sinos vem da Atenção seletiva, mas pode ser alterado aqui. */
+        puxadoEditavel: true,
         /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão.
            indice: guarda o número de antes nos campos salvos (Procurar Símbolos era o 6º e
            Labirintos o 5º), para a troca de ordem não misturar os escores. */
         linhas: [
           { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento", negrito: "Teste de interpretação de Provérbios:" },
           { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora", negrito: "Teste dos Cinco Pontos:" },
-          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado; pode ser alterado aqui. */
+          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado (editável aqui). */
           { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
           /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */
@@ -1053,7 +1055,7 @@ const DEFINICOES = [
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Teste Digit Span", rotuloImpressao: "Teste *Digit Span*" },
+          { rotulo: "Teste dos Dígitos" },
           { rotulo: "Ordem Direta (Memória imediata)" },
           { rotulo: "Ordem Inversa (Memória Operacional)" }
         ]
@@ -1094,7 +1096,8 @@ const DEFINICOES = [
         incapaz: { coluna: 1, texto: "Incapaz de realizar" },
         colunas: [
           { rotulo: "Erros", tipo: "numero" },
-          { rotulo: "Tempo (segundos)", tipo: "numero", tempo: true },
+          /* larga: cabe o "Incapaz de realizar" no campo. */
+          { rotulo: "Tempo (segundos)", tipo: "numero", tempo: true, larga: true },
           /* Calculado pela idade do paciente e pelo tempo (veja percentilTrilhas). */
           { rotulo: "Percentil", tipo: "calculo" }
         ],
@@ -1198,7 +1201,7 @@ const DEFINICOES = [
     titulo: "Bateria Wechsler",
     /* Na impressão sai na mesma folha de Praxias, abaixo do texto dela. */
     impressao: { juntarCom: "praxias" },
-    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8 e o 8.1, Dígitos, são o Digit Span).",
+    descricao: "Subtestes da escala Wechsler, numerados de 1 a 8 (o 8 e o 8.1, Dígitos, vêm do Teste dos Dígitos).",
     blocos: [
       {
         tipo: "tabela",
@@ -1206,6 +1209,8 @@ const DEFINICOES = [
         colunaRotulo: "Subteste",
         /* Na impressão, os resultados sempre em letra 12. */
         valores12: true,
+        /* Os Dígitos (8 e 8.1) vêm da Memória, mas podem ser alterados aqui. */
+        puxadoEditavel: true,
         colunas: [
           { rotulo: "Escore", tipo: "texto" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
@@ -1218,7 +1223,7 @@ const DEFINICOES = [
           { rotulo: "5 - Cubos" },
           { rotulo: "6 - Códigos" },
           { rotulo: "7 - Procurar Símbolos" },
-          /* Os escores dos Dígitos vêm da Memória verbal e visual (Digit Span). */
+          /* Os escores dos Dígitos vêm da Memória verbal e visual (Teste dos Dígitos). */
           { rotulo: "8 - Dígitos (Ordem direta)", puxar: { 0: ["memoria", "digit-span", "2", 0] } },
           { rotulo: "8.1 - Dígitos (Ordem inversa)", puxar: { 0: ["memoria", "digit-span", "3", 0] } }
         ]
@@ -1280,13 +1285,14 @@ const DEFINICOES = [
            na tela, não sai): a Média fica no meio, entre o Tempo e os Erros. */
         larguraValores: 25,
         larguraRotulo: 56,
+        /* Na tela, Tempo, Média e Erros bem estreitos (poucos dígitos), para a classificação caber em telas menores. */
         colunas: [
-          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true },
+          { rotulo: "Tempo do paciente", tipo: "texto", tempo: true, mini: true },
           /* Calculada pela idade do paciente (veja referenciaStroop). Só na tela, para a
              profissional se basear: não sai na impressão. */
           { rotulo: "Referência", tipo: "calculo", tempo: true, informativa: true, soTela: true },
-          { rotulo: "Média", tipo: "texto", tempo: true },
-          { rotulo: "Erros", tipo: "numero" },
+          { rotulo: "Média", tipo: "texto", tempo: true, mini: true },
+          { rotulo: "Erros", tipo: "numero", mini: true },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
@@ -1298,7 +1304,7 @@ const DEFINICOES = [
       {
         tipo: "nota",
         soTela: true,
-        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada. A referência fica só na tela: não sai na impressão."
+        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), como na tabela. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada. A referência fica só na tela: não sai na impressão."
       }
     ]
   },

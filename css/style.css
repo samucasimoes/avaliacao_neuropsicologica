@@ -2066,9 +2066,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .tabela-rotulo-largo col.col-rotulo { width: 44%; }
 .tabela-grade col.col-valor { width: 128px; }
 .tabela-grade col.col-estreita { width: 84px; }
+.tabela-grade col.col-mini { width: 72px; }
 .tabela-grade col.col-calc { width: 104px; }
 .tabela-grade col.col-classe { width: 244px; }
 .tabela-grade col.col-incapaz { width: 180px; }
+.tabela-grade col.col-larga { width: 180px; }
 .tabela-grade col.col-faixa { width: 160px; }
 
 .tabela-grade tbody th {
@@ -2084,6 +2086,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .tabela-grade .input-tabela {
   max-width: 112px;
+}
+
+/* Coluna larga (ex.: Tempo do Teste das Trilhas): cabe o "Incapaz de realizar". */
+.tabela-grade td.larga .input-tabela {
+  max-width: 164px;
 }
 
 /* Linha de comentário embaixo de cada teste (ex.: testes complementares do Stroop):
@@ -2120,6 +2127,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 td.estreita .input-tabela {
   width: 76px;
   min-width: 76px;
+}
+
+/* Campos de poucos dígitos (ex.: Tempo, Média e Erros do Stroop). */
+td.mini .input-tabela {
+  width: 56px;
+  min-width: 56px;
 }
 
 /* "Incapaz de realizar" (Teste das Trilhas): caixa na última coluna da linha. */

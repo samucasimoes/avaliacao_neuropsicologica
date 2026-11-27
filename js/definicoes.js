@@ -814,13 +814,15 @@ const DEFINICOES = [
         ],
         /* Cada teste tem uma linha de comentário embaixo (na impressão, abaixo do nome). */
         comentarios: true,
+        /* O Teste dos Sinos vem da Atenção seletiva, mas pode ser alterado aqui. */
+        puxadoEditavel: true,
         /* negrito: começo do rótulo em negrito (o nome do teste), na tela e na impressão.
            indice: guarda o número de antes nos campos salvos (Procurar Símbolos era o 6º e
            Labirintos o 5º), para a troca de ordem não misturar os escores. */
         linhas: [
           { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento", negrito: "Teste de interpretação de Provérbios:" },
           { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora", negrito: "Teste dos Cinco Pontos:" },
-          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
+          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado (editável aqui). */
           { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
           /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */

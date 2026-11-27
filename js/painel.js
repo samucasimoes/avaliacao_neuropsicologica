@@ -8,7 +8,7 @@
   const TITULOS = {
     inicio: ["Início", "Resumo das avaliações em andamento"],
     pendentes: ["Avaliações Pendentes", "Avaliações em andamento, para continuar ou excluir"],
-    concluidas: ["Avaliações Concluídas", "Avaliações com todas as etapas preenchidas"],
+    concluidas: ["Avaliações Concluídas", "Avaliações concluídas ou com todas as etapas preenchidas"],
     ajuda: ["Ajuda", "Como usar o sistema"],
     admin: ["Administração", "Acessos ao sistema: criar, redefinir senha, desativar e excluir"]
   };
@@ -469,8 +469,9 @@
   }
 
   /* ---------- Imprimir: todas ou só as páginas escolhidas ----------
-     Usado no Imprimir das Avaliações Concluídas. O Imprimir Avaliação do formulário imprime
-     tudo direto, como o Ctrl+P. */
+     Usado no Imprimir das Avaliações Concluídas. O Concluir e Imprimir Avaliação do formulário
+     conclui a avaliação e imprime tudo direto, como o Ctrl+P. Em "Escolher as páginas" a
+     lista começa toda desmarcada. */
 
   const modalImprimir = document.getElementById("modal-imprimir");
   const listaPaginas = document.getElementById("imprimir-lista");
@@ -510,7 +511,7 @@
       const caixa = document.createElement("input");
       caixa.type = "checkbox";
       caixa.value = pagina.id;
-      caixa.checked = true;
+      caixa.checked = false;
       label.appendChild(caixa);
       label.appendChild(document.createTextNode(" " + pagina.titulo));
       return label;
@@ -522,14 +523,7 @@
 
   const botaoImprimirTopo = document.getElementById("btn-imprimir-topo");
   botaoImprimirTopo.addEventListener("click", function () {
-    try {
-      if (!window.Formulario.imprimir(window.Formulario.atual().campos)) {
-        aviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir.");
-      }
-    } catch (erro) {
-      console.error(erro);
-      aviso("Não foi possível abrir a impressão. Tente novamente.");
-    }
+    window.Formulario.concluirEImprimir();
   });
 
   modalImprimir.addEventListener("change", atualizarModalImpressao);

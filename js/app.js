@@ -156,12 +156,16 @@
     });
   }
 
-  /* Situação no nome do arquivo: Concluído só com todas as etapas 100% preenchidas. */
+  /* Marcada pelo Concluir e Imprimir Avaliação (vai junto com os campos para o banco e o .json). */
+  const campoFinalizada = document.getElementById("campo-finalizada");
+
+  /* Situação no nome do arquivo: Concluído quando a avaliação foi concluída pelo botão ou
+     tem todas as etapas 100% preenchidas. */
   function situacaoArquivo() {
-    return ordem.every(etapaCompleta) ? "Concluído" : "Pendente";
+    return campoFinalizada.checked || ordem.every(etapaCompleta) ? "Concluído" : "Pendente";
   }
 
-  /* Status no banco pela mesma regra: Concluída com todas as etapas 100% preenchidas. */
+  /* Status no banco pela mesma regra. */
   function statusCalculado() {
     return situacaoArquivo() === "Concluído" ? "concluida" : "em_andamento";
   }
@@ -550,12 +554,12 @@
     campoNome.focus({ preventScroll: true });
   });
 
-  /* O formulário não é enviado: o PDF sai pelo botão Imprimir Avaliação. */
+  /* O formulário não é enviado: o PDF sai pelo botão Concluir e Imprimir Avaliação. */
   form.addEventListener("submit", function (evento) {
     evento.preventDefault();
   });
 
-  /* ENTER não baixa o relatório: só o clique em Imprimir Avaliação gera o PDF.
+  /* ENTER não baixa o relatório: só o clique em Concluir e Imprimir Avaliação gera o PDF.
      Nos textos longos o ENTER continua quebrando a linha, e nos outros botões
      (Próxima, Anterior...) continua funcionando. */
   form.addEventListener("keydown", function (evento) {
@@ -579,7 +583,7 @@
       return;
     }
     if (!window.open(endereco, "_blank")) {
-      mostrarAviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir com Ctrl+P ou use Imprimir Avaliação.");
+      mostrarAviso("O navegador bloqueou a nova aba. Permita pop-ups para imprimir com Ctrl+P ou use Concluir e Imprimir Avaliação.");
     }
   }
 
@@ -993,9 +997,24 @@
           });
         });
     },
-    /* Avaliação aberta no formulário (Imprimir Avaliação do topo). */
-    atual: function () {
-      return { paciente: valor("nome"), campos: coletarCampos() };
+    /* Concluir e Imprimir Avaliação: conclui a avaliação aberta, grava e abre a impressão com
+       todas as páginas. Com etapas incompletas, pergunta antes. Devolve false se a pessoa
+       cancelar. */
+    concluirEImprimir: function () {
+      if (!somenteLeitura && !campoFinalizada.checked) {
+        const faltam = ordem.filter(function (id) { return !etapaCompleta(id); }).map(nomeEtapa);
+        if (faltam.length && !window.confirm(
+          "Ainda há etapas incompletas: " + faltam.join(", ") + ".\n\nConcluir a avaliação mesmo assim?")) {
+          return false;
+        }
+        campoFinalizada.checked = true;
+        alterado = true;
+        gravarRascunho();
+        gravarNoBanco();
+        mostrarAviso("Avaliação concluída.");
+      }
+      imprimirRelatorio();
+      return true;
     },
     /* Páginas que saem no relatório desta avaliação (para escolher o que imprimir). */
     paginas: function (campos) {

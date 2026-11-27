@@ -628,7 +628,7 @@
     if (provedor === "gmail") {
       return "https://mail.google.com/mail/?view=cm&fs=1&to=" + e(para) + "&su=" + e(assunto) + "&body=" + e(corpo);
     }
-    return "https://outlook.office.com/mail/deeplink/compose?to=" + e(para) + "&subject=" + e(assunto) + "&body=" + e(corpo);
+    return "https://outlook.live.com/mail/0/deeplink/compose?to=" + e(para) + "&subject=" + e(assunto) + "&body=" + e(corpo);
   }
 
   modalEmail.querySelectorAll("[data-provedor]").forEach(function (botaoEmail) {

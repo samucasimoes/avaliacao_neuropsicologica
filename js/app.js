@@ -883,6 +883,20 @@
     return comVariosCampos([{ campos: campos }], function () { return fazer(); })[0];
   }
 
+  /* Gera o PDF de outra avaliação (campos) só com as páginas escolhidas (ids; sem ids, todas). */
+  function pdfDasPaginas(campos, ids, opcoes) {
+    return comCampos(campos || {}, function () {
+      let lista = secoesDoRelatorio();
+      let semDados = false;
+      if (ids) {
+        semDados = ids.indexOf("dados") === -1;
+        lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
+      }
+      return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista,
+        Object.assign({ semDados: semDados, situacao: situacaoArquivo() }, opcoes));
+    });
+  }
+
   /* Avaliações já conferidas nesta sessão (id + data da última alteração). */
   const statusConferido = {};
 
@@ -1033,16 +1047,12 @@
     /* Abre a impressão do navegador (como o Ctrl+P), sem baixar o PDF. ids: as páginas
        escolhidas (sem ids, todas). Devolve false se o navegador bloquear a nova aba. */
     imprimir: function (campos, ids) {
-      const endereco = comCampos(campos || {}, function () {
-        let lista = secoesDoRelatorio();
-        let semDados = false;
-        if (ids) {
-          semDados = ids.indexOf("dados") === -1;
-          lista = lista.filter(function (secao) { return ids.indexOf(secao.id) !== -1; });
-        }
-        return Relatorio.gerarPdf(coletarDados(), valor("nome"), lista, { semDados: semDados, imprimir: true, situacao: situacaoArquivo() });
-      });
-      return !!window.open(endereco, "_blank");
+      return !!window.open(pdfDasPaginas(campos, ids, { imprimir: true }), "_blank");
+    },
+    /* Envio por email: o PDF (blob) e o nome do arquivo, só com as páginas escolhidas
+       (sem ids, todas). */
+    pdfArquivo: function (campos, ids) {
+      return pdfDasPaginas(campos, ids, { arquivo: true });
     },
     /* Confere o status das avaliações da lista pelos campos salvos (todas as etapas 100% =
        Concluída) e corrige no banco as que estiverem erradas. Devolve a lista corrigida. */

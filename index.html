@@ -470,7 +470,7 @@
           </section>
           <section class="painel">
             <h2 class="painel-titulo">Relatório e arquivo</h2>
-            <p><strong>Concluir e Imprimir Avaliação</strong>, no pé do menu lateral do formulário, conclui a avaliação (ela passa para <strong>Avaliações Concluídas</strong>) e abre a impressão com todas as páginas. O Ctrl+P só abre a impressão, sem concluir. Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> abre a impressão com todas as páginas ou só as escolhidas, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
+            <p><strong>Concluir e Imprimir Avaliação</strong>, no pé do menu lateral do formulário, conclui a avaliação (ela passa para <strong>Avaliações Concluídas</strong>) e abre a impressão com todas as páginas. O Ctrl+P só abre a impressão, sem concluir. Em <strong>Avaliações Concluídas</strong>, <strong>Imprimir</strong> abre a impressão com todas as páginas ou só as escolhidas, <strong>Enviar por email</strong> manda o PDF (todas as páginas ou só as escolhidas) pelo Gmail ou pelo Outlook, e <strong>Salvar PDF e arquivo</strong> baixa o PDF e o .json, que pode ser aberto depois em <strong>Carregar arquivo</strong>.</p>
           </section>
         </div>
       </section>
@@ -575,6 +575,45 @@
     </form>
   </dialog>
 
+  <dialog class="modal modal-imprimir modal-email" id="modal-email" aria-labelledby="email-titulo">
+    <form class="modal-body" method="dialog" novalidate>
+      <h3 class="modal-title" id="email-titulo">Enviar por email</h3>
+      <p class="modal-text">Avaliação de <strong id="email-nome"></strong>. Escolha as páginas que vão no PDF anexado.</p>
+      <div class="imprimir-modo" role="radiogroup" aria-label="Páginas para enviar">
+        <label class="imprimir-opcao"><input type="radio" name="email-modo" value="todas" checked> Todas as páginas</label>
+        <label class="imprimir-opcao"><input type="radio" name="email-modo" value="escolher"> Escolher as páginas</label>
+      </div>
+      <fieldset class="imprimir-paginas" id="email-paginas" disabled>
+        <legend class="sr-only">Páginas</legend>
+        <div class="imprimir-paginas-topo">
+          <button class="link" type="button" id="email-marcar">Marcar todas</button>
+          <button class="link" type="button" id="email-desmarcar">Desmarcar todas</button>
+        </div>
+        <div class="imprimir-lista" id="email-lista"></div>
+      </fieldset>
+      <div class="email-campos">
+        <label class="field">
+          <span class="label">Para</span>
+          <input class="input" type="text" id="email-para" inputmode="email" autocomplete="email" placeholder="email@exemplo.com (separe vários com vírgula)">
+        </label>
+        <label class="field">
+          <span class="label">Assunto</span>
+          <input class="input" type="text" id="email-assunto" maxlength="200">
+        </label>
+        <label class="field">
+          <span class="label">Mensagem</span>
+          <textarea class="input textarea" id="email-mensagem" maxlength="5000"></textarea>
+        </label>
+      </div>
+      <p class="email-contas" id="email-contas"></p>
+      <div class="modal-actions email-acoes">
+        <button class="btn btn-light" value="cancelar">Cancelar</button>
+        <button class="btn btn-primary" type="button" data-provedor="outlook">Enviar pelo Outlook</button>
+        <button class="btn btn-primary" type="button" data-provedor="gmail">Enviar pelo Gmail</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog class="modal" id="modal-nome" aria-labelledby="nome-titulo">
     <form class="modal-body" id="form-alterar-nome" novalidate>
       <h3 class="modal-title" id="nome-titulo">Alterar nome</h3>
@@ -656,6 +695,10 @@
   <script src="js/shulman.js"></script>
   <script src="js/relatorio.js"></script>
   <script src="js/app.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <script src="libs/msal-browser.min.js"></script>
+  <script src="js/email-config.js"></script>
+  <script src="js/email.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/painel.js"></script>
 </body>

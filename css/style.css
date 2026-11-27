@@ -927,6 +927,52 @@ body.somente-leitura .form .secao {
   overflow-y: auto;
 }
 
+/* ---------- Enviar por email (mesmo layout do Imprimir) ---------- */
+
+.modal-email .imprimir-lista {
+  max-height: 190px;
+}
+
+.modal-email .imprimir-paginas {
+  margin-bottom: 14px;
+}
+
+.email-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.email-campos .textarea {
+  height: 76px;
+}
+
+.email-contas {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.email-contas:empty {
+  display: none;
+}
+
+.email-contas .link {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.email-acoes {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .email-acoes .btn {
+    flex: 1 1 auto;
+  }
+}
+
 @media (max-width: 560px) {
   .imprimir-lista {
     grid-template-columns: minmax(0, 1fr);

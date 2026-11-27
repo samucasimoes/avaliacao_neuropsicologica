@@ -809,6 +809,8 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "complementares",
         colunaRotulo: "Teste",
+        /* O escore do Sinos vem da Atenção seletiva, mas pode ser alterado aqui. */
+        puxadoEditavel: true,
         colunas: [
           { rotulo: "Escore", tipo: "texto" }
         ],

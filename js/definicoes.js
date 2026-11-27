@@ -52,12 +52,12 @@ const STROOP_TEMPOS = [
   { de: 80, ate: 200, cartelas: [19.31, 23.91, 56.98] }
 ];
 
-/* Referência da cartela (0, 1 ou 2) para a idade, arredondada para o inteiro mais
-   próximo (ex.: 12,84 -> 13). Sem idade ou abaixo de 17 anos, não calcula. */
+/* Referência da cartela (0, 1 ou 2) para a idade, como está na tabela, com duas casas
+   (ex.: 12,84; 27,20). Sem idade ou abaixo de 17 anos, não calcula. */
 function referenciaStroop(idade, cartela) {
   if (idade === null || idade === undefined) return null;
   const faixa = STROOP_TEMPOS.find(function (f) { return idade >= f.de && idade <= f.ate; });
-  return faixa ? Math.round(faixa.cartelas[cartela]) : null;
+  return faixa ? faixa.cartelas[cartela].toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : null;
 }
 
 /* Fluência fonêmica (F-A-S): mediana por idade e tempo de escolaridade (anos de estudo). */
@@ -1302,7 +1302,7 @@ const DEFINICOES = [
       {
         tipo: "nota",
         soTela: true,
-        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), arredondado. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada. A referência fica só na tela: não sai na impressão."
+        texto: "Referência: tempo médio da Versão Victoria para a idade do paciente (1ª cartela: cores de estímulos; 2ª: palavras sem interferência; 3ª: palavras com interferência), como na tabela. Faixas: 17 a 29, 30 a 39, 40 a 49, 50 a 59, 60 a 69, 70 a 79 e 80 anos ou mais. Sem a idade do paciente, a referência não é calculada. A referência fica só na tela: não sai na impressão."
       }
     ]
   },

@@ -177,7 +177,7 @@ direita. Na impressão, o "ESCORE DO PACIENTE" fica alinhado no lado direito da 
     18. **Bateria Wechsler**, 19. **Stroop Test**: a coluna
     Referência é o tempo médio da Versão Victoria para a idade do paciente (1ª cartela =
     cores de estímulos, 2ª = palavras sem interferência, 3ª = com interferência),
-    arredondado (tabela `STROOP_TEMPOS` em `js/definicoes.js`). A referência fica só na tela,
+    como está na tabela, com duas casas (tabela `STROOP_TEMPOS` em `js/definicoes.js`). A referência fica só na tela,
     para a profissional se basear: não sai na impressão.
 20. **Interpretação dos resultados** – um campo por domínio; na impressão sai numa
     tabela (domínio e resultado).

@@ -809,6 +809,8 @@ const DEFINICOES = [
         tipo: "tabela",
         id: "complementares",
         colunaRotulo: "Teste",
+        /* O escore do Sinos vem da Atenção seletiva, mas pode ser alterado aqui. */
+        puxadoEditavel: true,
         colunas: [
           { rotulo: "Escore", tipo: "texto" }
         ],
@@ -820,7 +822,7 @@ const DEFINICOES = [
         linhas: [
           { rotulo: "Teste de interpretação de Provérbios: avalia raciocínio, abstração e julgamento", negrito: "Teste de interpretação de Provérbios:" },
           { rotulo: "Teste dos Cinco Pontos: avalia a performance visuoconstrutiva e motora", negrito: "Teste dos Cinco Pontos:" },
-          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado. */
+          /* O escore vem da Atenção seletiva (Trilhas), onde já foi digitado; pode ser alterado aqui. */
           { puxar: { 0: ["trilhas", "seletiva", "1", 0] }, rotulo: "Teste dos Sinos: avalia percepção visual, orientação espacial, atenção seletiva e sustentada, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste dos Sinos:" },
           { rotulo: "Teste do Corte de Linhas: avalia orientação espacial, disfunção do hemisfério direito com negligência à esquerda", negrito: "Teste do Corte de Linhas:" },
           /* Opcional, para as avaliações já concluídas não voltarem a pendentes. */

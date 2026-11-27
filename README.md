@@ -204,7 +204,7 @@ todo em inglês, tem 14); nos textos de `js/definicoes.js` elas ficam entre aste
 sublinhado entre dois sublinhados (`__texto__`). Tempos saem com aspas no fim (ex.: 10").
 Um valor digitado numa aba não é digitado de novo: os Dígitos da Wechsler vêm do Digit Span
 (Memória), a Trilha B da Atenção alternada vem do tempo da Forma B, e o Teste dos Sinos do
-Stroop vem da Atenção seletiva. No cabeçalho da primeira folha os rótulos ficam com a primeira
+Stroop vem da Atenção seletiva (no Sinos o valor pode ser alterado; apagando, volta o da Atenção seletiva). No cabeçalho da primeira folha os rótulos ficam com a primeira
 letra de cada palavra em maiúscula (ex.: "Paciente", "Médico Solicitante").
 Os dados do paciente podem ser digitados em minúsculo: na impressão, nome, profissão, médico
 solicitante e endereço saem com a primeira letra de cada palavra em maiúscula, e os textos

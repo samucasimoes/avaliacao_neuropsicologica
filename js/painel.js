@@ -209,7 +209,6 @@
   const ICONE_LIXEIRA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
   const ICONE_EDITAR = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16Z"/><path d="m13.5 6.5 4 4"/></svg>';
   const ICONE_OLHO = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
-  const ICONE_EMAIL = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
   const ICONE_IMPRESSORA = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>';
 
   function seloStatus(av) {
@@ -406,9 +405,6 @@
       acoes.appendChild(botao("btn-light", ICONE_IMPRESSORA, "Imprimir",
         "Imprimir todas as páginas ou só as escolhidas da avaliação de " + nome,
         function (b) { escolherImpressao(av, b); }));
-      acoes.appendChild(botao("btn-light", ICONE_EMAIL, "Enviar por email",
-        "Abrir o Gmail ou o Outlook na web e baixar o PDF da avaliação de " + nome,
-        function (b) { escolherEmail(av, b); }));
       acoes.appendChild(botao("btn-primary", ICONE_BAIXAR, "Salvar PDF e arquivo",
         "Baixar o PDF e o arquivo (.json) da avaliação de " + nome,
         function (b) {
@@ -508,7 +504,7 @@
     }
   }
 
-  /* Lista de caixas das páginas, todas desmarcadas (Imprimir e Enviar por email). */
+  /* Lista de caixas das páginas, todas desmarcadas. */
   function preencherListaPaginas(lista, paginas) {
     lista.replaceChildren.apply(lista, paginas.map(function (pagina) {
       const label = document.createElement("label");
@@ -569,121 +565,6 @@
     const pedido = pendenteImpressao;
     pendenteImpressao = null;
     if (pedido && modalImprimir.returnValue !== "confirmar") pedido.origem.focus();
-  });
-
-  /* ---------- Enviar por email (Gmail ou Outlook na web) ----------
-     Abre o email na web numa nova aba, já com destinatário, assunto e mensagem, e baixa o PDF
-     das páginas escolhidas para anexar (os links do Gmail e do Outlook não aceitam anexo). */
-
-  const modalEmail = document.getElementById("modal-email");
-  const listaEmail = document.getElementById("email-lista");
-  const campoEmailPaginas = document.getElementById("email-paginas");
-  const campoPara = document.getElementById("email-para");
-  const campoAssunto = document.getElementById("email-assunto");
-  const campoMensagem = document.getElementById("email-mensagem");
-  let pendenteEmail = null;
-
-  function modoEmail() {
-    return modalEmail.querySelector('input[name="email-modo"]:checked').value;
-  }
-
-  function paginasEmail() {
-    return Array.from(listaEmail.querySelectorAll("input:checked")).map(function (c) { return c.value; });
-  }
-
-  function atualizarModalEmail() {
-    campoEmailPaginas.disabled = modoEmail() !== "escolher";
-  }
-
-  function escolherEmail(av, origem) {
-    const paginas = paginasDaAvaliacao(av);
-    if (!paginas) return;
-    pendenteEmail = { av: av, origem: origem };
-    const nome = av.paciente || "paciente sem nome";
-    document.getElementById("email-nome").textContent = nome;
-    modalEmail.querySelector('input[value="todas"]').checked = true;
-    preencherListaPaginas(listaEmail, paginas);
-    campoAssunto.value = "Avaliação Neuropsicológica - " + (av.paciente || "Paciente");
-    campoMensagem.value = "Segue em anexo a avaliação neuropsicológica de " + nome + ".";
-    atualizarModalEmail();
-    modalEmail.returnValue = "";
-    modalEmail.showModal();
-    campoPara.focus();
-  }
-
-  function baixarPdf(arquivo) {
-    const url = URL.createObjectURL(arquivo.blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = arquivo.nome;
-    /* Dentro do modal: com o modal aberto, o resto da página fica inerte. */
-    modalEmail.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-  }
-
-  function enderecoEmail(provedor, para, assunto, corpo) {
-    const e = encodeURIComponent;
-    if (provedor === "gmail") {
-      return "https://mail.google.com/mail/?view=cm&fs=1&to=" + e(para) + "&su=" + e(assunto) + "&body=" + e(corpo);
-    }
-    return "https://outlook.live.com/mail/0/deeplink/compose?to=" + e(para) + "&subject=" + e(assunto) + "&body=" + e(corpo);
-  }
-
-  modalEmail.querySelectorAll("[data-provedor]").forEach(function (botaoEmail) {
-    botaoEmail.addEventListener("click", function () {
-      const pedido = pendenteEmail;
-      if (!pedido) return;
-      const ids = modoEmail() === "escolher" ? paginasEmail() : null;
-      if (ids && !ids.length) {
-        aviso("Marque pelo menos uma página.");
-        return;
-      }
-      const para = campoPara.value.split(/[,;\s]+/).filter(Boolean).join(",");
-      /* Abre a aba primeiro, ainda no clique (senão o navegador bloqueia), e depois baixa o PDF. */
-      window.open(enderecoEmail(botaoEmail.dataset.provedor, para, campoAssunto.value.trim(), campoMensagem.value), "_blank", "noopener");
-      try {
-        baixarPdf(window.Formulario.pdfArquivo(pedido.av.campos, ids));
-      } catch (erro) {
-        console.error(erro);
-        aviso("Não foi possível gerar o PDF. Tente novamente.");
-        return;
-      }
-      aviso("PDF baixado: arraste ele para o email para anexar.");
-    });
-  });
-
-  /* Copia a mensagem para colar onde preferir. */
-  document.getElementById("email-copiar").addEventListener("click", function () {
-    const texto = campoMensagem.value;
-    const ok = function () { aviso("Mensagem copiada."); };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(texto).then(ok, function () {
-        campoMensagem.select();
-        try { document.execCommand("copy"); ok(); } catch (e) { aviso("Não foi possível copiar."); }
-      });
-    } else {
-      campoMensagem.select();
-      try { document.execCommand("copy"); ok(); } catch (e) { aviso("Não foi possível copiar."); }
-    }
-  });
-
-  modalEmail.addEventListener("change", atualizarModalEmail);
-  /* ENTER nos campos não fecha o modal (o primeiro botão do form é o Fechar). */
-  modalEmail.addEventListener("keydown", function (evento) {
-    if (evento.key === "Enter" && evento.target.tagName === "INPUT") evento.preventDefault();
-  });
-  document.getElementById("email-marcar").addEventListener("click", function () {
-    listaEmail.querySelectorAll("input").forEach(function (c) { c.checked = true; });
-  });
-  document.getElementById("email-desmarcar").addEventListener("click", function () {
-    listaEmail.querySelectorAll("input").forEach(function (c) { c.checked = false; });
-  });
-  modalEmail.addEventListener("close", function () {
-    const pedido = pendenteEmail;
-    pendenteEmail = null;
-    if (pedido) pedido.origem.focus();
   });
 
   /* ---------- Excluir (com confirmação) ---------- */

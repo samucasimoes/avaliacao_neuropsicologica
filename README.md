@@ -100,14 +100,6 @@ profissional (usado na saudação e como responsável) fica em `profissionais`: 
 acesso ele vem do nome digitado pelo administrador (ou do e-mail) e pode ser trocado no menu do
 usuário em **Alterar nome**.
 
-## Envio por email
-
-Em **Avaliações Concluídas**, **Enviar por email** abre um modal com as páginas (todas ou só as
-escolhidas), destinatário, assunto e mensagem (tudo editável). **Outlook na Web** e **Gmail**
-abrem o email numa nova aba do navegador, na conta já logada, com esses campos preenchidos, e
-baixam o PDF na mesma hora. O PDF é anexado arrastando o arquivo baixado para o email: os links
-do Gmail e do Outlook não aceitam anexo. **Copiar** copia a mensagem. Não precisa configurar nada.
-
 ## Etapas do formulário
 
 Nenhum campo é obrigatório.

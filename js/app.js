@@ -1049,11 +1049,6 @@
     imprimir: function (campos, ids) {
       return !!window.open(pdfDasPaginas(campos, ids, { imprimir: true }), "_blank");
     },
-    /* Envio por email: o PDF (blob) e o nome do arquivo, só com as páginas escolhidas
-       (sem ids, todas). */
-    pdfArquivo: function (campos, ids) {
-      return pdfDasPaginas(campos, ids, { arquivo: true });
-    },
     /* Confere o status das avaliações da lista pelos campos salvos (todas as etapas 100% =
        Concluída) e corrige no banco as que estiverem erradas. Devolve a lista corrigida. */
     conferirStatus: function (lista) {

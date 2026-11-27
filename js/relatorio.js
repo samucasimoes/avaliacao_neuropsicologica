@@ -155,8 +155,7 @@ const Relatorio = (function () {
      (até 55%) antes da letra, para a letra ficar o maior possível. */
   const ESPACOS = [1, 0.85, 0.7, 0.55];
 
-  /* Com opcoes.arquivo, devolve { blob, nome } (envio por email).
-     Com opcoes.imprimir, devolve o endereço (blob) do PDF, que abre já com a janela
+  /* Com opcoes.imprimir, devolve o endereço (blob) do PDF, que abre já com a janela
      de impressão (usado no Ctrl+P), em vez de baixar o arquivo. */
   function gerarPdf(linhas, nomePaciente, secoes, opcoes) {
     const { jsPDF } = window.jspdf;
@@ -1086,10 +1085,6 @@ const Relatorio = (function () {
     if (opcoes && opcoes.imprimir) {
       doc.autoPrint();
       return doc.output("bloburl");
-    }
-    /* Envio por email: devolve o PDF (blob) e o nome do arquivo, sem baixar. */
-    if (opcoes && opcoes.arquivo) {
-      return { blob: doc.output("blob"), nome: arquivo };
     }
     doc.save(arquivo);
     return null;

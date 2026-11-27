@@ -1109,8 +1109,9 @@ const DEFINICOES = [
       { tipo: "subtitulo", texto: "Atenção" },
       {
         tipo: "paragrafo",
-        /* Na impressão: texto explicativo menor (letra 10). */
-        tamanho: 10,
+        /* Na impressão: texto explicativo em letra 11, que não encolhe com a folha. */
+        tamanho: 11,
+        tamanhoFixo: true,
         texto: "Avaliada através de testes que aferem a capacidade de manter-se atento de forma continuada (atenção concentrada), de atentar seletivamente para informações relevantes a despeito de estímulos distratores (atenção seletiva), de ser capaz de ora manter o foco de atenção num estímulo ora em outro (atenção alternada / flexibilidade mental). Foram avaliados todos os aspectos da atenção: sustentação, seletividade e alternância."
       },
       {
@@ -1165,6 +1166,10 @@ const DEFINICOES = [
     blocos: [
       {
         tipo: "paragrafo",
+        /* Na impressão: letra 11, que não encolhe com a folha (a folha da Praxias costuma
+           encolher para caber junto com a Bateria Wechsler). */
+        tamanho: 11,
+        tamanhoFixo: true,
         texto: "As apraxias são perturbações da atividade gestual, quer se trate de movimentos adaptados a um fim, quer de manipulação real, quer de mímica de objetos, e que não são explicadas nem por um dano motor, nem por um dano sensitivo, nem por uma alteração intelectual, e que surgem quando da lesão de certas áreas cerebrais."
       },
       {

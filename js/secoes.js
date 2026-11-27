@@ -1165,7 +1165,8 @@ const Secoes = (function () {
             tipo: b.referencia ? "referencia" : b.legenda ? "legenda" : tipoRelatorio,
             texto: b.texto,
             tamanho: b.tamanho,
-            cinza: !!b.cinza
+            cinza: !!b.cinza,
+            tamanhoFixo: !!b.tamanhoFixo
           }];
         }
       };

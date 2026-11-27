@@ -81,10 +81,10 @@ const Relatorio = (function () {
   };
 
   /* Tamanhos da letra na impressão: títulos 14, subtítulos 13 e o restante 12.
-     O subtítulo logo abaixo do título da aba (ex.: Pfeffer) tem 2 a menos que o título, em itálico. */
+     O subtítulo logo abaixo do título da aba (ex.: Pfeffer) tem 13, em itálico. */
   const TAMANHO_TITULO = 14;
   const TAMANHO_SUBTITULO = 13;
-  const TAMANHO_SUBTITULO_ABA = TAMANHO_TITULO - 4;
+  const TAMANHO_SUBTITULO_ABA = 13;
   /* Textos menores (ex.: explicação da fluência verbal, textos da Memória verbal e visual). */
   const TAMANHO_MENOR = 10;
   const TAMANHO_TEXTO = 12;
@@ -410,13 +410,13 @@ const Relatorio = (function () {
     }
 
     /* Subtítulo logo abaixo do título da aba (ex.: Questionário de Atividades Funcionais):
-       4 a menos que o título (letra 10), em itálico. */
+       letra 13, em itálico. */
     function subtituloSecao(texto) {
       doc.setFont("helvetica", "bolditalic");
       doc.setFontSize(TAMANHO_SUBTITULO_ABA);
       cor(COR.escuro);
-      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 4.6, 0);
-      y += 7.5;
+      y += textoCentralizado(quebrarLinhas(textoPdf(texto).toUpperCase(), util, 0), 6, 0);
+      y += 8;
     }
 
     /* Subtítulo dentro da folha: centralizado, em caixa alta, negrito, letra 13.
@@ -443,9 +443,12 @@ const Relatorio = (function () {
       y += menor ? 4.2 : 5 + g(2);
     }
 
-    function paragrafo(texto, estilo, rgb, tamanho) {
-      const tamanhoFonte = (tamanho || TAMANHO_TEXTO) * k;
-      const passoTexto = e((tamanho || TAMANHO_TEXTO) * 0.47);
+    /* fixo: a letra não encolhe quando a folha é refeita menor para caber (o resto da
+       folha encolhe no lugar dela). */
+    function paragrafo(texto, estilo, rgb, tamanho, fixo) {
+      const escalaTexto = fixo ? 1 : k;
+      const tamanhoFonte = (tamanho || TAMANHO_TEXTO) * escalaTexto;
+      const passoTexto = (tamanho || TAMANHO_TEXTO) * 0.47 * escalaTexto;
       if (temMarcas(texto)) {
         linhasRicas(texto, util, estilo, tamanhoFonte).forEach(function (linha) {
           garantirEspaco(passoTexto + 1);
@@ -455,6 +458,7 @@ const Relatorio = (function () {
         return;
       }
       fonte(estilo, rgb, tamanho);
+      doc.setFontSize(tamanhoFonte);
       const linhasTexto = doc.splitTextToSize(textoPdf(texto), util);
       linhasTexto.forEach(function (linhaTexto) {
         garantirEspaco(passoTexto + 1);
@@ -843,7 +847,7 @@ const Relatorio = (function () {
           break;
         case "paragrafo":
           /* tamanho: letra menor (ex.: 10); cinza: texto explicativo em cinza. */
-          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho);
+          paragrafo(bloco.texto, bloco.negrito ? "bold" : "normal", bloco.cinza ? COR.suave : COR.tinta, bloco.tamanho, bloco.tamanhoFixo);
           y += g(bloco.tamanho ? 3 : 4);
           break;
         case "nota":

@@ -75,7 +75,9 @@ const Relatorio = (function () {
     suave: [112, 112, 112],
     linha: [214, 214, 214],
     /* Linhas que dividem as questões da Escala de Katz. */
-    divisoria: [120, 120, 120]
+    divisoria: [120, 120, 120],
+    /* Comentário dos testes complementares: cinza escuro, legível. */
+    comentario: [68, 68, 68]
   };
 
   /* Tamanhos da letra na impressão: títulos 14, subtítulos 13 e o restante 12.
@@ -568,12 +570,15 @@ const Relatorio = (function () {
         });
       });
 
-      /* As colunas de valores (depois da primeira) nunca ficam mais estreitas que o próprio
-         conteúdo: um texto comprido na primeira coluna (ex.: comentário sem espaços) quebra
-         linha em vez de espremer o Escore. */
+      /* As colunas de valores (depois da coluna de texto) nunca ficam mais estreitas que o
+         próprio conteúdo: um texto comprido na coluna de texto (ex.: comentário sem espaços)
+         quebra linha em vez de espremer o Escore. A coluna de texto é a primeira, ou a
+         segunda quando a primeira é o "Nº" (Pfeffer, IQCODE, Cornell, Resumo): ela nunca
+         ganha largura mínima, senão a tabela passa da margem e corta o texto à direita. */
       const estilosColunas = Object.assign({}, bloco.estilos || {});
+      const colunaTexto = String(bloco.cabecalho[0]) === "Nº" ? 1 : 0;
       if (colunas > 1) {
-        for (let i = 1; i < colunas; i++) {
+        for (let i = colunaTexto + 1; i < colunas; i++) {
           const proprio = estilosColunas[i] || {};
           if (proprio.cellWidth) continue;
           doc.setFontSize(e(TAMANHO_TEXTO));
@@ -661,7 +666,7 @@ const Relatorio = (function () {
           });
           const topoComentario = topo + (linhasCelula.length - 1) * a + folgaComentario + aComentario;
           linhasComentario.forEach(function (linha, i) {
-            desenharLinhaRica(linha, pos.x, topoComentario + i * aComentario, "normal", tamanhoComentario, COR.suave, COR.escuro);
+            desenharLinhaRica(linha, pos.x, topoComentario + i * aComentario, "normal", tamanhoComentario, COR.comentario, COR.escuro);
           });
         }
       });
@@ -759,13 +764,13 @@ const Relatorio = (function () {
       garantirEspaco(passo() + depoisDeBloco());
       y += g(1);
       fonte("bold", COR.escuro);
-      if (bloco.alinharTitulo) {
-        /* Termina junto com a linha cinza embaixo do título (IQCODE). */
-        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), margem + util, y, { align: "right" });
-      } else {
-        /* Alinhado à direita da folha. */
-        doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + textoPdf(bloco.valor), DIREITA_VALORES, y, { align: "right" });
-      }
+      /* Termina junto com a linha cinza embaixo do título (IQCODE) ou alinhado à direita da folha. */
+      const direita = bloco.alinharTitulo ? margem + util : DIREITA_VALORES;
+      const valor = textoPdf(bloco.valor);
+      /* Escore em branco (escala não preenchida): o rótulo fica no mesmo lugar, com o
+         espaço do valor vazio. */
+      const espacoValor = valor ? 0 : doc.getTextWidth("00");
+      doc.text(textoPdf(bloco.rotulo).toUpperCase() + ": " + valor, direita - espacoValor, y, { align: "right" });
       y += depoisDeBloco() + g(2);
     }
 
@@ -795,7 +800,10 @@ const Relatorio = (function () {
       const alturaAssinaturas = pessoas.length ? e(36) : 0;
       const alturaTotal = alturaLocal + alturaAssinaturas;
       garantirEspaco(alturaTotal + e(6));
-      y = Math.max(y + e(6), limite - alturaTotal);
+      /* No fim da folha: a última linha (registro, ou o local sem assinaturas) fica a 10 mm
+         da borda de baixo, abaixo do limite das outras folhas, para usar a folha inteira. */
+      const ateUltimaLinha = pessoas.length ? alturaLocal + e(22) + e(11) : 0;
+      y = Math.max(y + e(6), altura - 10 - ateUltimaLinha);
       if (bloco.local) {
         fonte("normal");
         doc.text(textoPdf(bloco.local) + ", _______ de ________________________ de __________.", margem, y);

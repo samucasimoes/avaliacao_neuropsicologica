@@ -216,12 +216,16 @@ const DEFINICOES = [
         itens: [
           "Histórico familiar de 1° grau para DA",
           "Baixa escolaridade",
-          /* Só aparece quando o sexo nos Dados do paciente é Feminino. A chave própria
-             mantém o nome dos campos dos outros itens (avaliações já salvas). */
+          /* Sempre aparece (na tela e na impressão) e é marcado sozinho pelo sexo nos Dados
+             do paciente: Feminino = Sim, Masculino = Não. A chave própria mantém o nome dos
+             campos dos outros itens (avaliações já salvas). */
           {
             chave: "sexo-feminino",
             texto: "Sexo feminino",
-            mostrarSe: function (paciente) { return paciente.sexo === "Feminino"; }
+            sempreNaImpressao: true,
+            automatico: function (paciente) {
+              return paciente.sexo === "Feminino" ? "sim" : paciente.sexo === "Masculino" ? "nao" : "";
+            }
           },
           "Hipertensão arterial",
           "Hiperlipidemia",
@@ -323,6 +327,7 @@ const DEFINICOES = [
 
   {
     id: "katz",
+    imprimirVazia: true,
     titulo: "Escala de Katz",
     tituloImpressao: "Escala de Katz (Escala de Independência para as Atividades de Alterações de Vida Diária)",
     descricao: "Para cada área de funcionamento listada abaixo assinale a descrição que se aplica ao paciente (a palavra “ajuda” significa supervisão, orientação ou auxílio pessoal).",
@@ -438,6 +443,7 @@ const DEFINICOES = [
 
   {
     id: "pfeffer",
+    imprimirVazia: true,
     titulo: "Questionário de Atividades Funcionais (Pfeffer)",
     tituloImpressao: "Escalas, Inventários e Questionários",
     subtituloImpressao: "Questionário de Atividades Funcionais (Pfeffer)",
@@ -503,6 +509,7 @@ const DEFINICOES = [
      juntas numa folha, depois do Pfeffer. */
   {
     id: "gai",
+    imprimirVazia: true,
     titulo: "Inventário de Ansiedade Geriátrica (GAI)",
     descricao: "Digite o escore do paciente no Inventário de Ansiedade Geriátrica (0 a 20).",
     blocos: [
@@ -522,6 +529,7 @@ const DEFINICOES = [
 
   {
     id: "gds",
+    imprimirVazia: true,
     titulo: "Escala de Depressão Geriátrica (GDS)",
     tituloImpressao: "Escala de Depressão Geriátrica (GDS) *(Geriatric Depression Scale)*",
     impressao: { juntarCom: ["gai"] },
@@ -544,6 +552,7 @@ const DEFINICOES = [
 
   {
     id: "bhs",
+    imprimirVazia: true,
     titulo: "Escala de Desesperança de Beck (BHS)",
     tituloImpressao: "Escala de Desesperança de Beck (BHS) *(Beck Hopelessness Scale)*",
     impressao: { juntarCom: ["gai", "gds"] },
@@ -567,6 +576,7 @@ const DEFINICOES = [
 
   {
     id: "bdi",
+    imprimirVazia: true,
     titulo: "Inventário de Depressão de Beck (BDI)",
     tituloImpressao: "Inventário de Depressão de Beck (BDI) *(Beck Depression Inventory)*",
     impressao: { juntarCom: ["gai", "gds", "bhs"] },
@@ -590,6 +600,7 @@ const DEFINICOES = [
 
   {
     id: "iqcode",
+    imprimirVazia: true,
     titulo: "IQCODE (Informant Questionnaire on Cognitive Decline in Elderly)",
     descricao: "Peça ao informante que se lembre de como o paciente estava há 10 anos e compare com o estado atual. Se a pessoa nunca fez a tarefa, marque “Não se aplica”; se o familiar não tiver certeza, marque “Não sabe”.",
     blocos: [
@@ -751,6 +762,7 @@ const DEFINICOES = [
 
   {
     id: "iqcode-escore",
+    imprimirVazia: true,
     titulo: "IQCODE",
     tituloImpressao: "IQCODE – Questionário do Declínio *(Informant Questionnaire on Cognitive Decline in the Elderly)*",
     /* Na impressão sai no fim da folha do MoCA, bem afastado dos comentários (espacoAntes, mm),

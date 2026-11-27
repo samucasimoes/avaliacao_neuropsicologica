@@ -178,15 +178,16 @@ const Cornell = (function () {
     };
   }
 
-  /* Conteúdo para o relatório (só entra se algum item foi respondido). */
+  /* Conteúdo para o relatório: sai sempre. Sem nenhum item respondido, as respostas
+     e o escore ficam em branco. */
   function relatorio() {
     const r = resultado();
-    if (!r.respondidos) return null;
     const linhas = [];
     r.grupos.forEach(function (grupo) {
       linhas.push({ grupo: grupo.titulo });
       grupo.itens.forEach(function (item) {
-        linhas.push(item.pontos === null
+        if (!r.respondidos) linhas.push([item.numero, item.texto, "", ""]);
+        else linhas.push(item.pontos === null
           ? { celulas: [item.numero, item.texto, "Não respondido", "—"], suave: true }
           : [item.numero, item.texto, item.resposta, item.pontos]);
       });
@@ -204,7 +205,7 @@ const Cornell = (function () {
         },
         /* O escore sai no fim da folha, depois das respostas, e logo abaixo a legenda.
            A interpretação e os itens respondidos aparecem só na tela. */
-        { tipo: "escore", rotulo: "Escore do paciente", valor: String(r.total) },
+        { tipo: "escore", rotulo: "Escore do paciente", valor: r.respondidos ? String(r.total) : "" },
         {
           tipo: "tabela",
           cabecalho: ["Escore", "Interpretação"],

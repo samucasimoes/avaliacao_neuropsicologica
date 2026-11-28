@@ -59,6 +59,12 @@ const Secoes = (function () {
     return el.value.trim();
   }
 
+  /* Deixa só dígitos, vírgula e ponto; com negativos, mantém um "-" no começo. */
+  function limparNumero(texto, negativos) {
+    const sinal = negativos && /^\s*-/.test(texto) ? "-" : "";
+    return sinal + texto.replace(/[^\d.,]/g, "");
+  }
+
   function numero(texto) {
     if (texto === "" || texto === null || texto === undefined) return null;
     const n = Number(String(texto).replace(",", "."));
@@ -778,10 +784,12 @@ const Secoes = (function () {
                   input.step = "1";
                   limitarMaximo(input, linha.maximo, linha.rotulo);
                 } else {
-                  /* Só números (com vírgula ou ponto para decimais). */
+                  /* Só números (com vírgula ou ponto para decimais); com negativos,
+                     aceita também o sinal "-" no começo (ex.: -8). */
                   input.type = "text";
+                  if (b.negativos) input.inputMode = "text";
                   input.addEventListener("input", function () {
-                    const limpo = input.value.replace(/[^\d.,]/g, "");
+                    const limpo = limparNumero(input.value, b.negativos);
                     if (limpo !== input.value) input.value = limpo;
                   });
                 }

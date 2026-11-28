@@ -677,28 +677,6 @@ const DEFINICOES = [
   },
 
   {
-    id: "humor",
-    titulo: "Humor e comportamento",
-    descricao: "Escalas, inventários e questionários: os resultados vêm das próprias abas (Katz, Pfeffer, GAI, GDS, BHS, BDI, IQCODE e Cornell). As legendas saem na folha de cada escala.",
-    blocos: [
-      {
-        tipo: "resultados",
-        id: "escalas",
-        itens: [
-          { rotulo: "Escala de independência para as atividades de vida diária (Katz)", origem: "katz" },
-          { rotulo: "Questionário de atividades funcionais (Pfeffer)", origem: "pfeffer" },
-          { rotulo: "GAI (inventário de ansiedade) autorrelato", origem: "gai" },
-          { rotulo: "GDS (Yesavage escala de depressão) autorrelato", origem: "gds" },
-          { rotulo: "BHS (escala de desesperança) autorrelato", origem: "bhs" },
-          { rotulo: "BDI (inventário de depressão de Beck) autorrelato", origem: "bdi" },
-          { rotulo: "IQCODE (questionário do declínio)", origem: "iqcode-escore" },
-          { rotulo: "Cornell escala para depressão (relato familiar)", origem: "cornell" }
-        ]
-      }
-    ]
-  },
-
-  {
     id: "moca",
     titulo: "Montreal Cognitive Assessment (MoCA)",
     /* Em inglês: na impressão, em itálico e letra 12. */
@@ -940,6 +918,8 @@ const DEFINICOES = [
         id: "tabela",
         titulo: "Memória verbal",
         colunaRotulo: "Tentativa",
+        /* Aceita escore negativo (ex.: -8). */
+        negativos: true,
         /* Referência e DP (desvio padrão) ficam só na tela (soTela). */
         colunas: [
           { rotulo: "Escore", tipo: "numero" },
@@ -1049,15 +1029,17 @@ const DEFINICOES = [
       {
         tipo: "tabela",
         id: "digit-span",
+        titulo: "Teste dos Dígitos",
         colunaRotulo: "Teste",
         colunas: [
           { rotulo: "Escore obtido", tipo: "numero" },
           { rotulo: "Classificação", tipo: "classe", opcoes: CLASSE_3 }
         ],
         linhas: [
-          { rotulo: "Teste dos Dígitos" },
-          { rotulo: "Ordem Direta (Memória imediata)" },
-          { rotulo: "Ordem Inversa (Memória Operacional)" }
+          /* Chaves fixas: a antiga linha 1 ("Teste dos Dígitos") virou o título da tabela,
+             e o Wechsler puxa as linhas "2" e "3". */
+          { rotulo: "Ordem Direta (Memória imediata)", chave: "2" },
+          { rotulo: "Ordem Inversa (Memória Operacional)", chave: "3" }
         ]
       },
       {

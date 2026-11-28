@@ -254,7 +254,7 @@
 
   /* Só na tela, fora da impressão: o Relógio de Shulman e Humor e comportamento
      (os resultados de cada escala já saem na folha dela). */
-  const FORA_DA_IMPRESSAO = ["dados", "shulman", "humor"];
+  const FORA_DA_IMPRESSAO = ["dados", "shulman"];
 
   /* Etapas na ordem dos números do menu, para o relatório. */
   function secoesDoRelatorio() {
